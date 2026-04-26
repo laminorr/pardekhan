@@ -1,0 +1,23 @@
+
+.comment-form-card{background:#fff;border:1px solid rgba(0,0,0,0.07);border-radius:20px;padding:24px;position:relative;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.04)}
+.comment-form-stripe{position:absolute;top:0;right:0;left:0;height:3px;background:linear-gradient(90deg,#0d9488,#e11d48)}
+.comment-form-header{display:flex;align-items:center;gap:8px;font-size:1.05rem;font-weight:700;margin-bottom:4px;padding-top:6px}
+.comment-form-sub{font-size:0.82rem;color:#94a3b8;margin-bottom:18px}
+.comment-form-row{margin-bottom:12px}
+.comment-input{width:100%;padding:12px 14px;border-radius:12px;border:1.5px solid rgba(0,0,0,0.08);font-family:'Vazirmatn',sans-serif;font-size:0.92rem;outline:none;transition:border 0.3s;background:#fff}
+.comment-input:focus{border-color:#e11d48}
+.comment-textarea{width:100%;padding:12px 14px;border-radius:12px;border:1.5px solid rgba(0,0,0,0.08);font-family:'Vazirmatn',sans-serif;font-size:0.92rem;outline:none;resize:vertical;min-height:100px;margin-bottom:14px;transition:border 0.3s;background:#fff}
+.comment-textarea:focus{border-color:#e11d48}
+.comment-submit{display:inline-flex;align-items:center;gap:6px;padding:11px 26px;border-radius:12px;background:#e11d48;color:#fff;font-family:'Vazirmatn',sans-serif;font-size:0.92rem;font-weight:700;border:none;cursor:pointer;transition:all 0.3s;-webkit-tap-highlight-color:transparent}
+.comment-submit:hover{box-shadow:0 6px 20px rgba(225,29,72,0.25);transform:translateY(-1px)}
+.comment-submit:active{transform:scale(0.97)}
+.comment-submit:disabled{opacity:0.6;cursor:not-allowed;transform:none;box-shadow:none}
+.comments-count{font-size:0.85rem;color:#94a3b8;margin:24px 0 14px;text-align:center}
+.comments-list{display:flex;flex-direction:column;gap:10px}
+.comment-card{background:#fff;border:1px solid rgba(0,0,0,0.07);border-radius:16px;padding:16px;transition:all 0.3s}
+.comment-card:hover{box-shadow:0 4px 16px rgba(0,0,0,0.05)}
+.comment-header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.comment-avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:700;flex-shrink:0}
+.comment-name{font-size:0.9rem;font-weight:700}
+.comment-date{font-size:0.72rem;color:#94a3b8}
+.comment-body{font-size:0.9rem;color:#475569;line-height:1.85;text-align:justify}
