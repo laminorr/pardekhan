@@ -8,8 +8,17 @@
     "src": "resources/css/app.css",
     "isEntry": true
   },
+  "resources/css/filament.css": {
+    "file": "assets/filament-BrsvIt9k.css",
+    "name": "filament",
+    "names": [
+      "filament.css"
+    ],
+    "src": "resources/css/filament.css",
+    "isEntry": true
+  },
   "resources/js/app.js": {
-    "file": "assets/app-34mOoJaZ.js",
+    "file": "assets/app-BLa98ks6.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true
