@@ -1,0 +1,80 @@
+@font-face {
+    font-family: 'Vazirmatn';
+    src: url('/fonts/vazirmatn-regular.woff2') format('woff2');
+    font-weight: 400;
+}
+
+@font-face {
+    font-family: 'Vazirmatn';
+    src: url('/fonts/vazirmatn-bold.woff2') format('woff2');
+    font-weight: 700;
+}
+
+body {
+    font-family: 'Vazirmatn', sans-serif;
+}
+
+
+/* فقط layout اصلی پنل */
+.fi-main,
+.fi-body {
+    direction: rtl;
+}
+
+/* سایدبار */
+.fi-sidebar {
+    direction: rtl;
+}
+
+/* تاپ‌بار */
+.fi-topbar {
+    direction: rtl;
+}
+
+/* دکمه‌ها */
+.fi-btn {
+    direction: rtl;
+}
+
+/* فرم‌ها */
+.fi-fo-field-wrp {
+    direction: rtl;
+    text-align: right;
+}
+
+/* جدول‌ها */
+.fi-ta-table {
+    direction: rtl;
+}
+
+/* فقط فلش‌ها (نه همه svg!) */
+.fi-icon-chevron-left {
+    transform: scaleX(-1);
+}
+.fi-icon-chevron-right {
+    transform: scaleX(-1);
+}
+
+
+
+/* اصلاح کامل جدول Filament برای RTL */
+.fi-ta-table thead tr,
+.fi-ta-table tbody tr {
+    direction: rtl;
+}
+
+/* برعکس کردن ترتیب ستون‌ها */
+.fi-ta-table table {
+    direction: rtl;
+}
+
+/* سلول‌ها */
+.fi-ta-table th,
+.fi-ta-table td {
+    text-align: right;
+}
+
+/* اکشن‌ها برن سمت راست */
+.fi-ta-actions {
+    justify-content: flex-start !important;
+}

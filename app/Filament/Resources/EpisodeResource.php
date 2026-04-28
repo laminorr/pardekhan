@@ -334,7 +334,22 @@ Forms\Components\FileUpload::make('cover_image')
                     ->boolean(),
                 Tables\Columns\TextColumn::make('published_at')
                     ->label('تاریخ')
-                    ->date('Y/m/d')
+->formatStateUsing(function ($state) {
+    $date = \Morilog\Jalali\Jalalian::fromDateTime($state)->format('Y/m/d');
+
+    return strtr($date, [
+        '0' => '۰',
+        '1' => '۱',
+        '2' => '۲',
+        '3' => '۳',
+        '4' => '۴',
+        '5' => '۵',
+        '6' => '۶',
+        '7' => '۷',
+        '8' => '۸',
+        '9' => '۹',
+    ]);
+})
                     ->sortable(),
             ])
             ->defaultSort('episode_number', 'desc')

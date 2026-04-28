@@ -58,9 +58,24 @@ class CommentResource extends Resource
                     ->label('تأیید')
                     ->boolean(),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('تاریخ')
-                    ->dateTime('Y/m/d H:i')
-                    ->sortable(),
+    ->label('تاریخ')
+    ->formatStateUsing(function ($state) {
+        $date = \Morilog\Jalali\Jalalian::fromDateTime($state)->format('Y/m/d H:i');
+
+        return strtr($date, [
+            '0' => '۰',
+            '1' => '۱',
+            '2' => '۲',
+            '3' => '۳',
+            '4' => '۴',
+            '5' => '۵',
+            '6' => '۶',
+            '7' => '۷',
+            '8' => '۸',
+            '9' => '۹',
+        ]);
+    })
+    ->sortable(),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
