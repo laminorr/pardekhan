@@ -8,24 +8,117 @@
 @section('robots', $episode->is_published ? 'index, follow' : 'noindex, nofollow')
 
 @section('schema')
+@php
+    $schemaTitle = $episode->seo_title ?: 'تحلیل روان‌شناختی فیلم «'.$episode->title_fa.'» | پرده‌خوان';
+    $schemaDescription = $episode->seo_description ?: $episode->hero_lead;
+    $schemaUrl = url($episode->slug);
+    $schemaImage = $episode->og_image
+        ? asset('storage/'.$episode->og_image)
+        : ($episode->cover_image ? asset('storage/'.$episode->cover_image) : null);
+
+    $schemaAuthor = [
+        '@type' => 'Person',
+        '@id' => url('/').'#person-peyman-shirpour',
+        'name' => 'پیمان شیرپور',
+        'url' => url('/'),
+    ];
+
+    $schemaOrganization = [
+        '@type' => 'Organization',
+        '@id' => url('/').'#organization',
+        'name' => 'پرده‌خوان',
+        'url' => url('/'),
+    ];
+
+    $schemaGraph = [
+        [
+            '@type' => 'WebSite',
+            '@id' => url('/').'#website',
+            'name' => 'پرده‌خوان',
+            'url' => url('/'),
+            'inLanguage' => 'fa-IR',
+            'publisher' => [
+                '@id' => url('/').'#organization',
+            ],
+        ],
+        $schemaOrganization,
+        $schemaAuthor,
+        [
+            '@type' => 'BlogPosting',
+            '@id' => $schemaUrl.'#article',
+            'headline' => strip_tags($schemaTitle),
+            'description' => strip_tags($schemaDescription),
+            'inLanguage' => 'fa-IR',
+            'url' => $schemaUrl,
+            'mainEntityOfPage' => [
+                '@type' => 'WebPage',
+                '@id' => $schemaUrl,
+            ],
+            'author' => [
+                '@id' => url('/').'#person-peyman-shirpour',
+            ],
+            'publisher' => [
+                '@id' => url('/').'#organization',
+            ],
+            'datePublished' => $episode->published_at?->toIso8601String(),
+            'dateModified' => $episode->updated_at?->toIso8601String(),
+        ],
+        [
+            '@type' => 'PodcastEpisode',
+            '@id' => $schemaUrl.'#podcast-episode',
+            'name' => 'اپیزود '.$episode->episode_number.'، '.$episode->title_fa,
+            'description' => strip_tags($schemaDescription),
+            'url' => $schemaUrl,
+            'datePublished' => $episode->published_at?->toIso8601String(),
+            'partOfSeries' => [
+                '@type' => 'PodcastSeries',
+                'name' => 'پرده‌خوان',
+                'url' => url('/'),
+            ],
+            'author' => [
+                '@id' => url('/').'#person-peyman-shirpour',
+            ],
+        ],
+        [
+            '@type' => 'BreadcrumbList',
+            '@id' => $schemaUrl.'#breadcrumb',
+            'itemListElement' => [
+                [
+                    '@type' => 'ListItem',
+                    'position' => 1,
+                    'name' => 'خانه',
+                    'item' => url('/'),
+                ],
+                [
+                    '@type' => 'ListItem',
+                    'position' => 2,
+                    'name' => 'اپیزودها',
+                    'item' => url('/'),
+                ],
+                [
+                    '@type' => 'ListItem',
+                    'position' => 3,
+                    'name' => $episode->title_fa,
+                    'item' => $schemaUrl,
+                ],
+            ],
+        ],
+    ];
+
+    if ($schemaImage) {
+        $schemaGraph[3]['image'] = [$schemaImage];
+        $schemaGraph[4]['image'] = $schemaImage;
+        $schemaOrganization['logo'] = $schemaImage;
+    }
+
+    $schema = [
+        '@context' => 'https://schema.org',
+        '@graph' => $schemaGraph,
+    ];
+@endphp
+
 <script type="application/ld+json">
-{
-  "@@context": "https://schema.org",
-  "@@type": "PodcastEpisode",
-  "name": "اپیزود {{ $episode->episode_number }} — {{ $episode->title_fa }}",
-  "description": "{{ $episode->seo_description ?? $episode->hero_lead }}",
-  "url": "{{ url($episode->slug) }}",
-  "datePublished": "{{ $episode->published_at?->toIso8601String() }}",
-  "partOfSeries": {
-    "@@type": "PodcastSeries",
-    "name": "پرده‌خوان",
-    "url": "{{ url('/') }}"
-  },
-  "author": {
-    "@@type": "Person",
-    "name": "پیمان شیرپور"
-  }
-}
+{!! json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) !!}
 </script>
 @endsection
 
