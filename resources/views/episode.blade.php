@@ -43,29 +43,124 @@
   <div class="hero-orb a"></div>
   <div class="hero-orb b"></div>
   <div class="hero-orb c"></div>
+
   <div class="hero-inner">
     <div class="hero-grid">
       <div class="hero-text">
-        <div class="h-badge"><span class="h-dot"></span> <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg> اپیزود {{ $episode->episode_number }} — تحلیل و اجرا: <strong style="color:var(--teal);margin-right:3px">پیمان شیرپور</strong></div>
+        <div class="h-badge">
+          <span class="h-dot"></span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+          </svg>
+          اپیزود {{ $episode->episode_number }} — تحلیل و اجرا:
+          <strong style="color:var(--teal);margin-right:3px">پیمان شیرپور</strong>
+        </div>
+
         <h1>{!! $episode->hero_title_html !!}</h1>
-        <p class="h-en" style="font-family:'Playfair Display',serif;">{{ $episode->title_en }} — {{ $episode->director }}, {{ $episode->year }}</p>
+
+        <p class="h-en" style="font-family:'Playfair Display',serif;">
+          {{ $episode->title_en }} — {{ $episode->director }}, {{ $episode->year }}
+        </p>
+
         <p class="h-lead">{{ $episode->hero_lead }}</p>
-        <div class="h-btns">
-          <a href="#listen" class="btn btn-p"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> پادکست را گوش بدهید</a>
-          <a href="{{ $episode->imdb_url ?? '#' }}" target="_blank" rel="noopener" class="btn btn-imdb" style="{{ $episode->imdb_url ? '' : 'display:none' }}"><span class="imdb-mark">IMDb</span> صفحه‌ی فیلم</a>
-          <a href="#essay" class="btn btn-s"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg> شروع مطالعه</a>
+
+        <div class="hero-actions">
+          <div class="h-btns">
+            <a href="#listen" class="btn btn-p">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+              پادکست را گوش بدهید
+            </a>
+
+            <a href="{{ $episode->imdb_url ?? '#' }}" target="_blank" rel="noopener" class="btn btn-imdb" style="{{ $episode->imdb_url ? '' : 'display:none' }}">
+              <span class="imdb-mark">IMDb</span>
+              صفحه‌ی فیلم
+            </a>
+
+            <a href="#essay" class="btn btn-s">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+              شروع مطالعه
+            </a>
+          </div>
+
+          <p class="h-seo-intro">
+            این صفحه به تحلیل روان‌شناختی فیلم {{ $episode->title_en }} با تمرکز بر
+            {{ collect($episode->meta_tags ?? [])->take(4)->implode('، ') }}
+            در پادکست پرده‌خوان اختصاص دارد.
+          </p>
         </div>
       </div>
+
       <div class="h-card rv">
-        <div class="hc-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg> اطلاعات اپیزود</div>
-        <div class="hc-row"><span class="hc-label"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> مدت</span><span class="hc-val">{{ $episode->meta_duration }}</span></div>
-        <div class="hc-row"><span class="hc-label"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> رویکردها</span><span class="hc-badge g">{{ $episode->meta_approaches_count }} رویکرد</span></div>
-        <div class="hc-row"><span class="hc-label"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> ارجاعات</span><span class="hc-val">{{ $episode->meta_references_count }}</span></div>
-        <div class="hc-row"><span class="hc-label"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> نقل‌قول</span><span class="hc-val">{{ $episode->meta_quotes_count }}</span></div>
-        <div class="hc-row"><span class="hc-label"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg> سطح</span><span class="hc-badge r">{{ $episode->meta_level }}</span></div>
+        <div class="hc-title">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <line x1="3" y1="9" x2="21" y2="9"/>
+            <line x1="9" y1="21" x2="9" y2="9"/>
+          </svg>
+          اطلاعات اپیزود
+        </div>
+
+        <div class="hc-row">
+          <span class="hc-label">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 6v6l4 2"/>
+            </svg>
+            مدت
+          </span>
+          <span class="hc-val">{{ $episode->meta_duration }}</span>
+        </div>
+
+        <div class="hc-row">
+          <span class="hc-label">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            رویکردها
+          </span>
+          <span class="hc-badge g">{{ $episode->meta_approaches_count }} رویکرد</span>
+        </div>
+
+        <div class="hc-row">
+          <span class="hc-label">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+            </svg>
+            ارجاعات
+          </span>
+          <span class="hc-val">{{ $episode->meta_references_count }}</span>
+        </div>
+
+        <div class="hc-row">
+          <span class="hc-label">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            نقل‌قول
+          </span>
+          <span class="hc-val">{{ $episode->meta_quotes_count }}</span>
+        </div>
+
+        <div class="hc-row">
+          <span class="hc-label">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/>
+            </svg>
+            سطح
+          </span>
+          <span class="hc-badge r">{{ $episode->meta_level }}</span>
+        </div>
+
         <div class="hc-tags">
           @foreach($episode->meta_tags ?? [] as $tag)
-          <span class="hc-tag">{{ $tag }}</span>
+            <span class="hc-tag">{{ $tag }}</span>
           @endforeach
         </div>
       </div>
