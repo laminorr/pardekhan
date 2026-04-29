@@ -2,13 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>{{ url('/') }}</loc>
+    <lastmod>{{ now()->toDateString() }}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
+
   @foreach($episodes as $episode)
   <url>
     <loc>{{ url($episode->slug) }}</loc>
-    <lastmod>{{ $episode->updated_at->toIso8601String() }}</lastmod>
+    <lastmod>{{ $episode->updated_at->toDateString() }}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>

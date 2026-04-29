@@ -1,6 +1,13 @@
 <?php
 
-$secret = 'pardekhan_super_secret_123';
+$secretFile = __DIR__ . '/../storage/app/deploy_secret.txt';
+
+if (! file_exists($secretFile)) {
+    http_response_code(500);
+    exit('Secret file missing');
+}
+
+$secret = trim(file_get_contents($secretFile));
 
 $signature = $_SERVER['HTTP_X_HUB_SIGNATURE_256'] ?? '';
 $payload = file_get_contents('php://input');

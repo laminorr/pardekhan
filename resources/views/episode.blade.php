@@ -3,7 +3,9 @@
 @section('title', ($episode->seo_title ?? 'تحلیل فیلم «'.$episode->title_fa.'»') . ' | پیمان شیرپور — پرده‌خوان')
 @section('description', $episode->seo_description ?? $episode->hero_lead)
 @section('og_title', 'تحلیل فیلم «'.$episode->title_fa.'» | پرده‌خوان')
-@section('og_image', $episode->og_image ? asset('storage/'.$episode->og_image) : '')
+@section('og_image', $episode->og_image ? asset('storage/'.$episode->og_image) : ($episode->cover_image ? asset('storage/'.$episode->cover_image) : ''))
+@section('canonical', url($episode->slug))
+@section('robots', $episode->is_published ? 'index, follow' : 'noindex, nofollow')
 
 @section('schema')
 <script type="application/ld+json">

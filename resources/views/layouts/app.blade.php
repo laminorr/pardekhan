@@ -3,22 +3,37 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>@yield('title', 'پرده‌خوان — تحلیل روان‌شناختی فیلم')</title>
-<meta name="description" content="@yield('description', 'تحلیل روان‌شناختی فیلم‌ها با اجرا و تحلیل پیمان شیرپور')">
-<meta name="theme-color" content="#ffffff">
-<link rel="canonical" href="{{ url()->current() }}">
+@php
+    $defaultTitle = 'پرده‌خوان — تحلیل روان‌شناختی فیلم';
+    $defaultDescription = 'تحلیل روان‌شناختی فیلم‌ها با اجرا و تحلیل پیمان شیرپور';
+    $defaultImage = asset('images/og-default.jpg');
 
-<meta property="og:type" content="article">
-<meta property="og:title" content="@yield('og_title', 'پرده‌خوان')">
-<meta property="og:description" content="@yield('description')">
-<meta property="og:url" content="{{ url()->current() }}">
+    $pageTitle = trim($__env->yieldContent('title', $defaultTitle));
+    $pageDescription = trim($__env->yieldContent('description', $defaultDescription));
+    $pageCanonical = trim($__env->yieldContent('canonical', url()->current()));
+    $pageRobots = trim($__env->yieldContent('robots', 'index, follow'));
+    $pageOgTitle = trim($__env->yieldContent('og_title', $pageTitle));
+    $pageOgImage = trim($__env->yieldContent('og_image', $defaultImage)) ?: $defaultImage;
+@endphp
+
+<title>{{ $pageTitle }}</title>
+<meta name="description" content="{{ $pageDescription }}">
+<meta name="robots" content="{{ $pageRobots }}">
+<meta name="theme-color" content="#ffffff">
+<link rel="canonical" href="{{ $pageCanonical }}">
+
+<meta property="og:type" content="@yield('og_type', 'article')">
+<meta property="og:title" content="{{ $pageOgTitle }}">
+<meta property="og:description" content="{{ $pageDescription }}">
+<meta property="og:url" content="{{ $pageCanonical }}">
 <meta property="og:site_name" content="پرده‌خوان">
 <meta property="og:locale" content="fa_IR">
-<meta property="og:image" content="@yield('og_image', '')">
+<meta property="og:image" content="{{ $pageOgImage }}">
 
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="@yield('og_title', 'پرده‌خوان')">
-<meta name="twitter:description" content="@yield('description')">
+<meta name="twitter:title" content="{{ $pageOgTitle }}">
+<meta name="twitter:description" content="{{ $pageDescription }}">
+<meta name="twitter:image" content="{{ $pageOgImage }}">
 
 <link rel="alternate" type="application/rss+xml" title="پرده‌خوان" href="{{ route('feed') }}">
 
