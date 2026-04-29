@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', ($episode->seo_title ?? 'تحلیل فیلم «'.$episode->title_fa.'»') . ' | پیمان شیرپور — پرده‌خوان')
+@section('title', $episode->seo_title ?: 'تحلیل روان‌شناختی فیلم «'.$episode->title_fa.'» | پرده‌خوان')
 @section('description', $episode->seo_description ?? $episode->hero_lead)
 @section('og_title', 'تحلیل فیلم «'.$episode->title_fa.'» | پرده‌خوان')
 @section('og_image', $episode->og_image ? asset('storage/'.$episode->og_image) : ($episode->cover_image ? asset('storage/'.$episode->cover_image) : ''))
