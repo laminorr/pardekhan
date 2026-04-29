@@ -239,7 +239,7 @@
     @foreach($episode->lessons as $i => $lesson)
     <div class="lc rv {{ $i > 0 ? 'd'.$i : '' }}">
       <div class="lc-num">{{ $nums[$i] ?? ($i+1) }}</div>
-      <h4>{{ $lesson->title }}</h4>
+      <h3>{{ $lesson->title }}</h3>
       <p>{{ $lesson->description }}</p>
       <div class="lc-ex">
         <strong><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> مثال مکالمه</strong>
