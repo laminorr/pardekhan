@@ -124,6 +124,8 @@
 
 @section('nav-links')
 <div class="n-links">
+  <a href="{{ route('topics.index') }}">پرونده‌ها</a>
+  <a href="{{ route('episodes.index') }}">آرشیو</a>
   <a href="#essay">مقدمه</a>
   <a href="#themes">تحلیل</a>
   <a href="#lessons">درس‌ها</a>
@@ -156,7 +158,7 @@
           {{ $episode->title_en }} — {{ $episode->director }}, {{ $episode->year }}
         </p>
 
-        <p class="h-lead">{{ $episode->hero_lead }}</p>
+        <p class="h-lead">{!! $episode->hero_lead !!}</p>
 
         <div class="hero-actions">
           <div class="h-btns">
@@ -180,11 +182,24 @@
             </a>
           </div>
 
-          <p class="h-seo-intro">
-            این صفحه به تحلیل روان‌شناختی فیلم {{ $episode->title_en }} با تمرکز بر
-            {{ collect($episode->meta_tags ?? [])->take(4)->implode('، ') }}
-            در پادکست پرده‌خوان اختصاص دارد.
-          </p>
+<div class="h-seo-intro">
+  در این اپیزود، فیلم «{{ $episode->title_fa }}»
+  @if($episode->title_en)
+    <span dir="ltr">{{ $episode->title_en }}</span>
+  @endif
+  ساخته {{ $episode->director }} را
+  @if($episode->meta_approaches_count)
+    از {{ $episode->meta_approaches_count }} رویکرد روان‌شناختی
+  @else
+    از منظر روان‌شناختی
+  @endif
+  می‌خوانیم.
+  @if($episode->seo_description)
+    {{ $episode->seo_description }}
+  @else
+    این تحلیل، مسئله مرکزی فیلم را از دل روایت، شخصیت‌ها و روابط انسانی باز می‌کند.
+  @endif
+</div>
         </div>
       </div>
 
@@ -314,7 +329,10 @@
   <div class="bq-inner">
     <div class="bq-decor"><span></span><span></span><span></span></div>
     <span class="bq-m" style="font-family:'Playfair Display',serif;">"</span>
-    <blockquote><span class="bq-highlight">{{ $episode->big_quote_highlight }}</span><br>{{ $episode->big_quote_rest }}</blockquote>
+    <blockquote>
+  <span class="bq-highlight">{!! $episode->big_quote_highlight !!}</span><br>
+  {!! $episode->big_quote_rest !!}
+</blockquote>
     <cite>— {{ $episode->big_quote_source }}</cite>
     <div class="bq-decor" style="margin-top:24px;margin-bottom:0"><span></span><span></span><span></span></div>
   </div>
@@ -333,10 +351,10 @@
     <div class="lc rv {{ $i > 0 ? 'd'.$i : '' }}">
       <div class="lc-num">{{ $nums[$i] ?? ($i+1) }}</div>
       <h3>{{ $lesson->title }}</h3>
-      <p>{{ $lesson->description }}</p>
+      <p>{!! $lesson->description !!}</p>
       <div class="lc-ex">
         <strong><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> مثال مکالمه</strong>
-        <p>{{ $lesson->example }}</p>
+        <p>{!! $lesson->example !!}</p>
       </div>
     </div>
     @endforeach
