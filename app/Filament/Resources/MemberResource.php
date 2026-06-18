@@ -132,7 +132,7 @@ class MemberResource extends Resource
                     ->options(Layer::active()->pluck('name', 'id')),
             ])
             ->actions([
-                Tables\Actions\EditAction::make()->label('ویرایش'),
+                \Filament\Actions\EditAction::make()->label('ویرایش'),
             ]);
     }
 

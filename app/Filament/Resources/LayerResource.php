@@ -107,8 +107,8 @@ class LayerResource extends Resource
             ->defaultSort('sort_order')
             ->reorderable('sort_order')
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make()
+                \Filament\Actions\EditAction::make(),
+                \Filament\Actions\DeleteAction::make()
                     ->before(function (Layer $record) {
                         if ($record->members()->count() > 0) {
                             \Filament\Notifications\Notification::make()
