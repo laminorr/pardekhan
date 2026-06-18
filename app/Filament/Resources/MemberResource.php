@@ -5,6 +5,8 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\MemberResource\Pages;
 use App\Models\Layer;
 use App\Models\Member;
+use App\Models\QuestionnaireAnswer;
+use App\Models\QuestionnaireQuestion;
 use BackedEnum;
 use Filament\Forms;
 use Filament\Resources\Resource;
@@ -58,6 +60,30 @@ class MemberResource extends Resource
                         ->default(0),
                 ]),
             ]),
+
+            \Filament\Schemas\Components\Section::make('پاسخ‌های فرم عضویت')
+                ->description('پاسخ‌هایی که کاربر در فرم ثبت‌نام داده است')
+                ->schema(function ($record) {
+                    if (! $record) return [];
+                    
+                    $answers = QuestionnaireAnswer::with('question')
+                        ->where('member_id', $record->id)
+                        ->get();
+                    
+                    if ($answers->isEmpty()) {
+                        return [
+                            Forms\Components\Placeholder::make('no_answers')
+                                ->label('')
+                                ->content('هنوز پاسخی ثبت نشده است'),
+                        ];
+                    }
+                    
+                    return $answers->map(fn ($answer) => 
+                        Forms\Components\Placeholder::make('answer_' . $answer->id)
+                            ->label($answer->question->question ?? 'سوال')
+                            ->content($answer->answer)
+                    )->toArray();
+                }),
 
             \Filament\Schemas\Components\Section::make('یادداشت خصوصی ادمین')
                 ->description('این یادداشت فقط در پنل مدیریت قابل مشاهده است')
