@@ -19,7 +19,10 @@
     <p style="color:#666;text-align:center;font-size:0.85rem;margin-top:0.5rem;">امکانات بیشتر به زودی اضافه می‌شوند</p>
 </div>
 
-<a href="{{ route('panel.profile') }}" style="display:block;text-align:center;padding:0.85rem;background:#1a1a1a;border:1px solid #2a2a2a;color:#ddd;border-radius:12px;text-decoration:none;margin-top:1rem;">
+<a href="{{ route('panel.events.index') }}" style="display:block;text-align:center;padding:0.85rem;background:#1a1a1a;border:1px solid #2a2a2a;color:#ddd;border-radius:12px;text-decoration:none;margin-top:1rem;">
+    🎬 دورهمی‌ها
+</a>
+<a href="{{ route('panel.profile') }}" style="display:block;text-align:center;padding:0.85rem;background:#1a1a1a;border:1px solid #2a2a2a;color:#ddd;border-radius:12px;text-decoration:none;margin-top:0.75rem;">
     👤 پروفایل من
 </a>
 

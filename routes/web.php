@@ -298,6 +298,7 @@ Route::post('/subscribe', function (Request $request) {
 
 use App\Http\Controllers\Panel\AuthController;
 use App\Http\Controllers\Panel\DashboardController;
+use App\Http\Controllers\Panel\EventController;
 use App\Http\Controllers\Panel\ProfileController;
 use App\Http\Controllers\Panel\QuestionnaireController;
 use App\Http\Middleware\AuthenticateMember;
@@ -324,6 +325,9 @@ Route::prefix('panel')->name('panel.')->middleware([AuthenticateMember::class])-
     Route::post('/questionnaire', [QuestionnaireController::class, 'submit']);
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
     Route::post('/profile', [ProfileController::class, 'update']);
+    Route::get('/events', [EventController::class, 'index'])->name('events.index');
+    Route::get('/events/{event}', [EventController::class, 'show'])->name('events.show');
+    Route::post('/events/{event}/waitlist', [EventController::class, 'joinWaitlist'])->name('events.waitlist');
 });
 
 /*
