@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'پنل پرده‌خوان')</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: Tahoma, sans-serif; background: #0f0f0f; color: #e5e5e5; min-height: 100vh; direction: rtl; }
+        body { font-family: 'Vazirmatn', Tahoma, sans-serif; background: #0f0f0f; color: #e5e5e5; min-height: 100vh; direction: rtl; }
         .panel-container { max-width: 480px; margin: 0 auto; padding: 2rem 1rem; }
         .panel-logo { text-align: center; margin-bottom: 2rem; }
         .panel-logo h1 { font-size: 1.8rem; color: #f59e0b; }
