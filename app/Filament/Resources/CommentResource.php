@@ -19,6 +19,12 @@ class CommentResource extends Resource
     protected static ?string $modelLabel = 'نظر';
     protected static ?string $pluralModelLabel = 'نظرات';
 
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->isSuperAdmin() ?? false;
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([

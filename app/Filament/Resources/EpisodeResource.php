@@ -20,6 +20,12 @@ class EpisodeResource extends Resource
     protected static ?string $modelLabel = 'اپیزود';
     protected static ?string $pluralModelLabel = 'اپیزودها';
 
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->isSuperAdmin() ?? false;
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([

@@ -21,6 +21,12 @@ class QuestionnaireQuestionResource extends Resource
     protected static string|\UnitEnum|null $navigationGroup = 'باشگاه اعضا';
     protected static ?int $navigationSort = 3;
 
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->isSuperAdmin() ?? false;
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([

@@ -18,6 +18,12 @@ class ContactResource extends Resource
     protected static ?string $modelLabel = 'مخاطب';
     protected static ?string $pluralModelLabel = 'مخاطبین';
 
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->isSuperAdmin() ?? false;
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([]);

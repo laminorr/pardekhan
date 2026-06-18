@@ -37,6 +37,12 @@ class TopicResource extends Resource
         return 'پرونده‌های موضوعی';
     }
 
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->isSuperAdmin() ?? false;
+    }
+
     public static function form(Schema $schema): Schema
     {
         return TopicForm::configure($schema);

@@ -26,6 +26,13 @@ class MemberResource extends Resource
     protected static string|\UnitEnum|null $navigationGroup = 'باشگاه اعضا';
     protected static ?int $navigationSort = 1;
 
+
+    public static function canViewAny(): bool
+    {
+        $user = auth()->user();
+        return $user?->isSuperAdmin() || $user?->isEventManager();
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
