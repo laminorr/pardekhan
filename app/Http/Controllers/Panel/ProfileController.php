@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Panel;
 
 use App\Http\Controllers\Controller;
-use App\Models\ScoreSetting;
 use App\Services\ScoreService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -37,26 +36,24 @@ class ProfileController extends Controller
 
         // آپلود عکس
         if ($request->hasFile('avatar')) {
-            // حذف عکس قبلی
             if ($member->avatar) {
                 Storage::disk('public')->delete($member->avatar);
             }
             $path = $request->file('avatar')->store('avatars', 'public');
             $data['avatar'] = $path;
-            $data['avatar_approved'] = false; // نیاز به تایید مجدد
+            $data['avatar_approved'] = false;
         }
 
-        // بررسی تکمیل پروفایل و امتیاز یک‌باره
-        $wasIncomplete = ! $member->profile_completed;
-        $isNowComplete = $member->city && $member->job && ($data['city'] ?? $member->city) && ($data['job'] ?? $member->job);
-
+        // ذخیره اطلاعات
         $member->update($data);
+        $member->refresh();
 
-        // امتیاز تکمیل پروفایل (فقط یک بار)
-        if ($wasIncomplete && $isNowComplete) {
+        // بررسی تکمیل پروفایل بعد از ذخیره
+        // شرط: شهر و شغل پر باشند و قبلاً امتیاز نگرفته باشد
+        if (! $member->profile_completed && filled($member->city) && filled($member->job)) {
             $member->update(['profile_completed' => true]);
             app(ScoreService::class)->addByKey($member, 'profile_complete');
-            return back()->with('success', 'پروفایل شما تکمیل شد و امتیاز دریافت کردید!');
+            return back()->with('success', 'پروفایل شما تکمیل شد و امتیاز دریافت کردید! 🎉');
         }
 
         return back()->with('success', 'پروفایل با موفقیت به‌روزرسانی شد');
