@@ -24,7 +24,7 @@ class MemberResource extends Resource
     protected static ?string $navigationLabel = 'اعضا';
     protected static ?string $modelLabel = 'عضو';
     protected static ?string $pluralModelLabel = 'اعضا';
-    protected static string $navigationGroup = 'باشگاه اعضا';
+    protected static string|\UnitEnum|null $navigationGroup = 'باشگاه اعضا';
     protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
