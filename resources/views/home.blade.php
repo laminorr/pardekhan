@@ -92,10 +92,37 @@
 <footer class="home-footer">
   <div class="home-footer-inner">
     <span class="home-footer-text">پرده‌خوان — پیمان شیرپور</span>
-    <div class="home-footer-socials">
-      <a href="#"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
-      <a href="#"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9"/></svg></a>
-      <a href="#"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19.1c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.43z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48"/></svg></a>
+
+    <div class="home-footer-tools">
+      <div class="home-footer-socials">
+        <a href="#" aria-label="YouTube">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19.1c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.43z"/>
+            <polygon points="9.75 15.02 15.5 11.75 9.75 8.48"/>
+          </svg>
+        </a>
+
+        <a href="#" aria-label="Telegram">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="22" y1="2" x2="11" y2="13"/>
+            <polygon points="22 2 15 22 11 13 2 9"/>
+          </svg>
+        </a>
+
+        <a href="#" aria-label="Instagram">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="2" width="20" height="20" rx="5"/>
+            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+          </svg>
+        </a>
+      </div>
+
+      <div class="home-enamad">
+        <a referrerpolicy="origin" target="_blank" href="https://trustseal.enamad.ir/?id=6174007&Code=zSYYrQjm5BS7fX0QrdURANvznKm6tCCP">
+          <img referrerpolicy="origin" src="https://trustseal.enamad.ir/logo.aspx?id=6174007&Code=zSYYrQjm5BS7fX0QrdURANvznKm6tCCP" alt="نماد اعتماد الکترونیکی" style="cursor:pointer" code="zSYYrQjm5BS7fX0QrdURANvznKm6tCCP">
+        </a>
+      </div>
     </div>
   </div>
 </footer>

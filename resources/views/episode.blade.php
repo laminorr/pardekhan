@@ -316,7 +316,7 @@
       <div class="acc-body"><div class="acc-body-inner">
         <p>{!! $theme->paragraph !!}</p>
         <div class="acc-quote">{{ $theme->quote }}</div>
-        <div class="acc-ref"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg><div>{{ $theme->reference_fa }}<span class="ref-en">{{ $theme->reference_en }}</span></div></div>
+        <div class="acc-ref"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg><div>{!! $theme->reference_fa !!}<span class="ref-en">{{ $theme->reference_en }}</span></div></div>
         <div class="acc-simple"><div class="acc-simple-label"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg> به زبان ساده</div><p>{{ $theme->simple_explanation }}</p></div>
       </div></div>
     </div>
