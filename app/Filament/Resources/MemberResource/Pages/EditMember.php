@@ -104,6 +104,18 @@ class EditMember extends EditRecord
                     $this->refreshFormData(['score', 'layer_id']);
                 }),
 
+            // تایید عکس پروفایل
+            Action::make('approve_avatar')
+                ->label('تایید عکس')
+                ->color('success')
+                ->icon('heroicon-o-photo')
+                ->visible(fn () => $this->record->avatar && ! $this->record->avatar_approved)
+                ->action(function () {
+                    $this->record->update(['avatar_approved' => true]);
+                    Notification::make()->success()->title('عکس تایید شد')->send();
+                    $this->refreshFormData(['avatar_approved']);
+                }),
+
             DeleteAction::make()->label('حذف کامل'),
         ];
     }

@@ -62,6 +62,17 @@ class MemberResource extends Resource
                 ]),
             ]),
 
+            \Filament\Schemas\Components\Section::make('عکس پروفایل')
+                ->visible(fn ($record) => $record && $record->avatar)
+                ->schema([
+                    Forms\Components\Placeholder::make('avatar_status')
+                        ->label('وضعیت')
+                        ->content(fn ($record) => $record->avatar_approved ? '✅ تایید شده' : '⏳ در انتظار تایید'),
+                    \Filament\Forms\Components\ViewField::make('avatar_preview')
+                        ->label('')
+                        ->view('filament.member-avatar'),
+                ]),
+
             \Filament\Schemas\Components\Section::make('پاسخ‌های فرم عضویت')
                 ->description('پاسخ‌هایی که کاربر در فرم ثبت‌نام داده است')
                 ->schema(function ($record) {

@@ -298,6 +298,7 @@ Route::post('/subscribe', function (Request $request) {
 
 use App\Http\Controllers\Panel\AuthController;
 use App\Http\Controllers\Panel\DashboardController;
+use App\Http\Controllers\Panel\ProfileController;
 use App\Http\Controllers\Panel\QuestionnaireController;
 use App\Http\Middleware\AuthenticateMember;
 use App\Http\Middleware\RedirectIfMemberAuthenticated;
@@ -321,6 +322,8 @@ Route::prefix('panel')->name('panel.')->middleware([AuthenticateMember::class])-
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/questionnaire', [QuestionnaireController::class, 'show'])->name('questionnaire');
     Route::post('/questionnaire', [QuestionnaireController::class, 'submit']);
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
+    Route::post('/profile', [ProfileController::class, 'update']);
 });
 
 /*
