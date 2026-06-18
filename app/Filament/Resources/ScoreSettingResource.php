@@ -10,6 +10,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\Str;
 
 class ScoreSettingResource extends Resource
 {
@@ -28,11 +29,20 @@ class ScoreSettingResource extends Resource
                 \Filament\Schemas\Components\Grid::make(2)->schema([
                     Forms\Components\TextInput::make('label')
                         ->label('نام رفتار')
-                        ->required(),
-                    Forms\Components\TextInput::make('key')
-                        ->label('کلید (تغییر ندهید)')
                         ->required()
-                        ->disabled(),
+                        ->live(onBlur: true)
+                        ->afterStateUpdated(function ($state, $set, $context) {
+                            // فقط موقع ساخت، key رو خودکار بساز
+                            if ($context === 'create') {
+                                $set('key', 'custom_' . Str::random(8));
+                            }
+                        }),
+                    Forms\Components\TextInput::make('key')
+                        ->label('کلید سیستمی')
+                        ->required()
+                        ->unique(ignoreRecord: true)
+                        ->helperText('کلید رفتارهای خودکار را تغییر ندهید')
+                        ->disabled(fn ($context) => $context === 'edit'),
                 ]),
                 \Filament\Schemas\Components\Grid::make(2)->schema([
                     Forms\Components\TextInput::make('points')
@@ -45,7 +55,8 @@ class ScoreSettingResource extends Resource
                             'auto'   => 'خودکار',
                             'manual' => 'دستی توسط ادمین',
                         ])
-                        ->disabled(),
+                        ->default('manual')
+                        ->required(),
                 ]),
             ]),
         ]);
@@ -69,7 +80,9 @@ class ScoreSettingResource extends Resource
                     ->colors(['success' => 'auto', 'warning' => 'manual']),
             ])
             ->actions([
-                \Filament\Actions\EditAction::make()->label('ویرایش امتیاز'),
+                \Filament\Actions\EditAction::make()->label('ویرایش'),
+                \Filament\Actions\DeleteAction::make()
+                    ->visible(fn (ScoreSetting $record) => str_starts_with($record->key, 'custom_')),
             ])
             ->bulkActions([]);
     }
@@ -77,8 +90,9 @@ class ScoreSettingResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListScoreSettings::route('/'),
-            'edit'  => Pages\EditScoreSetting::route('/{record}/edit'),
+            'index'  => Pages\ListScoreSettings::route('/'),
+            'create' => Pages\CreateScoreSetting::route('/create'),
+            'edit'   => Pages\EditScoreSetting::route('/{record}/edit'),
         ];
     }
 }
