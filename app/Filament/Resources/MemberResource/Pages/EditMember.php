@@ -4,6 +4,7 @@ namespace App\Filament\Resources\MemberResource\Pages;
 
 use App\Filament\Resources\MemberResource;
 use App\Models\Layer;
+use App\Services\ScoreService;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Notifications\Notification;
@@ -16,12 +17,12 @@ class EditMember extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            // دکمه تایید
+            // تایید عضو
             Action::make('approve')
                 ->label('تایید عضو')
                 ->color('success')
                 ->icon('heroicon-o-check-circle')
-                ->visible(fn () => ! in_array($this->record->status, ['approved']))
+                ->visible(fn () => $this->record->status !== 'approved')
                 ->requiresConfirmation()
                 ->modalHeading('تایید عضو')
                 ->modalDescription('آیا از تایید این عضو مطمئن هستید؟')
@@ -32,25 +33,21 @@ class EditMember extends EditRecord
                         'status'   => 'approved',
                         'layer_id' => $layer?->id,
                     ]);
-                    Notification::make()
-                        ->success()
-                        ->title('عضو با موفقیت تایید شد')
-                        ->send();
+                    Notification::make()->success()->title('عضو با موفقیت تایید شد')->send();
                     $this->refreshFormData(['status', 'layer_id']);
                 }),
 
-            // دکمه نیاز به اطلاعات بیشتر
+            // درخواست اطلاعات بیشتر
             Action::make('needs_info')
                 ->label('درخواست اطلاعات بیشتر')
                 ->color('warning')
                 ->icon('heroicon-o-chat-bubble-left-ellipsis')
-                ->visible(fn () => in_array($this->record->status, ['pending_review']))
+                ->visible(fn () => $this->record->status === 'pending_review')
                 ->form([
                     \Filament\Forms\Components\Textarea::make('message')
                         ->label('سوال یا توضیح برای کاربر')
                         ->required()
-                        ->rows(4)
-                        ->placeholder('سوال خود را بنویسید...'),
+                        ->rows(4),
                 ])
                 ->action(function (array $data) {
                     $this->record->update(['status' => 'needs_more_info']);
@@ -59,30 +56,52 @@ class EditMember extends EditRecord
                         'subject' => 'نیاز به اطلاعات بیشتر',
                         'body'    => $data['message'],
                     ]);
-                    Notification::make()
-                        ->warning()
-                        ->title('پیام برای کاربر ارسال شد')
-                        ->send();
+                    Notification::make()->warning()->title('پیام برای کاربر ارسال شد')->send();
                     $this->refreshFormData(['status']);
                 }),
 
-            // دکمه رد
+            // رد درخواست
             Action::make('reject')
                 ->label('رد درخواست')
                 ->color('danger')
                 ->icon('heroicon-o-x-circle')
-                ->visible(fn () => ! in_array($this->record->status, ['rejected']))
+                ->visible(fn () => $this->record->status !== 'rejected')
                 ->requiresConfirmation()
                 ->modalHeading('رد درخواست عضویت')
                 ->modalDescription('این عضو دیگر نمی‌تواند با همین شماره ثبت‌نام کند.')
                 ->modalSubmitActionLabel('بله، رد کن')
                 ->action(function () {
                     $this->record->update(['status' => 'rejected']);
-                    Notification::make()
-                        ->danger()
-                        ->title('درخواست رد شد')
-                        ->send();
+                    Notification::make()->danger()->title('درخواست رد شد')->send();
                     $this->refreshFormData(['status']);
+                }),
+
+            // تغییر امتیاز دستی
+            Action::make('adjust_score')
+                ->label('تغییر امتیاز')
+                ->color('info')
+                ->icon('heroicon-o-star')
+                ->form([
+                    \Filament\Forms\Components\TextInput::make('points')
+                        ->label('امتیاز (مثبت یا منفی)')
+                        ->numeric()
+                        ->required()
+                        ->helperText('مثلاً 10 برای افزایش یا -10 برای کاهش'),
+                    \Filament\Forms\Components\Textarea::make('reason')
+                        ->label('دلیل')
+                        ->required()
+                        ->rows(2),
+                ])
+                ->action(function (array $data) {
+                    app(ScoreService::class)->addManual(
+                        $this->record,
+                        (int) $data['points'],
+                        'تنظیم دستی: ' . $data['reason'],
+                        auth()->id(),
+                        $data['reason'],
+                    );
+                    Notification::make()->success()->title('امتیاز تغییر کرد')->send();
+                    $this->refreshFormData(['score', 'layer_id']);
                 }),
 
             DeleteAction::make()->label('حذف کامل'),

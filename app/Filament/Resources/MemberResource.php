@@ -7,6 +7,7 @@ use App\Models\Layer;
 use App\Models\Member;
 use App\Models\QuestionnaireAnswer;
 use App\Models\QuestionnaireQuestion;
+use App\Models\ScoreLog;
 use BackedEnum;
 use Filament\Forms;
 use Filament\Resources\Resource;
@@ -82,6 +83,21 @@ class MemberResource extends Resource
                         Forms\Components\Placeholder::make('answer_' . $answer->id)
                             ->label($answer->question->question ?? 'سوال')
                             ->content($answer->answer)
+                    )->toArray();
+                }),
+
+            \Filament\Schemas\Components\Section::make('تاریخچه امتیاز')
+                ->collapsed()
+                ->schema(function ($record) {
+                    if (! $record) return [];
+                    $logs = ScoreLog::where('member_id', $record->id)->latest()->limit(20)->get();
+                    if ($logs->isEmpty()) {
+                        return [Forms\Components\Placeholder::make('no_logs')->label('')->content('هنوز تغییری ثبت نشده')];
+                    }
+                    return $logs->map(fn ($log) =>
+                        Forms\Components\Placeholder::make('log_' . $log->id)
+                            ->label($log->created_at->format('Y/m/d H:i') . ' — ' . ($log->points >= 0 ? '+' : '') . $log->points)
+                            ->content($log->reason_label . ' (امتیاز نهایی: ' . $log->score_after . ')')
                     )->toArray();
                 }),
 
