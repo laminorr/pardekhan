@@ -5,10 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\LayerResource\Pages;
 use App\Models\Layer;
 use BackedEnum;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
+use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
@@ -27,24 +24,24 @@ class LayerResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            Section::make('اطلاعات لایه')->schema([
-                Grid::make(2)->schema([
-                    TextInput::make('name')
+            \Filament\Schemas\Components\Section::make('اطلاعات لایه')->schema([
+                \Filament\Schemas\Components\Grid::make(2)->schema([
+                    Forms\Components\TextInput::make('name')
                         ->label('نام لایه')
                         ->required()
                         ->placeholder('مثلاً: همراه پرده‌خوان'),
-                    TextInput::make('sort_order')
+                    Forms\Components\TextInput::make('sort_order')
                         ->label('ترتیب نمایش')
                         ->numeric()
                         ->default(0),
                 ]),
-                Grid::make(2)->schema([
-                    TextInput::make('min_score')
+                \Filament\Schemas\Components\Grid::make(2)->schema([
+                    Forms\Components\TextInput::make('min_score')
                         ->label('حداقل امتیاز')
                         ->numeric()
                         ->default(0)
                         ->helperText('کاربر با رسیدن به این امتیاز وارد این لایه می‌شود'),
-                    TextInput::make('discount_percent')
+                    Forms\Components\TextInput::make('discount_percent')
                         ->label('تخفیف پایه (%)')
                         ->numeric()
                         ->default(0)
@@ -52,21 +49,21 @@ class LayerResource extends Resource
                         ->maxValue(100)
                         ->helperText('این تخفیف روی همه دورهمی‌ها اعمال می‌شود مگر override شود'),
                 ]),
-                TextInput::make('early_access_hours')
+                Forms\Components\TextInput::make('early_access_hours')
                     ->label('دسترسی زودتر (ساعت)')
                     ->numeric()
                     ->default(0)
                     ->helperText('چند ساعت قبل از بقیه می‌توانند ثبت‌نام کنند'),
             ]),
 
-            Section::make('امکانات')->schema([
-                Toggle::make('has_exclusive_events')
+            \Filament\Schemas\Components\Section::make('امکانات')->schema([
+                Forms\Components\Toggle::make('has_exclusive_events')
                     ->label('دسترسی به دورهمی‌های اختصاصی')
                     ->default(false),
-                Toggle::make('has_special_invitations')
+                Forms\Components\Toggle::make('has_special_invitations')
                     ->label('امکان دریافت دعوت ویژه')
                     ->default(false),
-                Toggle::make('is_active')
+                Forms\Components\Toggle::make('is_active')
                     ->label('لایه فعال است')
                     ->default(true),
             ]),
@@ -108,16 +105,7 @@ class LayerResource extends Resource
             ->reorderable('sort_order')
             ->actions([
                 \Filament\Actions\EditAction::make(),
-                \Filament\Actions\DeleteAction::make()
-                    ->before(function (Layer $record) {
-                        if ($record->members()->count() > 0) {
-                            \Filament\Notifications\Notification::make()
-                                ->danger()
-                                ->title('این لایه دارای عضو است و قابل حذف نیست')
-                                ->send();
-                            $this->halt();
-                        }
-                    }),
+                \Filament\Actions\DeleteAction::make(),
             ])
             ->bulkActions([]);
     }

@@ -6,11 +6,7 @@ use App\Filament\Resources\MemberResource\Pages;
 use App\Models\Layer;
 use App\Models\Member;
 use BackedEnum;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
+use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
@@ -30,43 +26,43 @@ class MemberResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            Section::make('اطلاعات پایه')->schema([
-                Grid::make(2)->schema([
-                    TextInput::make('first_name')->label('نام')->required(),
-                    TextInput::make('last_name')->label('نام خانوادگی')->required(),
+            \Filament\Schemas\Components\Section::make('اطلاعات پایه')->schema([
+                \Filament\Schemas\Components\Grid::make(2)->schema([
+                    Forms\Components\TextInput::make('first_name')->label('نام')->required(),
+                    Forms\Components\TextInput::make('last_name')->label('نام خانوادگی')->required(),
                 ]),
-                Grid::make(2)->schema([
-                    TextInput::make('phone')->label('شماره موبایل')->required(),
-                    Select::make('status')
+                \Filament\Schemas\Components\Grid::make(2)->schema([
+                    Forms\Components\TextInput::make('phone')->label('شماره موبایل')->required(),
+                    Forms\Components\Select::make('status')
                         ->label('وضعیت')
                         ->options([
-                            'otp_pending'          => 'در انتظار تایید OTP',
-                            'questionnaire_pending' => 'در انتظار تکمیل فرم',
-                            'pending_review'        => 'در انتظار بررسی',
-                            'needs_more_info'       => 'نیاز به اطلاعات بیشتر',
-                            'approved'              => 'تایید شده',
-                            'rejected'              => 'رد شده',
-                            'suspended'             => 'تعلیق شده',
+                            'otp_pending'           => 'در انتظار تایید OTP',
+                            'questionnaire_pending'  => 'در انتظار تکمیل فرم',
+                            'pending_review'         => 'در انتظار بررسی',
+                            'needs_more_info'        => 'نیاز به اطلاعات بیشتر',
+                            'approved'               => 'تایید شده',
+                            'rejected'               => 'رد شده',
+                            'suspended'              => 'تعلیق شده',
                         ])
                         ->required(),
                 ]),
-                Grid::make(2)->schema([
-                    Select::make('layer_id')
+                \Filament\Schemas\Components\Grid::make(2)->schema([
+                    Forms\Components\Select::make('layer_id')
                         ->label('لایه عضویت')
                         ->options(Layer::active()->pluck('name', 'id'))
                         ->nullable()
                         ->placeholder('بدون لایه'),
-                    TextInput::make('score')
+                    Forms\Components\TextInput::make('score')
                         ->label('امتیاز')
                         ->numeric()
                         ->default(0),
                 ]),
             ]),
 
-            Section::make('یادداشت خصوصی ادمین')
+            \Filament\Schemas\Components\Section::make('یادداشت خصوصی ادمین')
                 ->description('این یادداشت فقط در پنل مدیریت قابل مشاهده است')
                 ->schema([
-                    Textarea::make('admin_note')
+                    Forms\Components\Textarea::make('admin_note')
                         ->label('')
                         ->rows(3)
                         ->placeholder('یادداشت خصوصی...'),
@@ -78,32 +74,35 @@ class MemberResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('full_name')
-                    ->label('نام و نام خانوادگی')
-                    ->getStateUsing(fn ($record) => $record->first_name . ' ' . $record->last_name)
-                    ->searchable(['first_name', 'last_name'])
+                Tables\Columns\TextColumn::make('first_name')
+                    ->label('نام')
+                    ->searchable()
                     ->weight('bold'),
+                Tables\Columns\TextColumn::make('last_name')
+                    ->label('نام خانوادگی')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('phone')
                     ->label('موبایل')
                     ->searchable()
                     ->copyable(),
-                Tables\Columns\BadgeColumn::make('status')
+                Tables\Columns\TextColumn::make('status')
                     ->label('وضعیت')
-                    ->colors([
-                        'warning' => fn ($state) => in_array($state, ['otp_pending', 'questionnaire_pending', 'pending_review']),
-                        'info'    => 'needs_more_info',
-                        'success' => 'approved',
-                        'danger'  => fn ($state) => in_array($state, ['rejected', 'suspended']),
-                    ])
+                    ->badge()
+                    ->color(fn ($state) => match ($state) {
+                        'approved'               => 'success',
+                        'rejected', 'suspended'  => 'danger',
+                        'needs_more_info'        => 'info',
+                        default                  => 'warning',
+                    })
                     ->formatStateUsing(fn ($state) => match ($state) {
-                        'otp_pending'           => 'در انتظار OTP',
-                        'questionnaire_pending'  => 'در انتظار فرم',
-                        'pending_review'         => 'در انتظار بررسی',
-                        'needs_more_info'        => 'نیاز به اطلاعات',
-                        'approved'               => 'تایید شده',
-                        'rejected'               => 'رد شده',
-                        'suspended'              => 'تعلیق شده',
-                        default                  => $state,
+                        'otp_pending'            => 'در انتظار OTP',
+                        'questionnaire_pending'   => 'در انتظار فرم',
+                        'pending_review'          => 'در انتظار بررسی',
+                        'needs_more_info'         => 'نیاز به اطلاعات',
+                        'approved'                => 'تایید شده',
+                        'rejected'                => 'رد شده',
+                        'suspended'               => 'تعلیق شده',
+                        default                   => $state,
                     }),
                 Tables\Columns\TextColumn::make('layer.name')
                     ->label('لایه')
