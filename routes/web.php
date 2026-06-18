@@ -304,3 +304,38 @@ Route::get('/{episode:slug}', function (Episode $episode) {
 
     return view('episode', compact('episode'));
 })->name('episode.show');
+
+/*
+|--------------------------------------------------------------------------
+| Panel Routes - پنل مخاطب
+|--------------------------------------------------------------------------
+*/
+
+use App\Http\Controllers\Panel\AuthController;
+use App\Http\Controllers\Panel\DashboardController;
+use App\Http\Controllers\Panel\QuestionnaireController;
+use App\Http\Middleware\AuthenticateMember;
+use App\Http\Middleware\RedirectIfMemberAuthenticated;
+
+// مسیرهای بدون لاگین
+Route::prefix('panel')->name('panel.')->middleware([RedirectIfMemberAuthenticated::class])->group(function () {
+    Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+    Route::post('/register', [AuthController::class, 'register']);
+
+    Route::get('/otp', [AuthController::class, 'showOtp'])->name('otp');
+    Route::post('/otp', [AuthController::class, 'verifyOtp']);
+    Route::post('/otp/resend', [AuthController::class, 'resendOtp'])->name('otp.resend');
+
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AuthController::class, 'login']);
+});
+
+// مسیرهای با لاگین
+Route::prefix('panel')->name('panel.')->middleware([AuthenticateMember::class])->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+    Route::get('/questionnaire', [QuestionnaireController::class, 'show'])->name('questionnaire');
+    Route::post('/questionnaire', [QuestionnaireController::class, 'submit']);
+});
