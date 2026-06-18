@@ -287,28 +287,13 @@ Route::post('/subscribe', function (Request $request) {
     return response()->json(['success' => true]);
 })->name('subscribe');
 
-/*
-|--------------------------------------------------------------------------
-| Episode Page
-|--------------------------------------------------------------------------
-| این route باید آخر باشد چون wildcard است.
-*/
 
-// Episode page
-Route::get('/{episode:slug}', function (Episode $episode) {
-    if (! $episode->is_published) {
-        abort(404);
-    }
-
-    $episode->load(['themes', 'lessons']);
-
-    return view('episode', compact('episode'));
-})->name('episode.show');
 
 /*
 |--------------------------------------------------------------------------
 | Panel Routes - پنل مخاطب
 |--------------------------------------------------------------------------
+| این routes باید قبل از wildcard episode باشند
 */
 
 use App\Http\Controllers\Panel\AuthController;
@@ -333,9 +318,25 @@ Route::prefix('panel')->name('panel.')->middleware([RedirectIfMemberAuthenticate
 // مسیرهای با لاگین
 Route::prefix('panel')->name('panel.')->middleware([AuthenticateMember::class])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-
     Route::get('/questionnaire', [QuestionnaireController::class, 'show'])->name('questionnaire');
     Route::post('/questionnaire', [QuestionnaireController::class, 'submit']);
 });
+
+/*
+|--------------------------------------------------------------------------
+| Episode Page
+|--------------------------------------------------------------------------
+| این route باید آخر باشد چون wildcard است.
+*/
+
+// Episode page
+Route::get('/{episode:slug}', function (Episode $episode) {
+    if (! $episode->is_published) {
+        abort(404);
+    }
+
+    $episode->load(['themes', 'lessons']);
+
+    return view('episode', compact('episode'));
+})->name('episode.show');
