@@ -21,7 +21,7 @@ class LayerResource extends Resource
     protected static ?string $navigationLabel = 'لایه‌ها';
     protected static ?string $modelLabel = 'لایه';
     protected static ?string $pluralModelLabel = 'لایه‌ها';
-    protected static ?string $navigationGroup = 'باشگاه اعضا';
+    protected static string $navigationGroup = 'باشگاه اعضا';
     protected static ?int $navigationSort = 2;
 
     public static function form(Schema $schema): Schema
