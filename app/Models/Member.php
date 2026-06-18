@@ -38,6 +38,21 @@ class Member extends Authenticatable
         return $this->hasMany(MemberMessage::class)->latest();
     }
 
+    public function walletTransactions(): HasMany
+    {
+        return $this->hasMany(WalletTransaction::class)->latest();
+    }
+
+    public function registrations(): HasMany
+    {
+        return $this->hasMany(Registration::class);
+    }
+
+    public function hasWalletDebt(): bool
+    {
+        return $this->wallet_balance < 0;
+    }
+
     // ── Helpers ────────────────────────────────────────
     public function getFullNameAttribute(): string
     {
