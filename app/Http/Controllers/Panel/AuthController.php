@@ -25,7 +25,7 @@ class AuthController extends Controller
             'first_name' => ['required', 'string', 'max:50'],
             'last_name'  => ['required', 'string', 'max:50'],
             'phone'      => ['required', 'string', 'max:15', 'regex:/^09[0-9]{9}$/'],
-            'password'   => ['required', 'string', 'min:8', 'confirmed'],
+            'password'   => ['required', 'string', 'min:8'],
         ], [
             'first_name.required' => 'نام الزامی است',
             'last_name.required'  => 'نام خانوادگی الزامی است',
@@ -33,7 +33,6 @@ class AuthController extends Controller
             'phone.regex'         => 'شماره موبایل معتبر نیست',
             'password.required'   => 'رمز عبور الزامی است',
             'password.min'        => 'رمز عبور باید حداقل ۸ کاراکتر باشد',
-            'password.confirmed'  => 'تکرار رمز عبور مطابقت ندارد',
         ]);
 
         // چک: اگه قبلاً ثبت‌نام کرده

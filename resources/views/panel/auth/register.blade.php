@@ -31,10 +31,6 @@
             <label>رمز عبور</label>
             <input type="password" name="password" required placeholder="حداقل ۸ کاراکتر">
         </div>
-        <div class="form-group">
-            <label>تکرار رمز عبور</label>
-            <input type="password" name="password_confirmation" required placeholder="رمز عبور را تکرار کنید">
-        </div>
         <button type="submit" class="btn btn-primary">ثبت‌نام و دریافت کد تایید</button>
     </form>
 </div>
