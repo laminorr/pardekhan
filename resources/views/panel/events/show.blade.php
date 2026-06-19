@@ -108,9 +108,16 @@
 
         {{-- وضعیت / دکمه --}}
         @if($isRegistered)
-            <div style="text-align:center;padding:0.95rem;background:rgba(93,202,143,0.1);border:1px solid rgba(93,202,143,0.3);border-radius:14px;color:var(--success);font-weight:600;">
-                ✓ شما در این دورهمی ثبت‌نام کرده‌اید
-            </div>
+            @if($myRegistration && $myRegistration->payment_status === 'pending')
+                <div style="text-align:center;padding:0.95rem;background:rgba(212,175,106,0.1);border:1px solid var(--gold-border);border-radius:14px;color:var(--gold-1);font-weight:600;">
+                    ✓ ثبت‌نام شما قطعی شد
+                </div>
+                <p style="color:var(--text-dim);font-size:0.78rem;text-align:center;margin-top:0.6rem;">پرداخت شما در انتظار بررسی مدیریت است</p>
+            @else
+                <div style="text-align:center;padding:0.95rem;background:rgba(93,202,143,0.1);border:1px solid rgba(93,202,143,0.3);border-radius:14px;color:var(--success);font-weight:600;">
+                    ✓ شما در این دورهمی ثبت‌نام کرده‌اید
+                </div>
+            @endif
             @if($event->starts_at->isFuture())
             <form method="POST" action="{{ route('panel.events.cancel', $event) }}" style="margin-top:0.75rem;" onsubmit="return confirm('آیا از انصراف مطمئن هستید؟ وجه پرداختی بازگردانده نمی‌شود.');">
                 @csrf

@@ -50,6 +50,19 @@ class RegistrationResource extends Resource
                 Tables\Columns\TextColumn::make('final_price')
                     ->label('مبلغ')
                     ->formatStateUsing(fn ($state) => number_format($state) . ' ت'),
+                Tables\Columns\TextColumn::make('payment.method')
+                    ->label('روش')
+                    ->formatStateUsing(fn ($state) => match ($state) {
+                        'wallet'       => 'کیف پول',
+                        'card_to_card' => 'کارت به کارت',
+                        'gateway'      => 'درگاه',
+                        default        => $state,
+                    }),
+                Tables\Columns\TextColumn::make('payment.tracking_number')
+                    ->label('شماره پیگیری')
+                    ->placeholder('—')
+                    ->copyable()
+                    ->fontFamily('mono'),
                 Tables\Columns\TextColumn::make('payment_status')
                     ->label('وضعیت پرداخت')
                     ->badge()

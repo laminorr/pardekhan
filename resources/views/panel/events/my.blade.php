@@ -40,6 +40,9 @@
             @php [$label, $color] = $statusLabel($reg->attendance_status); @endphp
             <span style="font-size:0.72rem;color:{{ $color }};background:rgba(255,255,255,0.04);padding:3px 10px;border-radius:99px;">{{ $label }}</span>
         </div>
+        @if($reg->payment_status === 'pending')
+            <div style="font-size:0.72rem;color:var(--gold-2);margin-top:0.6rem;padding-top:0.6rem;border-top:1px solid var(--border);">⏳ پرداخت در انتظار بررسی</div>
+        @endif
     </a>
     @endif
 @endforeach

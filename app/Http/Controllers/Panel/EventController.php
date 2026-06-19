@@ -40,10 +40,11 @@ class EventController extends Controller
             ->filter(fn ($m) => $m->avatar && $m->avatar_approved)
             ->take(20);
 
-        $isRegistered = $event->registrations()
+        $myRegistration = $event->registrations()
             ->where('member_id', $member->id)
             ->whereIn('attendance_status', ['registered', 'attended'])
-            ->exists();
+            ->first();
+        $isRegistered = (bool) $myRegistration;
 
         $isWaiting = $event->waitingList()
             ->where('member_id', $member->id)
@@ -51,7 +52,7 @@ class EventController extends Controller
 
         return view('panel.events.show', compact(
             'member', 'event', 'price', 'discount',
-            'attendeeAvatars', 'isRegistered', 'isWaiting'
+            'attendeeAvatars', 'isRegistered', 'isWaiting', 'myRegistration'
         ));
     }
 
