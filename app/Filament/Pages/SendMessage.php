@@ -56,8 +56,8 @@ class SendMessage extends Page implements HasForms
                 Forms\Components\Select::make('layer_id')
                     ->label('انتخاب لایه')
                     ->options(Layer::active()->pluck('name', 'id'))
-                    ->visible(fn (Forms\Get $get) => $get('audience_type') === 'layer')
-                    ->required(fn (Forms\Get $get) => $get('audience_type') === 'layer'),
+                    ->visible(fn (\Filament\Schemas\Components\Utilities\Get $get) => $get('audience_type') === 'layer')
+                    ->required(fn (\Filament\Schemas\Components\Utilities\Get $get) => $get('audience_type') === 'layer'),
 
                 Forms\Components\Select::make('member_id')
                     ->label('انتخاب عضو')
@@ -65,8 +65,8 @@ class SendMessage extends Page implements HasForms
                         ->get()
                         ->mapWithKeys(fn ($m) => [$m->id => $m->first_name . ' ' . $m->last_name . ' (' . $m->phone . ')']))
                     ->searchable()
-                    ->visible(fn (Forms\Get $get) => $get('audience_type') === 'single')
-                    ->required(fn (Forms\Get $get) => $get('audience_type') === 'single'),
+                    ->visible(fn (\Filament\Schemas\Components\Utilities\Get $get) => $get('audience_type') === 'single')
+                    ->required(fn (\Filament\Schemas\Components\Utilities\Get $get) => $get('audience_type') === 'single'),
             ]),
 
             \Filament\Schemas\Components\Section::make('متن پیام')->schema([
