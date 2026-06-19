@@ -15,6 +15,7 @@
             --text: #ece9e4; --text-dim: #93908a; --text-faint: #5e5b55;
             --danger: #e2655a; --success: #5dca8f;
         }
+        html { background: #08080a; }
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         body {
             font-family: 'Vazirmatn', sans-serif; background: var(--bg); color: var(--text);
