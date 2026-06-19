@@ -123,4 +123,20 @@ class EventController extends Controller
         return back()->with($result['ok'] ? 'success' : 'error', $result['message']);
     }
 
+
+    public function myEvents()
+    {
+        $member = auth('member')->user();
+
+        $registrations = $member->registrations()
+            ->with('event.venue')
+            ->latest('registered_at')
+            ->get();
+
+        $upcoming = $registrations->filter(fn ($r) => $r->event && $r->event->starts_at->isFuture());
+        $past = $registrations->filter(fn ($r) => $r->event && $r->event->starts_at->isPast());
+
+        return view('panel.events.my', compact('member', 'upcoming', 'past'));
+    }
+
 }

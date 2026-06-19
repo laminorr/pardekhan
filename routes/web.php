@@ -327,6 +327,7 @@ Route::prefix('panel')->name('panel.')->middleware([AuthenticateMember::class])-
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
     Route::post('/profile', [ProfileController::class, 'update']);
     Route::get('/events', [EventController::class, 'index'])->name('events.index');
+    Route::get('/my-events', [EventController::class, 'myEvents'])->name('events.my');
     Route::get('/events/{event}', [EventController::class, 'show'])->name('events.show');
     Route::post('/events/{event}/waitlist', [EventController::class, 'joinWaitlist'])->name('events.waitlist');
     Route::get('/events/{event}/checkout', [PaymentController::class, 'checkout'])->name('payment.checkout');
