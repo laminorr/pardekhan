@@ -179,6 +179,11 @@ class EventResource extends Resource
             ])
             ->defaultSort('starts_at', 'desc')
             ->actions([
+                \Filament\Actions\Action::make('attendance')
+                    ->label('حضور و غیاب')
+                    ->icon('heroicon-o-clipboard-document-check')
+                    ->color('success')
+                    ->url(fn ($record) => static::getUrl('attendance', ['record' => $record])),
                 \Filament\Actions\EditAction::make(),
             ]);
     }
@@ -189,6 +194,7 @@ class EventResource extends Resource
             'index'  => Pages\ListEvents::route('/'),
             'create' => Pages\CreateEvent::route('/create'),
             'edit'   => Pages\EditEvent::route('/{record}/edit'),
+            'attendance' => Pages\EventAttendance::route('/{record}/attendance'),
         ];
     }
 }
