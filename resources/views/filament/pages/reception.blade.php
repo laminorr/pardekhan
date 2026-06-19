@@ -73,8 +73,16 @@
     @else
         <div style="background:#1a1a1a;border-radius:16px;padding:1.25rem;margin-bottom:1.25rem;">
             <div style="font-weight:bold;margin-bottom:1rem;text-align:center;">اسکن QR بلیت</div>
-            <div id="reader" wire:ignore style="width:100%;border-radius:12px;overflow:hidden;"></div>
-            <div id="scan-status" style="text-align:center;font-size:0.85rem;color:#888;margin-top:0.75rem;">در حال آماده‌سازی دوربین...</div>
+
+            {{-- دکمه شروع اسکن (برای آیفون لازمه) --}}
+            <button type="button" id="start-scan-btn" onclick="startScanner()"
+                style="width:100%;padding:1rem;border-radius:12px;border:none;background:#f59e0b;color:#000;font-weight:bold;cursor:pointer;font-family:inherit;font-size:0.95rem;display:flex;align-items:center;justify-content:center;gap:8px;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                شروع اسکن دوربین
+            </button>
+
+            <div id="reader" wire:ignore style="width:100%;border-radius:12px;overflow:hidden;margin-top:1rem;"></div>
+            <div id="scan-status" style="text-align:center;font-size:0.85rem;color:#888;margin-top:0.75rem;display:none;"></div>
         </div>
 
         <div style="background:#1a1a1a;border-radius:16px;padding:1.25rem;">
@@ -93,38 +101,38 @@
 @push('scripts')
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script>
-    (function() {
-        let scanner = null;
+    window.pkScanner = null;
 
-        function startScanner() {
-            const el = document.getElementById('reader');
-            const statusEl = document.getElementById('scan-status');
-            if (!el) return;
+    window.startScanner = function() {
+        const btn = document.getElementById('start-scan-btn');
+        const statusEl = document.getElementById('scan-status');
+        const readerEl = document.getElementById('reader');
+        if (!readerEl) return;
 
-            scanner = new Html5Qrcode("reader");
-            scanner.start(
-                { facingMode: "environment" },
-                { fps: 10, qrbox: { width: 220, height: 220 } },
-                (decodedText) => {
-                    if (scanner) {
-                        scanner.stop().then(() => {
-                            @this.lookup(decodedText);
-                        }).catch(() => {
-                            @this.lookup(decodedText);
-                        });
-                    }
-                },
-                () => {}
-            ).then(() => {
-                if (statusEl) statusEl.textContent = 'دوربین را روی QR بگیرید';
-            }).catch(() => {
-                if (statusEl) statusEl.textContent = 'دوربین در دسترس نیست. از ورود دستی استفاده کنید.';
-            });
-        }
+        if (btn) btn.style.display = 'none';
+        if (statusEl) { statusEl.style.display = 'block'; statusEl.textContent = 'در حال باز کردن دوربین...'; }
 
-        // شروع با کمی تاخیر تا DOM آماده شه
-        setTimeout(startScanner, 300);
-    })();
+        window.pkScanner = new Html5Qrcode("reader");
+        window.pkScanner.start(
+            { facingMode: "environment" },
+            { fps: 10, qrbox: { width: 220, height: 220 } },
+            (decodedText) => {
+                if (window.pkScanner) {
+                    window.pkScanner.stop().then(() => {
+                        @this.lookup(decodedText);
+                    }).catch(() => {
+                        @this.lookup(decodedText);
+                    });
+                }
+            },
+            () => {}
+        ).then(() => {
+            if (statusEl) statusEl.textContent = 'دوربین را روی QR بگیرید';
+        }).catch((err) => {
+            if (statusEl) statusEl.textContent = 'دسترسی به دوربین ممکن نشد. از ورود دستی استفاده کنید.';
+            if (btn) btn.style.display = 'flex';
+        });
+    };
 </script>
 @endpush
 @endif
