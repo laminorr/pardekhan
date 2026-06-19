@@ -9,6 +9,13 @@
     <div class="page-title" style="font-size:1.2rem;">جزئیات دورهمی</div>
 </div>
 
+@if (session('success'))
+    <div class="alert alert-success">{{ session('success') }}</div>
+@endif
+@if (session('error'))
+    <div class="alert alert-danger">{{ session('error') }}</div>
+@endif
+
 <div class="card" style="padding:0;overflow:hidden;">
     @if($event->image)
         <div style="height:200px;position:relative;">
@@ -104,6 +111,13 @@
             <div style="text-align:center;padding:0.95rem;background:rgba(93,202,143,0.1);border:1px solid rgba(93,202,143,0.3);border-radius:14px;color:var(--success);font-weight:600;">
                 ✓ شما در این دورهمی ثبت‌نام کرده‌اید
             </div>
+            @if($event->starts_at->isFuture())
+            <form method="POST" action="{{ route('panel.events.cancel', $event) }}" style="margin-top:0.75rem;" onsubmit="return confirm('آیا از انصراف مطمئن هستید؟ وجه پرداختی بازگردانده نمی‌شود.');">
+                @csrf
+                <button type="submit" class="btn btn-ghost" style="color:var(--danger);">انصراف از دورهمی</button>
+            </form>
+            <p style="color:var(--text-faint);font-size:0.72rem;text-align:center;margin-top:0.5rem;">انصراف با اطلاع، امتیاز مثبت دارد</p>
+            @endif
         @elseif($isWaiting)
             <div style="text-align:center;padding:0.95rem;background:var(--surface-2);border:1px solid var(--border);border-radius:14px;color:var(--text-dim);">
                 شما در لیست انتظار این دورهمی هستید
@@ -119,11 +133,10 @@
                 ثبت‌نام این دورهمی بسته شده است
             </div>
         @else
-            <a href="#" class="btn btn-gold">
+            <a href="{{ route('panel.payment.checkout', $event) }}" class="btn btn-gold">
                 ثبت‌نام در این دورهمی
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
             </a>
-            <p style="color:var(--text-faint);font-size:0.75rem;text-align:center;margin-top:0.6rem;">پرداخت در مرحله بعد فعال می‌شود</p>
         @endif
     </div>
 </div>

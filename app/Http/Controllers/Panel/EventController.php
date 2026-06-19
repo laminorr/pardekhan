@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Panel;
 
 use App\Http\Controllers\Controller;
 use App\Models\Event;
+use App\Services\RegistrationService;
 
 class EventController extends Controller
 {
@@ -111,6 +112,15 @@ class EventController extends Controller
         ]);
 
         return back()->with('success', 'در لیست انتظار ثبت شدید');
+    }
+
+
+    public function cancel(Event $event)
+    {
+        $member = auth('member')->user();
+        $result = app(RegistrationService::class)->cancelByUser($member, $event);
+
+        return back()->with($result['ok'] ? 'success' : 'error', $result['message']);
     }
 
 }

@@ -299,6 +299,7 @@ Route::post('/subscribe', function (Request $request) {
 use App\Http\Controllers\Panel\AuthController;
 use App\Http\Controllers\Panel\DashboardController;
 use App\Http\Controllers\Panel\EventController;
+use App\Http\Controllers\Panel\PaymentController;
 use App\Http\Controllers\Panel\ProfileController;
 use App\Http\Controllers\Panel\QuestionnaireController;
 use App\Http\Middleware\AuthenticateMember;
@@ -328,6 +329,10 @@ Route::prefix('panel')->name('panel.')->middleware([AuthenticateMember::class])-
     Route::get('/events', [EventController::class, 'index'])->name('events.index');
     Route::get('/events/{event}', [EventController::class, 'show'])->name('events.show');
     Route::post('/events/{event}/waitlist', [EventController::class, 'joinWaitlist'])->name('events.waitlist');
+    Route::get('/events/{event}/checkout', [PaymentController::class, 'checkout'])->name('payment.checkout');
+    Route::post('/events/{event}/pay/wallet', [PaymentController::class, 'payWithWallet'])->name('payment.wallet');
+    Route::post('/events/{event}/pay/card', [PaymentController::class, 'payWithCardToCard'])->name('payment.card');
+    Route::post('/events/{event}/cancel', [EventController::class, 'cancel'])->name('events.cancel');
 });
 
 /*
