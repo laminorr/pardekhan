@@ -60,6 +60,9 @@ class RegistrationService
             // کسر از کیف پول
             $this->wallet->pay($member, $price, "پرداخت دورهمی: {$event->title}", $event);
 
+            // صدور بلیت (پرداخت کیف پول قطعیه)
+            app(TicketService::class)->issue($registration);
+
             // به‌روزرسانی وضعیت ظرفیت
             $this->updateEventCapacityStatus($event);
 
@@ -101,6 +104,9 @@ class RegistrationService
             ]);
 
             $registration->update(['payment_id' => $payment->id]);
+
+            // صدور بلیت (ثبت‌نام بر اساس اعتماد قطعیه)
+            app(TicketService::class)->issue($registration);
 
             $this->updateEventCapacityStatus($event);
 

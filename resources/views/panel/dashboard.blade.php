@@ -80,12 +80,12 @@
         <div style="font-size:0.98rem;font-weight:700;color:#fff;">دورهمی‌ها</div>
         <div style="font-size:0.72rem;color:var(--text-dim);margin-top:3px;">مشاهده و ثبت‌نام</div>
     </a>
-    <a href="{{ route('panel.events.my') }}" class="card" style="margin-bottom:0;padding:1.15rem;text-decoration:none;color:inherit;">
+    <a href="{{ route('panel.tickets.index') }}" class="card" style="margin-bottom:0;padding:1.15rem;text-decoration:none;color:inherit;">
         <div style="width:46px;height:46px;border-radius:14px;background:rgba(212,175,106,0.09);border:1px solid var(--gold-border);display:flex;align-items:center;justify-content:center;color:var(--gold-1);margin-bottom:0.85rem;">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9a2 2 0 0 0 0 6v2a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-2a2 2 0 0 1 0-6V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"/><path d="M13 5v14" stroke-dasharray="2 2"/></svg>
         </div>
-        <div style="font-size:0.98rem;font-weight:700;color:#fff;">دورهمی‌های من</div>
-        <div style="font-size:0.72rem;color:var(--text-dim);margin-top:3px;">ثبت‌نام‌های من</div>
+        <div style="font-size:0.98rem;font-weight:700;color:#fff;">بلیت‌های من</div>
+        <div style="font-size:0.72rem;color:var(--text-dim);margin-top:3px;">مشاهده بلیت‌ها</div>
     </a>
     <a href="#" class="card" style="margin-bottom:0;padding:1.15rem;text-decoration:none;color:inherit;">
         <div style="width:46px;height:46px;border-radius:14px;background:rgba(212,175,106,0.09);border:1px solid var(--gold-border);display:flex;align-items:center;justify-content:center;color:var(--gold-1);margin-bottom:0.85rem;">

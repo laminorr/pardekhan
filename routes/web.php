@@ -300,6 +300,7 @@ use App\Http\Controllers\Panel\AuthController;
 use App\Http\Controllers\Panel\DashboardController;
 use App\Http\Controllers\Panel\EventController;
 use App\Http\Controllers\Panel\PaymentController;
+use App\Http\Controllers\Panel\TicketController;
 use App\Http\Controllers\Panel\ProfileController;
 use App\Http\Controllers\Panel\QuestionnaireController;
 use App\Http\Middleware\AuthenticateMember;
@@ -328,6 +329,8 @@ Route::prefix('panel')->name('panel.')->middleware([AuthenticateMember::class])-
     Route::post('/profile', [ProfileController::class, 'update']);
     Route::get('/events', [EventController::class, 'index'])->name('events.index');
     Route::get('/my-events', [EventController::class, 'myEvents'])->name('events.my');
+    Route::get('/tickets', [TicketController::class, 'index'])->name('tickets.index');
+    Route::get('/tickets/{ticket}', [TicketController::class, 'show'])->name('tickets.show');
     Route::get('/events/{event}', [EventController::class, 'show'])->name('events.show');
     Route::post('/events/{event}/waitlist', [EventController::class, 'joinWaitlist'])->name('events.waitlist');
     Route::get('/events/{event}/checkout', [PaymentController::class, 'checkout'])->name('payment.checkout');
