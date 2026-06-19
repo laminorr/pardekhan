@@ -24,7 +24,7 @@ class TicketController extends Controller
         $member = auth('member')->user();
 
         if ((int) $ticket->member_id !== (int) $member->id) {
-            abort(403, 'این بلیت متعلق به شما نیست. کاربر فعلی: ' . $member->id . ' | مالک بلیت: ' . $ticket->member_id);
+            abort(403);
         }
 
         $ticket->load('event.venue', 'member');
