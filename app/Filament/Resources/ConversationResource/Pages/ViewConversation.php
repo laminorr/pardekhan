@@ -14,19 +14,25 @@ class ViewConversation extends Page
     protected static string $resource = ConversationResource::class;
     protected string $view = 'filament.resources.conversation-resource.pages.view-conversation';
 
-    public Conversation $record;
+    public int $recordId;
     public ?string $replyBody = '';
 
-    public function mount($record): void
+    public function mount(int|string $record): void
     {
-        $this->record = Conversation::with('member', 'messages')->findOrFail($record);
-        // علامت‌گذاری خوانده‌شده توسط ادمین
-        app(MessagingService::class)->markReadByAdmin($this->record);
+        $this->recordId = (int) $record;
+        $conversation = Conversation::findOrFail($this->recordId);
+        app(MessagingService::class)->markReadByAdmin($conversation);
+    }
+
+    public function getRecordProperty(): Conversation
+    {
+        return Conversation::with('member', 'messages.admin')->findOrFail($this->recordId);
     }
 
     public function getTitle(): string|Htmlable
     {
-        return 'گفتگو با ' . $this->record->member->first_name . ' ' . $this->record->member->last_name;
+        $m = $this->record->member;
+        return 'گفتگو با ' . $m->first_name . ' ' . $m->last_name;
     }
 
     public function sendReply(): void
@@ -37,17 +43,15 @@ class ViewConversation extends Page
         app(MessagingService::class)->reply($this->record, 'admin', $body, auth()->id());
 
         $this->replyBody = '';
-        $this->record->refresh();
-        $this->record->load('messages');
 
         Notification::make()->success()->title('پاسخ ارسال شد')->send();
     }
 
     public function toggleStatus(): void
     {
-        $this->record->update([
-            'status' => $this->record->status === 'open' ? 'closed' : 'open',
+        $conv = $this->record;
+        $conv->update([
+            'status' => $conv->status === 'open' ? 'closed' : 'open',
         ]);
-        $this->record->refresh();
     }
 }
