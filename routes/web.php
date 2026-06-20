@@ -289,6 +289,18 @@ Route::post('/subscribe', function (Request $request) {
 
 
 
+
+/*
+|--------------------------------------------------------------------------
+| Admin Report Routes (CSV)
+|--------------------------------------------------------------------------
+*/
+Route::prefix('admin/reports')->name('admin.reports.')->middleware(['web', 'auth'])->group(function () {
+    Route::get('/members', [\App\Http\Controllers\Admin\ReportController::class, 'members'])->name('members');
+    Route::get('/financial', [\App\Http\Controllers\Admin\ReportController::class, 'financial'])->name('financial');
+    Route::get('/event/{event}', [\App\Http\Controllers\Admin\ReportController::class, 'eventRegistrations'])->name('event');
+});
+
 /*
 |--------------------------------------------------------------------------
 | Panel Routes - پنل مخاطب
