@@ -29,4 +29,9 @@ class Registration extends Model
     {
         return $this->hasOne(Ticket::class);
     }
+
+    public function payment(): BelongsTo
+    {
+        return $this->belongsTo(Payment::class);
+    }
 }
