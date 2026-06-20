@@ -69,20 +69,20 @@ class ReportController extends Controller
             'registrations-' . $event->id . '-' . now()->format('Y-m-d') . '.csv',
             ['نام', 'موبایل', 'مبلغ', 'روش پرداخت', 'وضعیت پرداخت', 'وضعیت حضور', 'شماره پیگیری', 'تاریخ ثبت‌نام'],
             function ($out) use ($event) {
-                $event->registrations()->with('member', 'payment')->chunk(100, function ($regs) use ($out) {
-                    foreach ($regs as $r) {
-                        fputcsv($out, [
-                            $r->member->first_name . ' ' . $r->member->last_name,
-                            $r->member->phone,
-                            $r->final_price,
-                            $r->payment?->method === 'wallet' ? 'کیف پول' : ($r->payment?->method === 'card_to_card' ? 'کارت به کارت' : '-'),
-                            $this->paymentStatusLabel($r->payment_status),
-                            $this->attendanceLabel($r->attendance_status),
-                            $r->payment?->tracking_number ?? '-',
-                            $r->registered_at?->format('Y-m-d H:i') ?? '-',
-                        ]);
-                    }
-                });
+                $regs = $event->registrations()->with('member', 'payment')->get();
+                foreach ($regs as $r) {
+                    if (! $r->member) continue;
+                    fputcsv($out, [
+                        $r->member->first_name . ' ' . $r->member->last_name,
+                        $r->member->phone,
+                        $r->final_price,
+                        $r->payment?->method === 'wallet' ? 'کیف پول' : ($r->payment?->method === 'card_to_card' ? 'کارت به کارت' : '-'),
+                        $this->paymentStatusLabel($r->payment_status),
+                        $this->attendanceLabel($r->attendance_status),
+                        $r->payment?->tracking_number ?? '-',
+                        $r->registered_at ? $r->registered_at->format('Y-m-d H:i') : '-',
+                    ]);
+                }
             }
         );
     }
