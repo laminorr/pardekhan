@@ -200,8 +200,17 @@ class AuthController extends Controller
             'otp_locked_until'=> null,
         ]);
 
-        // TODO: در فاز ۶ پیامک واقعی اضافه می‌شود
-        // فعلاً در لاگ ذخیره می‌شود
-        \Illuminate\Support\Facades\Log::info("OTP for {$member->phone}: {$code}");
+        // ارسال پیامک کد تایید
+        $patternCode = \App\Models\Setting::get('sms_pattern_otp', '');
+        if ($patternCode) {
+            app(\App\Services\SmsService::class)->sendPattern(
+                $patternCode,
+                $member->phone,
+                ['code' => $code]
+            );
+        } else {
+            // اگه پترن تنظیم نشده، لاگ کن
+            \Illuminate\Support\Facades\Log::info("OTP for {$member->phone}: {$code}");
+        }
     }
 }
