@@ -39,6 +39,9 @@ class SmsSettings extends Page implements HasForms
             'sms_pattern_otp'     => Setting::get('sms_pattern_otp'),
             'sms_pattern_event'   => Setting::get('sms_pattern_event'),
             'sms_pattern_general' => Setting::get('sms_pattern_general'),
+            'sms_pattern_waitlist' => Setting::get('sms_pattern_waitlist'),
+            'sms_pattern_reminder' => Setting::get('sms_pattern_reminder'),
+            'sms_pattern_feedback' => Setting::get('sms_pattern_feedback'),
         ]);
     }
 
@@ -75,7 +78,19 @@ class SmsSettings extends Page implements HasForms
                     Forms\Components\TextInput::make('sms_pattern_general')
                         ->label('پترن پیام عمومی')
                         ->placeholder('کد پترن')
-                        ->helperText('برای اطلاع‌رسانی پیام جدید'),
+                        ->helperText('وقتی ادمین به اعضا پیام می‌دهد · متغیر: name'),
+                    Forms\Components\TextInput::make('sms_pattern_waitlist')
+                        ->label('پترن اطلاع لیست انتظار')
+                        ->placeholder('کد پترن')
+                        ->helperText('وقتی ظرفیت دورهمی باز می‌شود · متغیر: name, event'),
+                    Forms\Components\TextInput::make('sms_pattern_reminder')
+                        ->label('پترن یادآوری دورهمی')
+                        ->placeholder('کد پترن')
+                        ->helperText('۲۴ ساعت قبل از دورهمی · متغیر: name, event'),
+                    Forms\Components\TextInput::make('sms_pattern_feedback')
+                        ->label('پترن درخواست بازخورد')
+                        ->placeholder('کد پترن')
+                        ->helperText('بعد از پایان دورهمی · متغیر: name, event'),
                 ]),
         ])->statePath('data');
     }
@@ -90,6 +105,9 @@ class SmsSettings extends Page implements HasForms
         Setting::set('sms_pattern_otp', $data['sms_pattern_otp'] ?? '');
         Setting::set('sms_pattern_event', $data['sms_pattern_event'] ?? '');
         Setting::set('sms_pattern_general', $data['sms_pattern_general'] ?? '');
+        Setting::set('sms_pattern_waitlist', $data['sms_pattern_waitlist'] ?? '');
+        Setting::set('sms_pattern_reminder', $data['sms_pattern_reminder'] ?? '');
+        Setting::set('sms_pattern_feedback', $data['sms_pattern_feedback'] ?? '');
 
         Notification::make()->success()->title('تنظیمات پیامک ذخیره شد')->send();
     }

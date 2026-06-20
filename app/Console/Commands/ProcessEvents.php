@@ -22,6 +22,18 @@ class ProcessEvents extends Command
         // ۲. علامت‌زدن دورهمی‌های تمام‌شده
         $this->completeEvents($now);
 
+        // ۳. یادآوری دورهمی (۲۴ ساعت قبل)
+        $this->sendReminders($now);
+
+        // ۴. درخواست بازخورد (بعد از دورهمی)
+        $this->requestFeedback($now);
+
+        // ۵. پردازش صف پیامک (دسته‌ای)
+        $sent = app(\App\Services\SmsService::class)->processBatch(50);
+        if ($sent > 0) {
+            $this->info("تعداد {$sent} پیامک ارسال شد");
+        }
+
         $this->info('پردازش تمام شد.');
         return self::SUCCESS;
     }
@@ -73,4 +85,66 @@ class ProcessEvents extends Command
             $this->line("دورهمی «{$event->title}» تمام‌شده علامت خورد ({$absentees->count()} غایب)");
         }
     }
+
+    // یادآوری دورهمی ۲۴ ساعت قبل
+    private function sendReminders($now): void
+    {
+        $pattern = \App\Models\Setting::get('sms_pattern_reminder', '');
+        if (! $pattern) return;
+
+        $events = Event::whereIn('status', ['closed', 'active', 'full'])
+            ->whereBetween('starts_at', [$now->copy()->addHours(23), $now->copy()->addHours(25)])
+            ->where('reminder_sent', false)
+            ->get();
+
+        $sms = app(\App\Services\SmsService::class);
+        foreach ($events as $event) {
+            $regs = $event->registrations()
+                ->where('attendance_status', 'registered')
+                ->with('member')
+                ->get();
+
+            foreach ($regs as $reg) {
+                $sms->queue($reg->member->phone, $pattern, [
+                    'name'  => $reg->member->first_name,
+                    'event' => $event->title,
+                ], 'reminder');
+            }
+
+            $event->update(['reminder_sent' => true]);
+            $this->line("یادآوری دورهمی «{$event->title}» به صف اضافه شد");
+        }
+    }
+
+    // درخواست بازخورد بعد از دورهمی
+    private function requestFeedback($now): void
+    {
+        $pattern = \App\Models\Setting::get('sms_pattern_feedback', '');
+        if (! $pattern) return;
+
+        $events = Event::where('status', 'completed')
+            ->where('feedback_requested', false)
+            ->where('starts_at', '<', $now)
+            ->where('starts_at', '>', $now->copy()->subHours(48))
+            ->get();
+
+        $sms = app(\App\Services\SmsService::class);
+        foreach ($events as $event) {
+            $regs = $event->registrations()
+                ->where('attendance_status', 'attended')
+                ->with('member')
+                ->get();
+
+            foreach ($regs as $reg) {
+                $sms->queue($reg->member->phone, $pattern, [
+                    'name'  => $reg->member->first_name,
+                    'event' => $event->title,
+                ], 'feedback');
+            }
+
+            $event->update(['feedback_requested' => true]);
+            $this->line("درخواست بازخورد دورهمی «{$event->title}» به صف اضافه شد");
+        }
+    }
+
 }

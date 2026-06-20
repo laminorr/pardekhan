@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Event;
+use App\Services\SmsService;
 use App\Models\Member;
 use App\Models\Payment;
 use App\Models\Registration;
@@ -179,10 +180,10 @@ class RegistrationService
         // امتیاز انصراف با اطلاع
         app(ScoreService::class)->addByKey($member, 'cancellation');
 
-        // اگه ظرفیت باز شد و رویداد full بود، active کن
+        // اگه ظرفیت باز شد و رویداد full بود، active کن + اطلاع به لیست انتظار
         if ($event->status === 'full' && $event->remainingCapacity() > 0) {
             $event->update(['status' => 'active']);
-            // TODO فاز ۶: اطلاع به لیست انتظار
+            $this->notifyWaitlist($event);
         }
 
         return ['ok' => true, 'message' => 'انصراف شما ثبت شد. وجه پرداختی بازگردانده نمی‌شود.'];
@@ -220,6 +221,32 @@ class RegistrationService
 
             return ['ok' => true, 'refunded' => $refunded, 'total' => $registrations->count()];
         });
+    }
+
+
+    /**
+     * اطلاع به اولین نفر لیست انتظار وقتی ظرفیت باز می‌شود
+     */
+    private function notifyWaitlist(Event $event): void
+    {
+        $pattern = \App\Models\Setting::get('sms_pattern_waitlist', '');
+        if (! $pattern) return;
+
+        // اولین نفر در صف انتظار
+        $next = \App\Models\WaitingList::where('event_id', $event->id)
+            ->where('notified', false)
+            ->orderBy('joined_at')
+            ->with('member')
+            ->first();
+
+        if ($next && $next->member) {
+            app(SmsService::class)->queue($next->member->phone, $pattern, [
+                'name'  => $next->member->first_name,
+                'event' => $event->title,
+            ], 'waitlist');
+
+            $next->update(['notified' => true]);
+        }
     }
 
 }

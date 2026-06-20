@@ -7,6 +7,7 @@ use App\Models\BroadcastRecipient;
 use App\Models\Conversation;
 use App\Models\ConversationMessage;
 use App\Models\Member;
+use App\Services\SmsService;
 use Illuminate\Support\Facades\DB;
 
 class MessagingService
@@ -41,12 +42,25 @@ class MessagingService
                 'all'    => Member::where('status', 'approved')->get(),
             };
 
-            // ساخت رکورد گیرنده برای هرکس
+            // ساخت رکورد گیرنده برای هرکس + صف پیامک
+            $smsPattern = \App\Models\Setting::get('sms_pattern_general', '');
+            $sms = app(SmsService::class);
+
             foreach ($members as $member) {
                 BroadcastRecipient::create([
                     'broadcast_id' => $broadcast->id,
                     'member_id'    => $member->id,
                 ]);
+
+                // پیامک اطلاع‌رسانی به صف
+                if ($smsPattern) {
+                    $sms->queue(
+                        $member->phone,
+                        $smsPattern,
+                        ['name' => $member->first_name],
+                        'general'
+                    );
+                }
             }
 
             return $broadcast;

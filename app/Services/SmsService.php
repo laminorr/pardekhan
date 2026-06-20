@@ -85,6 +85,53 @@ class SmsService
         }
     }
 
+    /**
+     * افزودن پیامک به صف (برای ارسال دسته‌ای پس‌زمینه)
+     */
+    public function queue(string $phone, string $patternCode, array $params, ?string $purpose = null): void
+    {
+        if (empty($patternCode)) {
+            return; // اگه پترن تنظیم نشده، چیزی به صف اضافه نکن
+        }
+
+        \App\Models\SmsQueue::create([
+            'phone'        => $phone,
+            'pattern_code' => $patternCode,
+            'params'       => $params,
+            'purpose'      => $purpose,
+            'status'       => 'pending',
+        ]);
+    }
+
+    /**
+     * پردازش یک دسته از صف (توسط Cron صدا زده می‌شود)
+     */
+    public function processBatch(int $limit = 50): int
+    {
+        $items = \App\Models\SmsQueue::where('status', 'pending')
+            ->where('attempts', '<', 3)
+            ->limit($limit)
+            ->get();
+
+        $sent = 0;
+        foreach ($items as $item) {
+            $ok = $this->sendPattern($item->pattern_code, $item->phone, $item->params);
+
+            if ($ok) {
+                $item->update(['status' => 'sent', 'sent_at' => now()]);
+                $sent++;
+            } else {
+                $attempts = $item->attempts + 1;
+                $item->update([
+                    'attempts' => $attempts,
+                    'status'   => $attempts >= 3 ? 'failed' : 'pending',
+                ]);
+            }
+        }
+
+        return $sent;
+    }
+
     // تبدیل 09xxx به +989xxx
     private function normalizePhone(string $phone): string
     {
