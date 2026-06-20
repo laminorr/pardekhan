@@ -1,5 +1,5 @@
 <x-filament-panels::page>
-<div style="max-width:640px;margin:0 auto;">
+<div style="width:100%;">
 
     {{-- موضوع و وضعیت --}}
     <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:1.25rem;margin-bottom:1.5rem;">
@@ -20,7 +20,7 @@
             @if($msg->sender_type === 'member')
                 {{-- مخاطب: راست، خاکستری --}}
                 <div style="display:flex;justify-content:flex-start;">
-                    <div style="max-width:78%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:16px;border-top-right-radius:4px;padding:0.85rem 1.1rem;">
+                    <div style="max-width:65%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:16px;border-top-right-radius:4px;padding:0.85rem 1.1rem;">
                         <div style="font-size:0.72rem;color:#f59e0b;margin-bottom:5px;font-weight:600;">{{ $this->convo->member->first_name }}</div>
                         <div style="line-height:1.8;color:#fff;">{{ $msg->body }}</div>
                         <div style="font-size:0.68rem;opacity:0.45;margin-top:6px;">{{ $msg->created_at->format('H:i') }}</div>
@@ -29,7 +29,7 @@
             @else
                 {{-- ادمین: چپ، سبز --}}
                 <div style="display:flex;justify-content:flex-end;">
-                    <div style="max-width:78%;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.25);border-radius:16px;border-top-left-radius:4px;padding:0.85rem 1.1rem;">
+                    <div style="max-width:65%;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.25);border-radius:16px;border-top-left-radius:4px;padding:0.85rem 1.1rem;">
                         <div style="font-size:0.72rem;color:#22c55e;margin-bottom:5px;font-weight:600;">مدیریت{{ $msg->admin ? ' · ' . $msg->admin->name : '' }}</div>
                         <div style="line-height:1.8;color:#fff;">{{ $msg->body }}</div>
                         <div style="font-size:0.68rem;opacity:0.45;margin-top:6px;">{{ $msg->created_at->format('H:i') }}</div>
