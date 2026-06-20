@@ -299,6 +299,7 @@ Route::post('/subscribe', function (Request $request) {
 use App\Http\Controllers\Panel\AuthController;
 use App\Http\Controllers\Panel\DashboardController;
 use App\Http\Controllers\Panel\EventController;
+use App\Http\Controllers\Panel\FeedbackController;
 use App\Http\Controllers\Panel\MessageController;
 use App\Http\Controllers\Panel\PaymentController;
 use App\Http\Controllers\Panel\TicketController;
@@ -330,6 +331,8 @@ Route::prefix('panel')->name('panel.')->middleware([AuthenticateMember::class])-
     Route::post('/profile', [ProfileController::class, 'update']);
     Route::get('/events', [EventController::class, 'index'])->name('events.index');
     Route::get('/my-events', [EventController::class, 'myEvents'])->name('events.my');
+    Route::get('/events/{event}/feedback', [FeedbackController::class, 'create'])->name('feedback.create');
+    Route::post('/events/{event}/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
     Route::get('/tickets', [TicketController::class, 'index'])->name('tickets.index');
     Route::get('/tickets/{ticket}', [TicketController::class, 'show'])->name('tickets.show');
 

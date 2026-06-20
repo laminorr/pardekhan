@@ -61,6 +61,10 @@
             @php [$label, $color] = $statusLabel($reg->attendance_status); @endphp
             <span style="font-size:0.72rem;color:{{ $color }};background:rgba(255,255,255,0.04);padding:3px 10px;border-radius:99px;">{{ $label }}</span>
         </div>
+        <a href="{{ route('panel.feedback.create', $reg->event) }}" style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:0.85rem;padding:0.6rem;background:rgba(212,175,106,0.08);border:1px solid var(--gold-border);border-radius:10px;color:var(--gold-1);text-decoration:none;font-size:0.82rem;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 2l2.6 6.6L21 9.2l-5 4.5 1.5 7L12 17l-5.5 3.7L8 13.7l-5-4.5 6.4-.6z"/></svg>
+            ثبت بازخورد
+        </a>
     </div>
     @endif
 @endforeach
