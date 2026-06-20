@@ -44,6 +44,9 @@ class ViewConversation extends Page
 
         $this->replyBody = '';
 
+        // پاک کردن کش computed property تا پیام جدید نمایش داده شود
+        unset($this->convo);
+
         Notification::make()->success()->title('پاسخ ارسال شد')->send();
     }
 
@@ -53,5 +56,6 @@ class ViewConversation extends Page
         $conv->update([
             'status' => $conv->status === 'open' ? 'closed' : 'open',
         ]);
+        unset($this->convo);
     }
 }
