@@ -187,4 +187,39 @@ class RegistrationService
 
         return ['ok' => true, 'message' => 'انصراف شما ثبت شد. وجه پرداختی بازگردانده نمی‌شود.'];
     }
+
+    /**
+     * لغو کامل یک دورهمی + بازگشت وجه به کیف پول همه
+     */
+    public function cancelEvent(Event $event): array
+    {
+        return DB::transaction(function () use ($event) {
+            $event = Event::lockForUpdate()->find($event->id);
+
+            $registrations = $event->registrations()
+                ->whereIn('attendance_status', ['registered'])
+                ->with('member', 'payment')
+                ->get();
+
+            $refunded = 0;
+            foreach ($registrations as $reg) {
+                // فقط پرداخت‌های تاییدشده بازگردانده می‌شوند
+                if ($reg->payment && $reg->payment->status === 'verified' && $reg->final_price > 0) {
+                    $this->wallet->refund(
+                        $reg->member,
+                        $reg->final_price,
+                        "بازگشت وجه به دلیل لغو دورهمی: {$event->title}",
+                        $event
+                    );
+                    $refunded++;
+                }
+                $reg->update(['attendance_status' => 'cancelled_by_admin']);
+            }
+
+            $event->update(['status' => 'cancelled']);
+
+            return ['ok' => true, 'refunded' => $refunded, 'total' => $registrations->count()];
+        });
+    }
+
 }
