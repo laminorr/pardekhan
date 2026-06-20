@@ -9,8 +9,8 @@
         <div class="sub">باشگاه اعضا</div>
     </div>
     <div class="top-actions">
-        <a href="#" class="icon-btn">
-            
+        <a href="{{ route('panel.messages.index') }}" class="icon-btn">
+            @if(($unreadMessages ?? 0) > 0)<span class="ndot"></span>@endif
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="2" y="4" width="20" height="16" rx="2.5"/><path d="M3 7l9 6 9-6"/>
             </svg>

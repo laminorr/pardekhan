@@ -299,6 +299,7 @@ Route::post('/subscribe', function (Request $request) {
 use App\Http\Controllers\Panel\AuthController;
 use App\Http\Controllers\Panel\DashboardController;
 use App\Http\Controllers\Panel\EventController;
+use App\Http\Controllers\Panel\MessageController;
 use App\Http\Controllers\Panel\PaymentController;
 use App\Http\Controllers\Panel\TicketController;
 use App\Http\Controllers\Panel\ProfileController;
@@ -331,6 +332,15 @@ Route::prefix('panel')->name('panel.')->middleware([AuthenticateMember::class])-
     Route::get('/my-events', [EventController::class, 'myEvents'])->name('events.my');
     Route::get('/tickets', [TicketController::class, 'index'])->name('tickets.index');
     Route::get('/tickets/{ticket}', [TicketController::class, 'show'])->name('tickets.show');
+
+    // پیام‌ها
+    Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
+    Route::get('/messages/new', [MessageController::class, 'newConversation'])->name('messages.new');
+    Route::post('/messages/new', [MessageController::class, 'storeConversation'])->name('messages.store');
+    Route::get('/messages/broadcast/{recipient}', [MessageController::class, 'showBroadcast'])->name('messages.broadcast');
+    Route::post('/messages/broadcast/{recipient}/reply', [MessageController::class, 'replyBroadcast'])->name('messages.broadcast.reply');
+    Route::get('/messages/conversation/{conversation}', [MessageController::class, 'showConversation'])->name('messages.conversation');
+    Route::post('/messages/conversation/{conversation}/reply', [MessageController::class, 'replyConversation'])->name('messages.conversation.reply');
     Route::get('/events/{event}', [EventController::class, 'show'])->name('events.show');
     Route::post('/events/{event}/waitlist', [EventController::class, 'joinWaitlist'])->name('events.waitlist');
     Route::get('/events/{event}/checkout', [PaymentController::class, 'checkout'])->name('payment.checkout');
