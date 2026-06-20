@@ -40,7 +40,7 @@ class MessageController extends Controller
     public function showBroadcast(BroadcastRecipient $recipient)
     {
         $member = auth('member')->user();
-        if ($recipient->member_id !== $member->id) abort(403);
+        if ((int) $recipient->member_id !== (int) $member->id) abort(403, "recipient member: ".$recipient->member_id." | you: ".$member->id);
 
         // علامت خوانده‌شده
         if (! $recipient->is_read) {
@@ -61,7 +61,7 @@ class MessageController extends Controller
     public function replyBroadcast(Request $request, BroadcastRecipient $recipient)
     {
         $member = auth('member')->user();
-        if ($recipient->member_id !== $member->id) abort(403);
+        if ((int) $recipient->member_id !== (int) $member->id) abort(403, "recipient member: ".$recipient->member_id." | you: ".$member->id);
 
         $broadcast = $recipient->broadcast;
         if (! $broadcast->is_replyable) {
@@ -96,7 +96,7 @@ class MessageController extends Controller
     public function showConversation(Conversation $conversation)
     {
         $member = auth('member')->user();
-        if ($conversation->member_id !== $member->id) abort(403);
+        if ((int) $conversation->member_id !== (int) $member->id) abort(403, "conv member: ".$conversation->member_id." | you: ".$member->id);
 
         $this->messaging->markReadByMember($conversation);
         $conversation->load('messages.admin');
@@ -108,7 +108,7 @@ class MessageController extends Controller
     public function replyConversation(Request $request, Conversation $conversation)
     {
         $member = auth('member')->user();
-        if ($conversation->member_id !== $member->id) abort(403);
+        if ((int) $conversation->member_id !== (int) $member->id) abort(403, "conv member: ".$conversation->member_id." | you: ".$member->id);
 
         if ($conversation->status === 'closed') {
             return back()->with('error', 'این گفتگو بسته شده است');
