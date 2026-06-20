@@ -14,24 +14,24 @@ class ViewConversation extends Page
     protected static string $resource = ConversationResource::class;
     protected string $view = 'filament.resources.conversation-resource.pages.view-conversation';
 
-    public int $recordId;
+    public int $convoId;
     public ?string $replyBody = '';
 
     public function mount(int|string $record): void
     {
-        $this->recordId = (int) $record;
-        $conversation = Conversation::findOrFail($this->recordId);
+        $this->convoId = (int) $record;
+        $conversation = Conversation::findOrFail($this->convoId);
         app(MessagingService::class)->markReadByAdmin($conversation);
     }
 
-    public function getRecordProperty(): Conversation
+    public function getConvoProperty(): Conversation
     {
-        return Conversation::with('member', 'messages.admin')->findOrFail($this->recordId);
+        return Conversation::with('member', 'messages.admin')->findOrFail($this->convoId);
     }
 
     public function getTitle(): string|Htmlable
     {
-        $m = $this->record->member;
+        $m = $this->convo->member;
         return 'گفتگو با ' . $m->first_name . ' ' . $m->last_name;
     }
 
@@ -40,7 +40,7 @@ class ViewConversation extends Page
         $body = trim($this->replyBody);
         if (empty($body)) return;
 
-        app(MessagingService::class)->reply($this->record, 'admin', $body, auth()->id());
+        app(MessagingService::class)->reply($this->convo, 'admin', $body, auth()->id());
 
         $this->replyBody = '';
 
@@ -49,7 +49,7 @@ class ViewConversation extends Page
 
     public function toggleStatus(): void
     {
-        $conv = $this->record;
+        $conv = $this->convo;
         $conv->update([
             'status' => $conv->status === 'open' ? 'closed' : 'open',
         ]);
