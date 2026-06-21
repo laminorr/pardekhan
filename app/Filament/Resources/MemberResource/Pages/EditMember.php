@@ -15,26 +15,21 @@ class EditMember extends EditRecord
     protected static string $resource = MemberResource::class;
 
     /**
-     * بعد از ذخیره فرم، لایه را با امتیاز همگام کن
+     * درست قبل از ذخیره، لایه را بر اساس امتیاز محاسبه و تزریق کن
      */
-    protected function afterSave(): void
+    protected function mutateFormDataBeforeSave(array $data): array
     {
-        $member = $this->record;
-        if ($member->status !== 'approved') return;
-
-        $correct = Layer::active()
-            ->where('min_score', '<=', $member->score)
-            ->orderByDesc('min_score')
-            ->first();
-
-        if ($correct && $member->layer_id !== $correct->id) {
-            $member->update(['layer_id' => $correct->id]);
-            $this->refreshFormData(['layer_id']);
-            Notification::make()
-                ->success()
-                ->title("لایه به‌روز شد: {$correct->name}")
-                ->send();
+        if (($data['status'] ?? null) === 'approved') {
+            $score = (int) ($data['score'] ?? 0);
+            $correct = Layer::active()
+                ->where('min_score', '<=', $score)
+                ->orderByDesc('min_score')
+                ->first();
+            if ($correct) {
+                $data['layer_id'] = $correct->id;
+            }
         }
+        return $data;
     }
 
     protected function getHeaderActions(): array

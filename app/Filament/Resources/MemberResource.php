@@ -61,7 +61,7 @@ class MemberResource extends Resource
                         ->label('لایه عضویت')
                         ->options(Layer::active()->pluck('name', 'id'))
                         ->disabled()
-                        ->dehydrated(false)
+                        ->dehydrated(true)
                         ->helperText('به‌صورت خودکار بر اساس امتیاز تعیین می‌شود'),
                     Forms\Components\TextInput::make('score')
                         ->label('امتیاز')
