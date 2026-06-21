@@ -40,7 +40,7 @@
     // ایندکس لایه فعلی برای نردبان
     $currentIndex = $layer ? $allLayers->search(fn($l) => $l->id === $layer->id) : -1;
 @endphp
-<div class="card" style="padding:1.5rem 1.3rem 1.4rem;display:flex;flex-direction:column;align-items:center;">
+<div style="border:1px solid #ededeb;border-radius:28px;padding:1.75rem 1.4rem 1.5rem;display:flex;flex-direction:column;align-items:center;background:linear-gradient(180deg,#ffffff,#fbfcfb);box-shadow:0 1px 0 #fff,0 20px 40px -34px rgba(47,93,80,0.5);margin-bottom:1rem;">
     {{-- حلقه --}}
     <div style="position:relative;width:188px;height:188px;">
         <svg width="188" height="188" viewBox="0 0 188 188">
