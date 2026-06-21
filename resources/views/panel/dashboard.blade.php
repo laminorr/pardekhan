@@ -133,7 +133,7 @@
         ];
     @endphp
     @foreach($menuItems as [$title, $desc, $url, $icon, $color])
-    <a href="{{ $url }}" style="background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:1.1rem;text-decoration:none;color:inherit;box-shadow:0 2px 14px rgba(40,60,50,0.04);">
+    <a href="{{ $url }}" style="background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:1.1rem;text-decoration:none;color:inherit;box-shadow:0 4px 20px rgba(40,60,50,0.07);">
         <div style="width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:0.8rem;
             {{ $color === 'green' ? 'background:var(--green-soft);color:var(--pine);' : 'background:#fbeae4;color:var(--burnt);' }}">
             <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="{{ $icon }}"/></svg>
@@ -153,7 +153,7 @@
     <div class="section-title">دورهمی پیشنهادی</div>
     <a href="{{ route('panel.events.index') }}" class="see-all">دیدن همه ›</a>
 </div>
-<a href="{{ route('panel.events.show', $suggested) }}" style="display:block;text-decoration:none;color:inherit;background:var(--surface);border:1px solid var(--border);border-radius:22px;overflow:hidden;box-shadow:0 2px 14px rgba(40,60,50,0.04);">
+<a href="{{ route('panel.events.show', $suggested) }}" style="display:block;text-decoration:none;color:inherit;background:var(--surface);border:1px solid var(--border);border-radius:22px;overflow:hidden;box-shadow:0 4px 20px rgba(40,60,50,0.07);">
     <div style="height:130px;position:relative;background:linear-gradient(135deg,var(--pine-bright),var(--pine-deep));">
         @if($suggested->image)
             <img src="{{ Storage::url($suggested->image) }}" style="width:100%;height:100%;object-fit:cover;">

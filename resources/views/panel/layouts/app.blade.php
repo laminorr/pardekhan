@@ -35,7 +35,7 @@
         html { background: var(--bg); }
         body {
             font-family: 'Vazirmatn', sans-serif;
-            background: #eceeec;
+            background: #e4e9e6;
             color: var(--ink);
             min-height: 100vh; direction: rtl; line-height: 1.6;
             -webkit-font-smoothing: antialiased;
@@ -43,7 +43,7 @@
         .phone {
             max-width: 430px; margin: 0 auto; min-height: 100vh;
             position: relative; overflow-x: hidden; padding-bottom: 92px;
-            background: linear-gradient(180deg, #f3f5f4 0%, #eef1ef 100%);
+            background: #eaeeec;
         }
         .wrap { padding: 1.4rem 1.2rem; position: relative; z-index: 1; }
         svg { display: block; }
@@ -68,9 +68,9 @@
         .page-sub { font-size: 0.82rem; color: var(--ink-dim); margin-top: 0.15rem; }
 
         /* کارت */
-        .card { background: var(--surface); border: 1px solid var(--border);
+        .card { background: var(--surface); border: 1px solid #fff;
             border-radius: 22px; padding: 1.3rem; margin-bottom: 1rem;
-            box-shadow: 0 2px 14px rgba(40,60,50,0.04); }
+            box-shadow: 0 4px 20px rgba(40,60,50,0.07); }
 
         /* بخش */
         .section-head { display: flex; align-items: center; justify-content: space-between; margin: 1.6rem 0 1rem; }
