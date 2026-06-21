@@ -331,6 +331,10 @@ Route::prefix('panel')->name('panel.')->middleware([RedirectIfMemberAuthenticate
 
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
+
+    // ورود با کد یک‌بارمصرف (فراموشی رمز)
+    Route::get('/login-otp', [AuthController::class, 'showLoginOtp'])->name('login.otp');
+    Route::post('/login-otp', [AuthController::class, 'sendLoginOtp']);
 });
 
 // مسیرهای با لاگین

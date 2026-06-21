@@ -28,6 +28,10 @@
         <button type="submit" class="btn btn-gold">ورود</button>
     </form>
 
+    <div style="text-align:center;margin-top:1rem;">
+        <a href="{{ route('panel.login.otp') }}" style="font-size:0.85rem;color:var(--pine);text-decoration:none;font-weight:600;">رمزتان را فراموش کرده‌اید؟ ورود با کد</a>
+    </div>
+
     <div class="auth-foot">
         عضو نیستید؟ <a href="{{ route('panel.register') }}">ثبت‌نام</a>
     </div>

@@ -111,6 +111,15 @@ class AuthController extends Controller
         }
 
         // تایید موفق
+        // اگر از مسیر «ورود با کد» آمده و عضو تاییدشده است → مستقیم وارد شود
+        if (session('otp_login') && $member->status === 'approved') {
+            $member->update(['otp_code' => null, 'otp_attempts' => 0]);
+            Auth::guard('member')->login($member, true);
+            session()->forget(['otp_phone', 'otp_login']);
+            return redirect()->route('panel.dashboard');
+        }
+
+        // مسیر ثبت‌نام عادی
         $member->update([
             'status'       => 'questionnaire_pending',
             'otp_code'     => null,
@@ -152,6 +161,44 @@ class AuthController extends Controller
     public function showLogin()
     {
         return view('panel.auth.login');
+    }
+
+    // ── نمایش فرم ورود با کد ─────────────────────────────
+    public function showLoginOtp()
+    {
+        return view('panel.auth.login-otp');
+    }
+
+    // ── ارسال کد برای ورود ───────────────────────────────
+    public function sendLoginOtp(Request $request)
+    {
+        $request->validate([
+            'phone' => ['required', 'string'],
+        ], [
+            'phone.required' => 'شماره موبایل الزامی است',
+        ]);
+
+        $member = Member::where('phone', $request->phone)->first();
+
+        // فقط اعضای تاییدشده می‌توانند با کد وارد شوند
+        if (! $member || $member->status !== 'approved') {
+            return back()->withErrors([
+                'phone' => 'عضو تاییدشده‌ای با این شماره یافت نشد.',
+            ])->withInput();
+        }
+
+        // محدودیت ارسال
+        $key = 'login_otp_' . $request->phone;
+        if (RateLimiter::tooManyAttempts($key, 3)) {
+            return back()->withErrors(['phone' => 'تعداد درخواست کد زیاد است. چند دقیقه صبر کنید.'])->withInput();
+        }
+        RateLimiter::hit($key, 600);
+
+        $this->sendOtp($member);
+
+        session(['otp_phone' => $request->phone, 'otp_login' => true]);
+
+        return redirect()->route('panel.otp');
     }
 
     // ── لاگین ────────────────────────────────────────────
