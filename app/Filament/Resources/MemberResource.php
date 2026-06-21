@@ -79,6 +79,7 @@ class MemberResource extends Resource
                         ->content(fn ($record) => $record->avatar_approved ? '✅ تایید شده' : '⏳ در انتظار تایید'),
                     \Filament\Forms\Components\ViewField::make('avatar_preview')
                         ->label('')
+                        ->dehydrated(false)
                         ->view('filament.member-avatar'),
                 ]),
 
