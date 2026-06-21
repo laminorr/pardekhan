@@ -7,10 +7,10 @@
     <div style="margin-bottom:1.5rem;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
             <span style="font-size:0.78rem;color:var(--text-dim);">سوال {{ $currentStep }} از {{ $totalSteps }}</span>
-            <span style="font-size:0.78rem;color:var(--gold-2);font-weight:700;">{{ round(($currentStep / $totalSteps) * 100) }}%</span>
+            <span style="font-size:0.78rem;color:var(--pine);font-weight:700;">{{ round(($currentStep / $totalSteps) * 100) }}%</span>
         </div>
         <div style="background:rgba(0,0,0,0.3);border-radius:99px;height:6px;overflow:hidden;border:1px solid rgba(255,255,255,0.04);">
-            <div style="background:linear-gradient(90deg,var(--gold-deep),var(--gold-1));height:100%;width:{{ round(($currentStep / $totalSteps) * 100) }}%;border-radius:99px;transition:width 0.3s;"></div>
+            <div style="background:linear-gradient(90deg,var(--pine-deep),var(--pine));height:100%;width:{{ round(($currentStep / $totalSteps) * 100) }}%;border-radius:99px;transition:width 0.3s;"></div>
         </div>
     </div>
 
@@ -46,7 +46,7 @@
 
 <div style="display:flex;justify-content:center;gap:6px;margin-top:1.5rem;">
     @for($i = 1; $i <= $totalSteps; $i++)
-        <div style="width:8px;height:8px;border-radius:50%;background:{{ $i === $currentStep ? 'var(--gold-1)' : ($i < $currentStep ? 'var(--gold-deep)' : 'rgba(255,255,255,0.1)') }};"></div>
+        <div style="width:8px;height:8px;border-radius:50%;background:{{ $i === $currentStep ? 'var(--pine)' : ($i < $currentStep ? 'var(--pine-deep)' : 'rgba(255,255,255,0.1)') }};"></div>
     @endfor
 </div>
 @endsection

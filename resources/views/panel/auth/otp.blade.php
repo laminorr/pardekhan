@@ -4,7 +4,7 @@
 @section('content')
 <div class="auth-card">
     <h2>تایید شماره موبایل</h2>
-    <p class="lead">کد ۶ رقمی به شماره <strong style="color:var(--gold-1);direction:ltr;display:inline-block;">{{ $phone }}</strong> ارسال شد.</p>
+    <p class="lead">کد ۶ رقمی به شماره <strong style="color:var(--pine);direction:ltr;display:inline-block;">{{ $phone }}</strong> ارسال شد.</p>
 
     @if (session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
