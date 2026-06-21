@@ -1,150 +1,134 @@
 @extends('panel.layouts.app')
 @section('title', $event->title)
 
+@push('styles')
+<style>
+    .ev-hero { position:relative; height:260px; margin:-1.4rem -1.2rem 0; background:linear-gradient(135deg,#dfe7e3,#cfdbd5); display:flex; align-items:center; justify-content:center; }
+    .ev-hero img { width:100%; height:100%; object-fit:cover; }
+    .ev-hero-actions { position:absolute; top:1rem; right:1.2rem; left:1.2rem; display:flex; justify-content:space-between; }
+    .ev-hero-btn { width:44px; height:44px; border-radius:14px; background:rgba(255,255,255,0.92); border:none; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(6px); cursor:pointer; text-decoration:none; }
+    .ev-body { position:relative; margin-top:-26px; background:var(--bg); border-radius:28px 28px 0 0; padding:1.5rem 0.2rem 0; }
+    .ev-info-row { display:flex; align-items:center; gap:0.85rem; }
+    .ev-info-ico { width:44px; height:44px; border-radius:14px; background:var(--bg-soft); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+</style>
+@endpush
+
 @section('content')
-<div class="page-head" style="display:flex;align-items:center;gap:0.75rem;">
-    <a href="{{ route('panel.events.index') }}" class="icon-btn" style="flex-shrink:0;">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-    </a>
-    <div class="page-title" style="font-size:1.2rem;">جزئیات دورهمی</div>
+{{-- تصویر بزرگ --}}
+<div class="ev-hero">
+    @if($event->image)
+        <img src="{{ Storage::url($event->image) }}" alt="{{ $event->title }}">
+    @else
+        <span style="font-size:0.9rem;color:#7e948b;letter-spacing:1px;">پرده‌خوان</span>
+    @endif
+    <div class="ev-hero-actions">
+        <a href="{{ route('panel.events.index') }}" class="ev-hero-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16181a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+        </a>
+    </div>
 </div>
 
-@if (session('success'))
-    <div class="alert alert-success">{{ session('success') }}</div>
-@endif
-@if (session('error'))
-    <div class="alert alert-danger">{{ session('error') }}</div>
-@endif
-
-<div class="card" style="padding:0;overflow:hidden;">
-    @if($event->image)
-        <div style="height:200px;position:relative;">
-            <img src="{{ Storage::url($event->image) }}" style="width:100%;height:100%;object-fit:cover;">
-            <div style="position:absolute;inset:0;background:linear-gradient(to top,var(--surface) 0%,transparent 55%);"></div>
-        </div>
+{{-- محتوا --}}
+<div class="ev-body">
+    @if($discount > 0)
+        <span style="display:inline-block;background:var(--green-soft);color:var(--pine);font-size:0.7rem;font-weight:700;padding:6px 13px;border-radius:20px;">ویژهٔ لایهٔ شما · {{ fa($discount) }}٪ تخفیف</span>
     @endif
-    <div style="padding:{{ $event->image ? '0' : '1.5rem' }} 1.5rem 1.5rem;{{ $event->image ? 'margin-top:-2rem;position:relative;z-index:1;' : '' }}">
-        <h2 style="font-size:1.3rem;font-weight:700;color:#fff;">{{ $event->title }}</h2>
-        @if($event->subtitle)
-            <p style="font-size:0.85rem;color:var(--text-dim);margin-top:4px;">{{ $event->subtitle }}</p>
-        @endif
 
-        {{-- اطلاعات --}}
-        <div style="display:flex;flex-direction:column;gap:0.75rem;margin:1.25rem 0;padding:1rem;background:#0d0d0f;border-radius:14px;border:1px solid var(--border);">
-            <div style="display:flex;justify-content:space-between;font-size:0.85rem;">
-                <span style="color:var(--text-dim);display:flex;align-items:center;gap:6px;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold-2)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-                    تاریخ
-                </span>
-                <span>{{ \Morilog\Jalali\Jalalian::fromDateTime($event->starts_at)->format('Y/m/d') }}</span>
+    <div style="font-size:1.6rem;font-weight:800;line-height:1.25;margin-top:0.8rem;letter-spacing:-0.5px;">{{ $event->title }}</div>
+    @if($event->subtitle)
+        <div style="font-size:0.92rem;color:var(--pine);margin-top:4px;font-weight:600;">{{ $event->subtitle }}</div>
+    @endif
+    @if($event->description)
+        <div style="font-size:0.86rem;color:var(--ink-dim);margin-top:0.6rem;line-height:1.85;">{{ $event->description }}</div>
+    @endif
+
+    {{-- اطلاعات --}}
+    <div style="margin-top:1.3rem;display:flex;flex-direction:column;gap:0.9rem;">
+        <div class="ev-info-row">
+            <div class="ev-info-ico">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--pine)" stroke-width="1.6"><rect x="4" y="6" width="16" height="15" rx="2.5"/><path d="M4 10h16M8 3v4M16 3v4"/></svg>
             </div>
-            <div style="display:flex;justify-content:space-between;font-size:0.85rem;">
-                <span style="color:var(--text-dim);display:flex;align-items:center;gap:6px;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold-2)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-                    ساعت
-                </span>
-                <span>{{ $event->starts_at->format('H:i') }}</span>
+            <div>
+                <div style="font-size:0.9rem;font-weight:700;">{{ fa(\Morilog\Jalali\Jalalian::fromDateTime($event->starts_at)->format('l j F Y')) }}</div>
+                <div style="font-size:0.78rem;color:var(--ink-dim);margin-top:2px;">ساعت {{ fa($event->starts_at->format('H:i')) }}@if($event->ends_at) تا {{ fa($event->ends_at->format('H:i')) }}@endif</div>
             </div>
-            @if($event->venue)
-            <div style="display:flex;justify-content:space-between;font-size:0.85rem;">
-                <span style="color:var(--text-dim);display:flex;align-items:center;gap:6px;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold-2)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                    مکان
-                </span>
-                <span>{{ $event->venue->name }}</span>
-            </div>
-            <div style="font-size:0.8rem;color:var(--text-dim);padding-top:0.5rem;border-top:1px solid var(--border);">
-                {{ $event->venue->address }}
-            </div>
-            @if($event->venue->map_link)
-                <a href="{{ $event->venue->map_link }}" target="_blank" style="color:var(--gold-2);text-decoration:none;font-size:0.82rem;display:flex;align-items:center;gap:4px;">
-                    مشاهده روی نقشه
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-                </a>
-            @endif
-            @endif
         </div>
-
-        @if($event->description)
-        <div style="color:#ccc;line-height:1.9;font-size:0.9rem;margin-bottom:1.25rem;">{!! nl2br(e($event->description)) !!}</div>
-        @endif
-
-        {{-- شرکت‌کنندگان --}}
-        @if($attendeeAvatars->isNotEmpty())
-        <div style="margin-bottom:1.25rem;">
-            <div style="color:var(--text-dim);font-size:0.78rem;margin-bottom:0.6rem;">شرکت‌کنندگان</div>
-            <div style="display:flex;">
-                @foreach($attendeeAvatars as $i => $avatar)
-                    <div style="width:38px;height:38px;border-radius:50%;overflow:hidden;border:2px solid var(--surface);{{ $i > 0 ? 'margin-right:-10px;' : '' }}">
-                        <img src="{{ Storage::url($avatar->avatar) }}" style="width:100%;height:100%;object-fit:cover;">
-                    </div>
-                @endforeach
+        @if($event->venue)
+        <div class="ev-info-row">
+            <div class="ev-info-ico">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--pine)" stroke-width="1.6"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/></svg>
+            </div>
+            <div>
+                <div style="font-size:0.9rem;font-weight:700;">{{ $event->venue->name }}</div>
+                @if($event->venue->address)
+                    <div style="font-size:0.78rem;color:var(--ink-dim);margin-top:2px;">{{ $event->venue->address }}</div>
+                @endif
             </div>
         </div>
         @endif
+        {{-- ظرفیت --}}
+        <div class="ev-info-row">
+            <div class="ev-info-ico">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--pine)" stroke-width="1.6"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>
+            </div>
+            <div>
+                <div style="font-size:0.9rem;font-weight:700;">{{ fa($event->capacity) }} نفر ظرفیت</div>
+                <div style="font-size:0.78rem;color:var(--ink-dim);margin-top:2px;">{{ fa($event->remainingCapacity()) }} جای باقی‌مانده</div>
+            </div>
+        </div>
+    </div>
 
-        {{-- قیمت --}}
-        <div style="background:#0d0d0f;border:1px solid var(--border);border-radius:14px;padding:1.1rem;margin-bottom:1.25rem;">
-            @if($discount > 0)
-                <div style="display:flex;justify-content:space-between;color:var(--text-dim);font-size:0.82rem;">
-                    <span>قیمت پایه</span>
-                    <span style="text-decoration:line-through;">{{ number_format($event->base_price) }} تومان</span>
+    {{-- عکس شرکت‌کنندگان --}}
+    @if($attendeeAvatars->isNotEmpty())
+    <div style="margin-top:1.3rem;display:flex;align-items:center;gap:0.6rem;">
+        <div style="display:flex;">
+            @foreach($attendeeAvatars->take(6) as $i => $att)
+                <div style="width:34px;height:34px;border-radius:50%;border:2px solid var(--bg);overflow:hidden;margin-right:{{ $i > 0 ? '-10px' : '0' }};">
+                    <img src="{{ Storage::url($att->avatar) }}" style="width:100%;height:100%;object-fit:cover;">
                 </div>
-                <div style="display:flex;justify-content:space-between;color:var(--success);font-size:0.82rem;margin-top:0.4rem;">
-                    <span>تخفیف لایه شما</span><span>{{ $discount }}%</span>
-                </div>
-                <div style="height:1px;background:var(--border);margin:0.75rem 0;"></div>
-            @endif
-            <div style="display:flex;justify-content:space-between;align-items:center;">
-                <span style="color:#fff;font-weight:700;">قیمت نهایی</span>
-                <span style="color:var(--gold-1);font-size:1.35rem;font-weight:800;">{{ number_format($price) }} <small style="font-size:0.7rem;color:var(--text-dim);font-weight:400;">تومان</small></span>
+            @endforeach
+        </div>
+        <span style="font-size:0.78rem;color:var(--ink-dim);">{{ fa($attendeeAvatars->count()) }} نفر ثبت‌نام کرده‌اند</span>
+    </div>
+    @endif
+
+    {{-- قیمت و دکمه --}}
+    <div style="margin-top:1.5rem;padding:1.2rem;background:#fff;border:1px solid var(--border);border-radius:20px;box-shadow:0 4px 20px rgba(40,60,50,0.05);">
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:1rem;">
+            <div>
+                <div style="font-size:0.72rem;color:var(--ink-dim);">هزینهٔ ثبت‌نام</div>
+                @if($discount > 0)
+                    <span style="font-size:0.78rem;color:var(--ink-faint);text-decoration:line-through;">{{ fa(number_format($event->base_price)) }}</span>
+                @endif
+                <div style="font-size:1.5rem;font-weight:800;color:var(--pine);">{{ fa(number_format($price)) }} <small style="font-size:0.72rem;color:var(--ink-dim);font-weight:400;">تومان</small></div>
             </div>
         </div>
 
-        @php $remaining = $event->remainingCapacity(); @endphp
-        @if($remaining <= 3 && $remaining > 0)
-            <div style="text-align:center;color:var(--gold-1);font-size:0.82rem;margin-bottom:1rem;">فقط {{ $remaining }} جای خالی باقی مانده</div>
-        @endif
-
-        {{-- وضعیت / دکمه --}}
         @if($isRegistered)
-            @if($myRegistration && $myRegistration->payment_status === 'pending')
-                <div style="text-align:center;padding:0.95rem;background:rgba(212,175,106,0.1);border:1px solid var(--gold-border);border-radius:14px;color:var(--gold-1);font-weight:600;">
-                    ✓ ثبت‌نام شما قطعی شد
-                </div>
-                <p style="color:var(--text-dim);font-size:0.78rem;text-align:center;margin-top:0.6rem;">پرداخت شما در انتظار بررسی مدیریت است</p>
-            @else
-                <div style="text-align:center;padding:0.95rem;background:rgba(93,202,143,0.1);border:1px solid rgba(93,202,143,0.3);border-radius:14px;color:var(--success);font-weight:600;">
-                    ✓ شما در این دورهمی ثبت‌نام کرده‌اید
-                </div>
-            @endif
-            @if($event->starts_at->isFuture())
-            <form method="POST" action="{{ route('panel.events.cancel', $event) }}" style="margin-top:0.75rem;" onsubmit="return confirm('آیا از انصراف مطمئن هستید؟ وجه پرداختی بازگردانده نمی‌شود.');">
-                @csrf
-                <button type="submit" class="btn btn-ghost" style="color:var(--danger);">انصراف از دورهمی</button>
-            </form>
-            <p style="color:var(--text-faint);font-size:0.72rem;text-align:center;margin-top:0.5rem;">انصراف با اطلاع، امتیاز مثبت دارد</p>
-            @endif
-        @elseif($isWaiting)
-            <div style="text-align:center;padding:0.95rem;background:var(--surface-2);border:1px solid var(--border);border-radius:14px;color:var(--text-dim);">
-                شما در لیست انتظار این دورهمی هستید
+            <div style="text-align:center;padding:0.6rem;background:var(--green-tint);border-radius:13px;color:var(--pine-deep);font-size:0.88rem;font-weight:700;margin-bottom:0.5rem;">
+                ✓ شما ثبت‌نام کرده‌اید
             </div>
-        @elseif($event->status === 'full' || $remaining <= 0)
+            <a href="{{ route('panel.tickets.index') }}" class="btn btn-primary">مشاهدهٔ بلیت</a>
+            <form method="POST" action="{{ route('panel.events.cancel', $event) }}" style="margin-top:0.6rem;" onsubmit="return confirm('آیا از انصراف مطمئن هستید؟');">
+                @csrf
+                <button type="submit" class="btn btn-ghost" style="color:var(--burnt);">انصراف از دورهمی</button>
+            </form>
+        @elseif($isWaiting)
+            <div style="text-align:center;padding:0.6rem;background:var(--bg-soft);border-radius:13px;color:var(--ink-mid);font-size:0.88rem;font-weight:600;">
+                شما در لیست انتظار هستید
+            </div>
+        @elseif($event->remainingCapacity() <= 0)
             <form method="POST" action="{{ route('panel.events.waitlist', $event) }}">
                 @csrf
-                <button type="submit" class="btn btn-ghost">عضویت در لیست انتظار</button>
+                <button type="submit" class="btn btn-primary">عضویت در لیست انتظار</button>
             </form>
-            <p style="color:var(--text-faint);font-size:0.75rem;text-align:center;margin-top:0.6rem;">در صورت خالی شدن ظرفیت به شما اطلاع داده می‌شود</p>
-        @elseif(!$event->isRegistrationOpen())
-            <div style="text-align:center;padding:0.95rem;background:var(--surface-2);border:1px solid var(--border);border-radius:14px;color:var(--text-dim);">
-                ثبت‌نام این دورهمی بسته شده است
-            </div>
         @else
-            <a href="{{ route('panel.payment.checkout', $event) }}" class="btn btn-gold">
-                ثبت‌نام در این دورهمی
+            <a href="{{ route('panel.payment.checkout', $event) }}" class="btn btn-primary">
+                ثبت‌نام در دورهمی
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
             </a>
         @endif
     </div>
+    <div style="height:1.5rem;"></div>
 </div>
 @endsection

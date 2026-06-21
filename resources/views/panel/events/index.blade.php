@@ -2,57 +2,75 @@
 @section('title', 'دورهمی‌ها')
 
 @section('content')
-<div class="page-head" style="display:flex;align-items:center;gap:0.75rem;">
-    <a href="{{ route('panel.dashboard') }}" class="icon-btn" style="flex-shrink:0;">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-    </a>
+{{-- هدر --}}
+<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:1.3rem;">
     <div>
-        <div class="page-title">دورهمی‌ها</div>
-        <div class="page-sub">دورهمی‌های قابل دسترسی شما</div>
+        <div style="font-size:1.5rem;font-weight:800;letter-spacing:-0.5px;">دورهمی‌ها</div>
+        <div style="font-size:0.82rem;color:var(--ink-faint);margin-top:3px;">{{ fa($events->count()) }} رویداد پیش‌رو</div>
     </div>
 </div>
 
 @if($events->isEmpty())
-    <div class="card" style="text-align:center;padding:3rem 1.5rem;">
-        <div style="width:64px;height:64px;border-radius:20px;background:rgba(212,175,106,0.08);border:1px solid var(--gold-border);display:flex;align-items:center;justify-content:center;color:var(--gold-2);margin:0 auto 1rem;">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M7 4v16M17 4v16M2 9h5M2 15h5M17 9h5M17 15h5"/></svg>
-        </div>
-        <p style="color:var(--text-dim);">در حال حاضر دورهمی فعالی برای شما وجود ندارد.</p>
+    <div style="text-align:center;padding:3rem 1rem;color:var(--ink-dim);">
+        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="var(--ink-faint)" stroke-width="1.3" style="margin:0 auto 1rem;"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        <div style="font-size:0.95rem;">فعلاً دورهمی‌ای برنامه‌ریزی نشده</div>
+        <div style="font-size:0.8rem;margin-top:4px;">به‌زودی رویدادهای جدید اضافه می‌شوند</div>
     </div>
 @else
     <div style="display:flex;flex-direction:column;gap:1rem;">
         @foreach($events as $event)
-        @php $remaining = $event->remainingCapacity(); @endphp
-        <a href="{{ route('panel.events.show', $event) }}" class="card" style="margin-bottom:0;padding:0;overflow:hidden;text-decoration:none;color:inherit;">
-            @if($event->image)
-                <div style="height:140px;position:relative;">
+        @php
+            $remaining = $event->remainingCapacity();
+            $isSpecial = $event->layers->isNotEmpty();
+            $price = $event->priceForMember($member);
+            $regOpen = $event->status === 'active' && $remaining > 0;
+        @endphp
+        <a href="{{ route('panel.events.show', $event) }}" style="display:block;text-decoration:none;color:inherit;border:1px solid var(--border);border-radius:22px;overflow:hidden;background:#fff;box-shadow:0 20px 40px -36px rgba(47,93,80,0.5);">
+            {{-- تصویر --}}
+            <div style="height:120px;position:relative;background:linear-gradient(135deg,#eaefec,#dde6e1);display:flex;align-items:center;justify-content:center;">
+                @if($event->image)
                     <img src="{{ Storage::url($event->image) }}" style="width:100%;height:100%;object-fit:cover;">
-                    <div style="position:absolute;inset:0;background:linear-gradient(to top,var(--surface) 0%,transparent 50%);"></div>
-                    @if($event->status === 'full' || $remaining <= 0)
-                        <span style="position:absolute;top:0.85rem;right:0.85rem;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,0.1);color:#fff;font-size:0.7rem;padding:4px 10px;border-radius:99px;">تکمیل</span>
-                    @elseif($remaining <= 3)
-                        <span style="position:absolute;top:0.85rem;right:0.85rem;background:rgba(212,175,106,0.9);color:#1a1408;font-size:0.7rem;font-weight:700;padding:4px 10px;border-radius:99px;">{{ $remaining }} جای باقی‌مانده</span>
-                    @endif
-                </div>
-            @endif
-            <div style="padding:1.1rem 1.2rem 1.3rem;{{ $event->image ? 'margin-top:-1.5rem;position:relative;z-index:1;' : '' }}">
-                <div style="font-size:1.05rem;font-weight:700;color:#fff;">{{ $event->title }}</div>
-                @if($event->subtitle)
-                    <div style="font-size:0.8rem;color:var(--text-dim);margin-top:3px;">{{ $event->subtitle }}</div>
+                @else
+                    <span style="font-size:0.78rem;color:#8ba096;">پرده‌خوان</span>
                 @endif
-                <div style="display:flex;gap:1.2rem;margin-top:0.85rem;">
-                    <div style="display:flex;align-items:center;gap:5px;font-size:0.76rem;color:var(--text-dim);">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold-2)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-                        {{ \Morilog\Jalali\Jalalian::fromDateTime($event->starts_at)->format('Y/m/d') }}
-                    </div>
-                    <div style="display:flex;align-items:center;gap:5px;font-size:0.76rem;color:var(--text-dim);">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold-2)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-                        {{ $event->starts_at->format('H:i') }}
-                    </div>
+                @if($isSpecial)
+                    <span style="position:absolute;top:12px;right:12px;background:var(--pine);color:#fff;font-size:0.62rem;font-weight:700;padding:5px 10px;border-radius:16px;">ویژهٔ لایهٔ شما</span>
+                @endif
+            </div>
+            {{-- محتوا --}}
+            <div style="padding:0.9rem 1rem 1rem;">
+                <div style="font-size:1.05rem;font-weight:800;letter-spacing:-0.3px;color:var(--ink);">{{ $event->title }}</div>
+                <div style="display:flex;align-items:center;gap:0.75rem;margin-top:0.5rem;font-size:0.72rem;color:var(--ink-dim);">
+                    <span style="display:flex;align-items:center;gap:4px;">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--pine)" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 1.8" stroke-linecap="round"/></svg>
+                        {{ fa(\Morilog\Jalali\Jalalian::fromDateTime($event->starts_at)->format('l j F')) }} · {{ fa($event->starts_at->format('H:i')) }}
+                    </span>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-top:0.75rem;">
+                    @if($regOpen)
+                        @if($remaining <= 5)
+                            <span style="display:inline-flex;align-items:center;gap:6px;font-size:0.72rem;color:var(--burnt);font-weight:700;">
+                                <span style="width:7px;height:7px;border-radius:50%;background:var(--burnt);"></span>{{ fa($remaining) }} جای باقی‌مانده
+                            </span>
+                        @else
+                            <span style="font-size:0.72rem;color:var(--ink-dim);">{{ fa($remaining) }} جای خالی</span>
+                        @endif
+                        <span style="font-size:0.74rem;font-weight:800;color:var(--pine);background:var(--green-soft);padding:6px 13px;border-radius:14px;">ثبت‌نام باز</span>
+                    @elseif($event->status === 'full' || $remaining <= 0)
+                        <span style="font-size:0.72rem;color:var(--ink-dim);font-weight:600;">ظرفیت تکمیل</span>
+                        <span style="font-size:0.74rem;font-weight:700;color:var(--ink-mid);background:var(--bg-mute);padding:6px 13px;border-radius:14px;">لیست انتظار</span>
+                    @else
+                        <span style="font-size:0.72rem;color:var(--ink-dim);">{{ fa(number_format($price)) }} تومان</span>
+                        <span style="font-size:0.74rem;font-weight:700;color:var(--ink-mid);background:var(--bg-mute);padding:6px 13px;border-radius:14px;">جزئیات</span>
+                    @endif
                 </div>
             </div>
         </a>
         @endforeach
     </div>
 @endif
+@endsection
+
+@section('nav')
+    @include('panel.partials.bottom-nav', ['active' => 'events'])
 @endsection
