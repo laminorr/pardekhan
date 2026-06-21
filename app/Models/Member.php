@@ -15,6 +15,27 @@ class Member extends Authenticatable
 
     protected $hidden = ['password', 'remember_token', 'otp_code'];
 
+    /**
+     * هر بار که عضو ذخیره می‌شود، اگر امتیاز تغییر کرده،
+     * لایه را خودکار با امتیاز هماهنگ کن (روی هر مسیری کار می‌کند)
+     */
+    protected static function booted(): void
+    {
+        static::saving(function (Member $member) {
+            if ($member->status !== 'approved') return;
+            if (! $member->isDirty('score')) return;
+
+            $correct = Layer::where('is_active', true)
+                ->where('min_score', '<=', (int) $member->score)
+                ->orderByDesc('min_score')
+                ->first();
+
+            if ($correct) {
+                $member->layer_id = $correct->id;
+            }
+        });
+    }
+
     protected function casts(): array
     {
         return [

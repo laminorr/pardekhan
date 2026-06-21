@@ -14,24 +14,6 @@ class EditMember extends EditRecord
 {
     protected static string $resource = MemberResource::class;
 
-    /**
-     * درست قبل از ذخیره، لایه را بر اساس امتیاز محاسبه و تزریق کن
-     */
-    protected function mutateFormDataBeforeSave(array $data): array
-    {
-        if (($data['status'] ?? null) === 'approved') {
-            $score = (int) ($data['score'] ?? 0);
-            $correct = Layer::active()
-                ->where('min_score', '<=', $score)
-                ->orderByDesc('min_score')
-                ->first();
-            if ($correct) {
-                $data['layer_id'] = $correct->id;
-            }
-        }
-        return $data;
-    }
-
     protected function getHeaderActions(): array
     {
         return [
