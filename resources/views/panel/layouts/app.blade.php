@@ -35,7 +35,7 @@
         html { background: var(--bg); }
         body {
             font-family: 'Vazirmatn', sans-serif;
-            background: #e4e9e6;
+            background: #fcfcfb;
             color: var(--ink);
             min-height: 100vh; direction: rtl; line-height: 1.6;
             -webkit-font-smoothing: antialiased;
@@ -43,7 +43,7 @@
         .phone {
             max-width: 430px; margin: 0 auto; min-height: 100vh;
             position: relative; overflow-x: hidden; padding-bottom: 92px;
-            background: #eaeeec;
+            background: #fcfcfb;
         }
         .wrap { padding: 1.4rem 1.2rem; position: relative; z-index: 1; }
         svg { display: block; }
