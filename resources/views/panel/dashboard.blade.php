@@ -74,6 +74,23 @@
 </style>
 @endpush
 
+{{-- بنر دعوت به ارتباط --}}
+<a href="{{ route('panel.messages.index') }}" style="display:block;text-decoration:none;margin-bottom:1.1rem;position:relative;overflow:hidden;border-radius:18px;background:linear-gradient(145deg,var(--pine-bright),var(--pine-deep));box-shadow:0 10px 26px -10px rgba(47,93,80,0.5);">
+    {{-- بافت تزئینی --}}
+    <div style="position:absolute;top:-40px;left:-20px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,0.06);"></div>
+    <div style="position:absolute;bottom:-50px;left:60px;width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,0.04);"></div>
+    <div style="position:relative;display:flex;align-items:center;gap:0.9rem;padding:1rem 1.15rem;">
+        <div style="width:42px;height:42px;border-radius:13px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;backdrop-filter:blur(6px);">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        </div>
+        <div style="flex:1;">
+            <div style="font-size:0.92rem;font-weight:700;color:#fff;line-height:1.4;">ما در یک روایت مشترکیم</div>
+            <div style="font-size:0.74rem;color:rgba(234,243,239,0.8);margin-top:1px;">با هم در تماس بمانیم</div>
+        </div>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M15 18l-6-6 6-6"/></svg>
+    </div>
+</a>
+
 {{-- کارت عضویت با حلقه پیشرفت --}}
 @php
     $layer = $member->layer;
