@@ -111,16 +111,15 @@
         ['val' => fa(number_format($member->wallet_balance / 1000)), 'unit' => ' هزار', 'cap' => 'کیف پول'],
     ];
 @endphp
-<div style="margin-top:1.5rem;display:flex;gap:0.7rem;">
-    @foreach($stats as $s)
-    <div style="flex:1;position:relative;padding:1.9rem 0.4rem 0;text-align:center;">
-        {{-- قوس کامل زبانه بالای ستون --}}
-        <svg viewBox="0 0 100 44" preserveAspectRatio="none" fill="none" style="position:absolute;top:0;left:0;width:100%;height:44px;pointer-events:none;">
-            <path d="M6 44 L6 24 Q6 6 50 6 Q94 6 94 24 L94 44" stroke="#dbe3df" stroke-width="1.4"/>
-        </svg>
-        <div style="font-size:1.4rem;font-weight:800;letter-spacing:-0.5px;color:var(--ink);">{{ $s['val'] }}@if($s['unit'])<span style="font-size:0.62rem;color:var(--ink-dim);font-weight:600;">{{ $s['unit'] }}</span>@endif</div>
-        <div style="font-size:0.68rem;color:var(--ink-dim);margin-top:4px;">{{ $s['cap'] }}</div>
-    </div>
+<div style="margin-top:1.5rem;display:flex;align-items:center;text-align:center;">
+    @foreach($stats as $i => $s)
+        <div style="flex:1;">
+            <div style="font-size:1.45rem;font-weight:800;letter-spacing:-0.5px;color:var(--ink);text-shadow:0 2px 6px rgba(47,93,80,0.1);">{{ $s['val'] }}@if($s['unit'])<span style="font-size:0.64rem;color:var(--ink-dim);font-weight:600;text-shadow:none;">{{ $s['unit'] }}</span>@endif</div>
+            <div style="font-size:0.7rem;color:var(--ink-dim);margin-top:4px;">{{ $s['cap'] }}</div>
+        </div>
+        @if($i < 2)
+            <div style="width:1px;height:42px;background:linear-gradient(180deg,transparent,var(--border) 20%,var(--border) 80%,transparent);"></div>
+        @endif
     @endforeach
 </div>
 
