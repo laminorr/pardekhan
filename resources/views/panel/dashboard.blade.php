@@ -145,7 +145,7 @@
             @if(!$loop->last)
                 @php
                     if ($i < $currentIndex) { $lineBg = 'var(--pine)'; }
-                    elseif ($i === $currentIndex) { $lineBg = 'linear-gradient(90deg,var(--pine) ' . round($progress) . '%,#e4e7e5 ' . round($progress) . '%)'; }
+                    elseif ($i === $currentIndex) { $lineBg = 'linear-gradient(270deg,var(--pine) ' . round($progress) . '%,#e4e7e5 ' . round($progress) . '%)'; }
                     else { $lineBg = '#e4e7e5'; }
                 @endphp
                 <div style="height:2px;flex:1;background:{{ $lineBg }};margin-bottom:17px;border-radius:2px;"></div>
