@@ -5,7 +5,11 @@
 {{-- هدر --}}
 <div class="topbar">
     <div class="greeting">
-        <div class="hi">{{ now()->hour < 12 ? 'صبح بخیر،' : (now()->hour < 18 ? 'عصر بخیر،' : 'شب بخیر،') }}</div>
+        @php
+            $h = (int) \Carbon\Carbon::now('Asia/Tehran')->format('H');
+            $greet = $h < 5 ? 'شب بخیر،' : ($h < 12 ? 'صبح بخیر،' : ($h < 17 ? 'ظهر بخیر،' : ($h < 20 ? 'عصر بخیر،' : 'شب بخیر،')));
+        @endphp
+        <div class="hi">{{ $greet }}</div>
         <div class="name">{{ $member->full_name }}</div>
     </div>
     <a href="{{ route('panel.messages.index') }}" class="icon-btn">
@@ -50,14 +54,14 @@
             <div style="font-size:0.62rem;letter-spacing:3px;color:var(--ink-faint);font-weight:700;">لایهٔ عضویت</div>
             <div style="font-size:2rem;font-weight:800;color:var(--pine);line-height:1.05;margin-top:3px;letter-spacing:-0.5px;">{{ $layer?->name ?? 'مهمان' }}</div>
             <div style="display:flex;align-items:baseline;gap:4px;margin-top:4px;">
-                <b style="font-size:1.15rem;">{{ number_format($score) }}</b>
+                <b style="font-size:1.15rem;">{{ fa(number_format($score)) }}</b>
                 <span style="font-size:0.7rem;color:var(--ink-dim);">امتیاز</span>
             </div>
         </div>
     </div>
 
     @if($toNext && $nextLayer)
-        <div style="margin-top:6px;font-size:0.78rem;color:var(--ink-dim);">{{ number_format($toNext) }} امتیاز تا لایهٔ <b style="color:var(--pine);">{{ $nextLayer->name }}</b></div>
+        <div style="margin-top:6px;font-size:0.78rem;color:var(--ink-dim);">{{ fa(number_format($toNext)) }} امتیاز تا لایهٔ <b style="color:var(--pine);">{{ $nextLayer->name }}</b></div>
     @else
         <div style="margin-top:6px;font-size:0.78rem;color:var(--pine);font-weight:600;">بالاترین لایه 🏆</div>
     @endif
@@ -100,20 +104,20 @@
     $eventsAttended = $member->registrations()->where('attendance_status', 'attended')->count();
     $activeTickets = \App\Models\Ticket::where('member_id', $member->id)->where('status', 'active')->count();
 @endphp
-<div style="display:flex;background:var(--surface);border:1px solid var(--border);border-radius:18px;overflow:hidden;box-shadow:0 2px 14px rgba(40,60,50,0.04);">
-    <div style="flex:1;padding:0.9rem 0.5rem;text-align:center;">
-        <div style="font-size:1.4rem;font-weight:800;">{{ $eventsAttended }}</div>
-        <div style="font-size:0.68rem;color:var(--ink-dim);margin-top:2px;">دورهمی رفته</div>
+<div style="margin-top:1.4rem;display:flex;align-items:center;text-align:center;">
+    <div style="flex:1;">
+        <div style="font-size:1.45rem;font-weight:800;letter-spacing:-0.5px;">{{ fa($eventsAttended) }}</div>
+        <div style="font-size:0.7rem;color:var(--ink-dim);margin-top:3px;">دورهمی</div>
     </div>
-    <div style="width:1px;background:var(--border);"></div>
-    <div style="flex:1;padding:0.9rem 0.5rem;text-align:center;">
-        <div style="font-size:1.4rem;font-weight:800;">{{ $activeTickets }}</div>
-        <div style="font-size:0.68rem;color:var(--ink-dim);margin-top:2px;">بلیت فعال</div>
+    <div style="width:1px;height:34px;background:var(--border);"></div>
+    <div style="flex:1;">
+        <div style="font-size:1.45rem;font-weight:800;letter-spacing:-0.5px;">{{ fa($activeTickets) }}</div>
+        <div style="font-size:0.7rem;color:var(--ink-dim);margin-top:3px;">بلیت فعال</div>
     </div>
-    <div style="width:1px;background:var(--border);"></div>
-    <div style="flex:1;padding:0.9rem 0.5rem;text-align:center;">
-        <div style="font-size:1.4rem;font-weight:800;">{{ number_format($member->wallet_balance / 1000) }}<span style="font-size:0.6rem;font-weight:500;color:var(--ink-dim);"> هزار</span></div>
-        <div style="font-size:0.68rem;color:var(--ink-dim);margin-top:2px;">کیف پول</div>
+    <div style="width:1px;height:34px;background:var(--border);"></div>
+    <div style="flex:1;">
+        <div style="font-size:1.2rem;font-weight:800;letter-spacing:-0.5px;">{{ fa(number_format($member->wallet_balance / 1000)) }}<span style="font-size:0.7rem;color:var(--ink-dim);font-weight:600;"> هزار</span></div>
+        <div style="font-size:0.7rem;color:var(--ink-dim);margin-top:3px;">کیف پول</div>
     </div>
 </div>
 
@@ -124,8 +128,8 @@
         $menuItems = [
             ['دورهمی‌ها', 'مشاهده و ثبت‌نام', route('panel.events.index'), 'M2 4h20v16H2zM7 4v16M17 4v16M2 9h5M2 15h5M17 9h5M17 15h5', 'green'],
             ['بلیت‌های من', 'بلیت‌های فعال', route('panel.tickets.index'), 'M3 9a2 2 0 0 0 0 6v2a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-2a2 2 0 0 1 0-6V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z', 'burnt'],
-            ['کیف پول', number_format($member->wallet_balance) . ' ت', '#', 'M2 5h20v14H2zM2 10h20', 'green'],
-            ['پیام‌ها', ($unreadMessages ?? 0) > 0 ? ($unreadMessages . ' پیام جدید') : 'بدون پیام جدید', route('panel.messages.index'), 'M2 4h20v16H2zM3 7l9 6 9-6', 'burnt'],
+            ['کیف پول', fa(number_format($member->wallet_balance)) . ' ت', '#', 'M2 5h20v14H2zM2 10h20', 'green'],
+            ['پیام‌ها', ($unreadMessages ?? 0) > 0 ? (fa($unreadMessages) . ' پیام جدید') : 'بدون پیام جدید', route('panel.messages.index'), 'M2 4h20v16H2zM3 7l9 6 9-6', 'burnt'],
         ];
     @endphp
     @foreach($menuItems as [$title, $desc, $url, $icon, $color])
@@ -172,7 +176,7 @@
         <div style="display:flex;align-items:center;gap:1rem;margin-top:0.85rem;font-size:0.76rem;color:var(--ink-dim);">
             <span style="display:flex;align-items:center;gap:4px;">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--pine)" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-                {{ \Morilog\Jalali\Jalalian::fromDateTime($suggested->starts_at)->format('j F') }} · {{ $suggested->starts_at->format('H:i') }}
+                {{ fa(\Morilog\Jalali\Jalalian::fromDateTime($suggested->starts_at)->format('j F')) }} · {{ fa($suggested->starts_at->format('H:i')) }}
             </span>
             @if($suggested->venue)
             <span style="display:flex;align-items:center;gap:4px;">
@@ -186,9 +190,9 @@
         <div style="display:flex;align-items:center;justify-content:space-between;">
             <div>
                 @if($discount > 0)
-                    <span style="font-size:0.72rem;color:var(--ink-faint);text-decoration:line-through;">{{ number_format($suggested->base_price) }}</span>
+                    <span style="font-size:0.72rem;color:var(--ink-faint);text-decoration:line-through;">{{ fa(number_format($suggested->base_price)) }}</span>
                 @endif
-                <div style="font-size:1.3rem;font-weight:800;color:var(--ink);">{{ number_format($price) }} <span style="font-size:0.7rem;font-weight:400;color:var(--ink-dim);">تومان</span></div>
+                <div style="font-size:1.3rem;font-weight:800;color:var(--ink);">{{ fa(number_format($price)) }} <span style="font-size:0.7rem;font-weight:400;color:var(--ink-dim);">تومان</span></div>
             </div>
             <span class="btn btn-primary" style="width:auto;padding:0.7rem 1.5rem;">ثبت‌نام
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
