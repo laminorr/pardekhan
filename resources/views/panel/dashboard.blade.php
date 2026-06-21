@@ -111,14 +111,14 @@
         ['val' => fa(number_format($member->wallet_balance / 1000)), 'unit' => ' هزار', 'cap' => 'کیف پول'],
     ];
 @endphp
-<div style="margin-top:1.5rem;display:flex;align-items:center;text-align:center;">
+<div style="margin-top:1.5rem;display:flex;align-items:stretch;text-align:center;">
     @foreach($stats as $i => $s)
-        <div style="flex:1;">
-            <div style="font-size:1.45rem;font-weight:800;letter-spacing:-0.5px;color:var(--ink);text-shadow:0 2px 6px rgba(47,93,80,0.1);">{{ $s['val'] }}@if($s['unit'])<span style="font-size:0.64rem;color:var(--ink-dim);font-weight:600;text-shadow:none;">{{ $s['unit'] }}</span>@endif</div>
-            <div style="font-size:0.7rem;color:var(--ink-dim);margin-top:4px;">{{ $s['cap'] }}</div>
+        <div style="flex:1;display:flex;flex-direction:column;justify-content:center;min-height:54px;">
+            <div style="font-size:1.45rem;font-weight:800;letter-spacing:-0.5px;color:var(--ink);line-height:1;text-shadow:0 2px 6px rgba(47,93,80,0.1);">{{ $s['val'] }}@if($s['unit'])<span style="font-size:0.64rem;color:var(--ink-dim);font-weight:600;text-shadow:none;">{{ $s['unit'] }}</span>@endif</div>
+            <div style="font-size:0.7rem;color:var(--ink-dim);margin-top:7px;line-height:1;">{{ $s['cap'] }}</div>
         </div>
         @if($i < 2)
-            <div style="width:1px;height:42px;background:linear-gradient(180deg,transparent,var(--border) 20%,var(--border) 80%,transparent);"></div>
+            <div style="width:1px;background:linear-gradient(180deg,transparent,#c4ccc8 18%,#b6beba 50%,#c4ccc8 82%,transparent);"></div>
         @endif
     @endforeach
 </div>
