@@ -60,13 +60,22 @@ class MemberResource extends Resource
                     Forms\Components\Select::make('layer_id')
                         ->label('لایه عضویت')
                         ->options(Layer::active()->pluck('name', 'id'))
-                        ->disabled()
                         ->dehydrated(true)
-                        ->helperText('به‌صورت خودکار بر اساس امتیاز تعیین می‌شود'),
+                        ->helperText('با تغییر امتیاز خودکار به‌روز می‌شود'),
                     Forms\Components\TextInput::make('score')
                         ->label('امتیاز')
                         ->numeric()
                         ->default(0)
+                        ->live(onBlur: true)
+                        ->afterStateUpdated(function ($state, \Filament\Schemas\Components\Utilities\Set $set) {
+                            $correct = Layer::active()
+                                ->where('min_score', '<=', (int) $state)
+                                ->orderByDesc('min_score')
+                                ->first();
+                            if ($correct) {
+                                $set('layer_id', $correct->id);
+                            }
+                        })
                         ->helperText('با تغییر امتیاز، لایه خودکار به‌روز می‌شود'),
                 ]),
             ]),
