@@ -12,11 +12,67 @@
         <div class="hi">{{ $greet }}</div>
         <div class="name">{{ $member->full_name }}</div>
     </div>
-    <a href="{{ route('panel.messages.index') }}" class="icon-btn">
-        @if(($unreadMessages ?? 0) > 0)<span class="ndot"></span>@endif
-        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+    <a href="{{ route('panel.messages.index') }}" class="bell-btn {{ ($unreadMessages ?? 0) > 0 ? 'has-unread' : '' }}">
+        @if(($unreadMessages ?? 0) > 0)
+            <span class="bell-badge">{{ fa($unreadMessages) }}</span>
+        @endif
+        <svg class="bell-svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
     </a>
 </div>
+
+@push('styles')
+<style>
+    .bell-btn {
+        width: 44px; height: 44px; border-radius: 15px; background: var(--surface);
+        border: 1px solid var(--border); display: flex; align-items: center; justify-content: center;
+        color: var(--ink); position: relative; text-decoration: none; flex-shrink: 0;
+        box-shadow: 0 2px 8px rgba(40,60,50,0.06); transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .bell-btn:active { transform: scale(0.94); }
+    .bell-svg { transform-origin: 50% 4px; }
+
+    /* تکون ملایم همیشگی */
+    @keyframes bell-sway {
+        0%, 88%, 100% { transform: rotate(0); }
+        91% { transform: rotate(9deg); }
+        94% { transform: rotate(-7deg); }
+        97% { transform: rotate(4deg); }
+    }
+    .bell-svg { animation: bell-sway 4s ease-in-out infinite; }
+
+    /* حالت پیام خوانده‌نشده — با رنگ پالت */
+    .bell-btn.has-unread {
+        background: linear-gradient(145deg, var(--pine), var(--pine-deep));
+        border-color: var(--pine-deep);
+        color: #fff;
+        box-shadow: 0 6px 18px rgba(47,93,80,0.35);
+    }
+    .bell-btn.has-unread .bell-svg {
+        animation: bell-ring 2.2s ease-in-out infinite;
+    }
+    @keyframes bell-ring {
+        0%, 60%, 100% { transform: rotate(0); }
+        66% { transform: rotate(12deg); }
+        72% { transform: rotate(-10deg); }
+        78% { transform: rotate(7deg); }
+        84% { transform: rotate(-4deg); }
+        90% { transform: rotate(0); }
+    }
+
+    /* نشان تعداد پیام */
+    .bell-badge {
+        position: absolute; top: -6px; left: -6px;
+        min-width: 20px; height: 20px; padding: 0 5px;
+        background: var(--burnt); color: #fff;
+        font-size: 0.66rem; font-weight: 800; border-radius: 99px;
+        display: flex; align-items: center; justify-content: center;
+        border: 2px solid var(--bg); z-index: 2;
+        box-shadow: 0 2px 8px rgba(194,85,47,0.4);
+        animation: badge-pop 0.4s cubic-bezier(.5,1.6,.5,1) both;
+    }
+    @keyframes badge-pop { from { transform: scale(0); } to { transform: scale(1); } }
+</style>
+@endpush
 
 {{-- کارت عضویت با حلقه پیشرفت --}}
 @php
