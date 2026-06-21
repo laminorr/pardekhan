@@ -60,12 +60,14 @@ class MemberResource extends Resource
                     Forms\Components\Select::make('layer_id')
                         ->label('لایه عضویت')
                         ->options(Layer::active()->pluck('name', 'id'))
-                        ->nullable()
-                        ->placeholder('بدون لایه'),
+                        ->disabled()
+                        ->dehydrated(false)
+                        ->helperText('به‌صورت خودکار بر اساس امتیاز تعیین می‌شود'),
                     Forms\Components\TextInput::make('score')
                         ->label('امتیاز')
                         ->numeric()
-                        ->default(0),
+                        ->default(0)
+                        ->helperText('با تغییر امتیاز، لایه خودکار به‌روز می‌شود'),
                 ]),
             ]),
 
