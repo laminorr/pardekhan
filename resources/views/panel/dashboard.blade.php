@@ -104,29 +104,24 @@
     $eventsAttended = $member->registrations()->where('attendance_status', 'attended')->count();
     $activeTickets = \App\Models\Ticket::where('member_id', $member->id)->where('status', 'active')->count();
 @endphp
-<div style="margin-top:1.4rem;position:relative;background:#fff;border:1px solid var(--border);border-radius:18px;padding-top:8px;overflow:hidden;box-shadow:0 4px 20px rgba(40,60,50,0.05);">
-    {{-- خط سه قوس بالای باکس --}}
-    <svg viewBox="0 0 390 40" preserveAspectRatio="none" fill="none" style="position:absolute;top:0;left:0;width:100%;height:40px;pointer-events:none;">
-        <path d="M5 40 Q5 8 65 8 Q125 8 125 40" stroke="#dde5e1" stroke-width="1.5"/>
-        <path d="M135 40 Q135 8 195 8 Q255 8 255 40" stroke="#dde5e1" stroke-width="1.5"/>
-        <path d="M265 40 Q265 8 325 8 Q385 8 385 40" stroke="#dde5e1" stroke-width="1.5"/>
-    </svg>
-    <div style="display:flex;align-items:center;text-align:center;position:relative;">
-        <div style="flex:1;padding:1.7rem 0.5rem 1.2rem;">
-            <div style="font-size:1.4rem;font-weight:800;letter-spacing:-0.5px;">{{ fa($eventsAttended) }}</div>
-            <div style="font-size:0.68rem;color:var(--ink-dim);margin-top:3px;">دورهمی</div>
-        </div>
-        <div style="width:1px;background:#f0f1f0;align-self:stretch;"></div>
-        <div style="flex:1;padding:1.7rem 0.5rem 1.2rem;">
-            <div style="font-size:1.4rem;font-weight:800;letter-spacing:-0.5px;">{{ fa($activeTickets) }}</div>
-            <div style="font-size:0.68rem;color:var(--ink-dim);margin-top:3px;">بلیت فعال</div>
-        </div>
-        <div style="width:1px;background:#f0f1f0;align-self:stretch;"></div>
-        <div style="flex:1;padding:1.7rem 0.5rem 1.2rem;">
-            <div style="font-size:1.2rem;font-weight:800;letter-spacing:-0.5px;">{{ fa(number_format($member->wallet_balance / 1000)) }}<span style="font-size:0.66rem;color:var(--ink-dim);font-weight:600;"> هزار</span></div>
-            <div style="font-size:0.68rem;color:var(--ink-dim);margin-top:3px;">کیف پول</div>
-        </div>
+@php
+    $stats = [
+        ['val' => fa($eventsAttended), 'unit' => '', 'cap' => 'دورهمی'],
+        ['val' => fa($activeTickets), 'unit' => '', 'cap' => 'بلیت فعال'],
+        ['val' => fa(number_format($member->wallet_balance / 1000)), 'unit' => ' هزار', 'cap' => 'کیف پول'],
+    ];
+@endphp
+<div style="margin-top:1.5rem;display:flex;gap:0.7rem;">
+    @foreach($stats as $s)
+    <div style="flex:1;position:relative;padding:1.9rem 0.4rem 0;text-align:center;">
+        {{-- قوس کامل زبانه بالای ستون --}}
+        <svg viewBox="0 0 100 44" preserveAspectRatio="none" fill="none" style="position:absolute;top:0;left:0;width:100%;height:44px;pointer-events:none;">
+            <path d="M6 44 L6 24 Q6 6 50 6 Q94 6 94 24 L94 44" stroke="#dbe3df" stroke-width="1.4"/>
+        </svg>
+        <div style="font-size:1.4rem;font-weight:800;letter-spacing:-0.5px;color:var(--ink);">{{ $s['val'] }}@if($s['unit'])<span style="font-size:0.62rem;color:var(--ink-dim);font-weight:600;">{{ $s['unit'] }}</span>@endif</div>
+        <div style="font-size:0.68rem;color:var(--ink-dim);margin-top:4px;">{{ $s['cap'] }}</div>
     </div>
+    @endforeach
 </div>
 
 {{-- منوی دسترسی سریع --}}
