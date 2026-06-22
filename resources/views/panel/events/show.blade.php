@@ -7,7 +7,7 @@
     .ev-hero img { width:100%; height:100%; object-fit:cover; }
     .ev-hero-actions { position:absolute; top:1rem; right:1.2rem; left:1.2rem; display:flex; justify-content:space-between; }
     .ev-hero-btn { width:44px; height:44px; border-radius:14px; background:rgba(255,255,255,0.92); border:none; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(6px); cursor:pointer; text-decoration:none; }
-    .ev-body { position:relative; margin-top:-26px; background:var(--bg); border-radius:28px 28px 0 0; padding:1.5rem 0.2rem 0; }
+    .ev-body { position:relative; margin:-26px -1.2rem 0; background:var(--bg); border-radius:28px 28px 0 0; padding:1.5rem 1.2rem 0; }
     .ev-desc { font-size:0.86rem; color:var(--ink-dim); margin-top:0.6rem; line-height:1.95; text-align:justify; }
     .ev-info-row { display:flex; align-items:center; gap:0.85rem; }
     .ev-info-ico { width:44px; height:44px; border-radius:14px; background:var(--bg-soft); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
@@ -75,7 +75,7 @@
         @endif
         <div class="ev-info-row">
             <div class="ev-info-ico">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--pine)" stroke-width="1.6"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--pine)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             </div>
             <div>
                 <div style="font-size:0.9rem;font-weight:700;">{{ fa($event->capacity) }} نفر ظرفیت</div>
@@ -133,7 +133,15 @@
     </div>
 
     @if($isRegistered)
-        <a href="{{ route('panel.tickets.index') }}" class="btn btn-primary" style="width:auto;padding:0.85rem 1.8rem;">مشاهدهٔ بلیت</a>
+        <div style="display:flex;align-items:center;gap:0.6rem;">
+            <form method="POST" action="{{ route('panel.events.cancel', $event) }}" onsubmit="return confirm('آیا از انصراف مطمئن هستید؟');" style="display:flex;">
+                @csrf
+                <button type="submit" title="انصراف" style="width:48px;height:48px;border-radius:14px;background:#fbeae4;border:1px solid #f0cdbe;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--burnt)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                </button>
+            </form>
+            <a href="{{ route('panel.tickets.index') }}" class="btn btn-primary" style="width:auto;padding:0.85rem 1.6rem;">مشاهدهٔ بلیت</a>
+        </div>
     @elseif($isWaiting)
         <span style="font-size:0.82rem;color:var(--ink-mid);font-weight:600;background:var(--bg-soft);padding:0.85rem 1.4rem;border-radius:14px;">در لیست انتظار</span>
     @elseif($event->remainingCapacity() <= 0)
@@ -149,13 +157,4 @@
     @endif
 </div>
 
-{{-- اگر ثبت‌نام کرده، گزینه انصراف زیر نوار (به‌صورت لینک کوچک) --}}
-@if($isRegistered)
-<div style="position:fixed;bottom:calc(5rem + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:59;">
-    <form method="POST" action="{{ route('panel.events.cancel', $event) }}" onsubmit="return confirm('آیا از انصراف مطمئن هستید؟');">
-        @csrf
-        <button type="submit" style="background:none;border:none;color:var(--burnt);font-family:inherit;font-size:0.78rem;font-weight:600;cursor:pointer;text-decoration:underline;">انصراف از دورهمی</button>
-    </form>
-</div>
-@endif
 @endsection
