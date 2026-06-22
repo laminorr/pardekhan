@@ -25,8 +25,37 @@
     </button>
 </div>
 
+{{-- باکس شارژ --}}
+<div id="charge-box" style="margin-top:1.25rem;">
+    {{-- درگاه بانکی (غیرفعال) --}}
+    <div style="border:1px solid var(--border);border-radius:18px;padding:1.1rem 1.15rem;background:#fff;display:flex;align-items:center;gap:0.85rem;opacity:0.65;">
+        <div style="width:42px;height:42px;border-radius:12px;background:var(--bg-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--ink-mid)" stroke-width="1.6"><rect x="2" y="5" width="20" height="14" rx="2.5"/><path d="M2 10h20"/></svg>
+        </div>
+        <div style="flex:1;">
+            <div style="font-size:0.9rem;font-weight:700;">شارژ از طریق درگاه بانکی</div>
+            <div style="font-size:0.74rem;color:var(--ink-dim);margin-top:2px;">به‌زودی فعال می‌شود</div>
+        </div>
+        <span style="font-size:0.68rem;color:var(--ink-mid);background:var(--bg-mute);padding:4px 10px;border-radius:99px;">غیرفعال</span>
+    </div>
+
+    {{-- کارت به کارت --}}
+    @if($cardNumber)
+    <div style="margin-top:1rem;border:1px solid var(--border);border-radius:20px;padding:1.25rem;background:#fff;">
+        <div style="font-size:0.95rem;font-weight:800;margin-bottom:0.4rem;">شارژ با کارت به کارت</div>
+        <div style="font-size:0.8rem;color:var(--ink-mid);line-height:1.9;text-align:justify;">مبلغ دلخواه را به کارت زیر واریز کرده و سپس از طریق پیام به مدیریت، مبلغ و شمارهٔ پیگیری را اطلاع دهید تا کیف پولتان شارژ شود.</div>
+        <div style="background:var(--bg-soft);border-radius:14px;padding:1rem;text-align:center;margin-top:1rem;">
+            <div style="font-size:0.72rem;color:var(--ink-dim);margin-bottom:0.4rem;">شماره کارت</div>
+            <div style="font-size:1.2rem;font-weight:700;color:var(--pine);direction:ltr;letter-spacing:2px;">{{ $cardNumber }}</div>
+            @if($cardHolder)<div style="font-size:0.78rem;color:var(--ink-dim);margin-top:0.4rem;">{{ $cardHolder }}</div>@endif
+        </div>
+        <a href="{{ route('panel.messages.index') }}" class="btn btn-primary" style="margin-top:1rem;">اطلاع به مدیریت</a>
+    </div>
+    @endif
+</div>
+
 {{-- تراکنش‌ها --}}
-<div style="margin-top:1.5rem;font-size:1.05rem;font-weight:800;">تراکنش‌ها</div>
+<div style="margin-top:1.75rem;font-size:1.05rem;font-weight:800;">تراکنش‌ها</div>
 @if($transactions->isEmpty())
     <div style="text-align:center;padding:2.5rem 1rem;color:var(--ink-dim);">
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--ink-faint)" stroke-width="1.3" style="margin:0 auto 0.75rem;"><rect x="2" y="5" width="20" height="14" rx="2.5"/><path d="M2 10h20"/></svg>
@@ -53,20 +82,6 @@
         <div style="font-size:0.95rem;font-weight:800;color:{{ $isCredit ? 'var(--pine)' : 'var(--ink)' }};">{{ fa(number_format($txn->amount)) }}{{ $isCredit ? '+' : '−' }}</div>
     </div>
     @endforeach
-</div>
-@endif
-
-{{-- باکس شارژ --}}
-@if($cardNumber)
-<div id="charge-box" style="margin-top:1.75rem;border:1px solid var(--border);border-radius:20px;padding:1.25rem;background:#fff;">
-    <div style="font-size:0.95rem;font-weight:800;margin-bottom:0.4rem;">شارژ کیف پول</div>
-    <div style="font-size:0.8rem;color:var(--ink-mid);line-height:1.9;text-align:justify;">برای شارژ، مبلغ دلخواه را به کارت زیر واریز کرده و سپس از طریق پیام به مدیریت، مبلغ و شمارهٔ پیگیری را اطلاع دهید تا کیف پولتان شارژ شود.</div>
-    <div style="background:var(--bg-soft);border-radius:14px;padding:1rem;text-align:center;margin-top:1rem;">
-        <div style="font-size:0.72rem;color:var(--ink-dim);margin-bottom:0.4rem;">شماره کارت</div>
-        <div style="font-size:1.2rem;font-weight:700;color:var(--pine);direction:ltr;letter-spacing:2px;">{{ $cardNumber }}</div>
-        @if($cardHolder)<div style="font-size:0.78rem;color:var(--ink-dim);margin-top:0.4rem;">{{ $cardHolder }}</div>@endif
-    </div>
-    <a href="{{ route('panel.messages.index') }}" class="btn btn-primary" style="margin-top:1rem;">اطلاع به مدیریت</a>
 </div>
 @endif
 
