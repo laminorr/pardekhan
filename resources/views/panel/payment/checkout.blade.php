@@ -102,23 +102,52 @@
 
 {{-- جزئیات کارت به کارت --}}
 <div class="pay-detail" id="detail-card">
-    <div style="border:1px dashed #cfd8d4;border-radius:18px;padding:1.1rem;background:#f8faf9;">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-            <span style="font-size:0.76rem;color:var(--ink-dim);">شمارهٔ کارت مقصد</span>
-            <button type="button" onclick="copyCard()" style="font-size:0.72rem;color:var(--pine);font-weight:700;background:none;border:none;cursor:pointer;" id="copy-btn">کپی</button>
-        </div>
-        <div id="card-num" style="font-size:1.15rem;font-weight:800;letter-spacing:2px;margin-top:6px;direction:ltr;text-align:right;color:var(--pine);">{{ $cardNumber }}</div>
-        @if($cardHolder)<div style="font-size:0.78rem;color:var(--ink-dim);margin-top:4px;">{{ $cardHolder }}</div>@endif
+    {{-- کارت بانکی گرافیکی --}}
+    <div style="position:relative;border-radius:20px;padding:1.3rem 1.3rem 1.2rem;background:linear-gradient(135deg,#34685a,#1f4538);overflow:hidden;box-shadow:0 16px 36px -20px rgba(47,93,80,0.7);">
+        {{-- بافت تزئینی --}}
+        <div style="position:absolute;top:-50px;left:-30px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,0.05);"></div>
+        <div style="position:absolute;bottom:-60px;right:-30px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,0.04);"></div>
 
-        <div style="font-size:0.8rem;color:var(--ink-mid);margin:1rem 0 0.5rem;line-height:1.8;text-align:justify;">
-            لطفاً مبلغ <strong style="color:var(--pine);">{{ fa(number_format($price)) }} تومان</strong> را واریز کرده و کد پیگیری را وارد کنید.
+        {{-- ردیف بالا: چیپ + برچسب --}}
+        <div style="position:relative;display:flex;justify-content:space-between;align-items:center;">
+            <div style="width:38px;height:28px;border-radius:7px;background:linear-gradient(135deg,#e8d9a8,#c9b274);position:relative;overflow:hidden;">
+                <div style="position:absolute;top:50%;left:0;right:0;height:1px;background:rgba(0,0,0,0.15);"></div>
+                <div style="position:absolute;top:30%;bottom:30%;left:35%;width:1px;background:rgba(0,0,0,0.15);"></div>
+                <div style="position:absolute;top:30%;bottom:30%;left:60%;width:1px;background:rgba(0,0,0,0.15);"></div>
+            </div>
+            <span style="font-size:0.68rem;color:rgba(234,243,239,0.7);letter-spacing:1px;">کارت مقصد</span>
+        </div>
+
+        {{-- شماره کارت --}}
+        <div id="card-num" style="position:relative;font-size:1.3rem;font-weight:700;letter-spacing:3px;margin-top:1.1rem;direction:ltr;text-align:left;color:#fff;font-family:'Vazirmatn',monospace;">{{ $cardNumber }}</div>
+
+        {{-- ردیف پایین: نام + کپی --}}
+        <div style="position:relative;display:flex;justify-content:space-between;align-items:flex-end;margin-top:1rem;">
+            <div>
+                @if($cardHolder)
+                    <div style="font-size:0.62rem;color:rgba(234,243,239,0.6);">به نام</div>
+                    <div style="font-size:0.85rem;color:#fff;font-weight:600;margin-top:2px;">{{ $cardHolder }}</div>
+                @endif
+            </div>
+            <button type="button" onclick="copyCard()" id="copy-btn" style="display:flex;align-items:center;gap:5px;font-size:0.72rem;color:#fff;font-weight:700;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.2);border-radius:10px;padding:6px 12px;cursor:pointer;backdrop-filter:blur(6px);">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                کپی
+            </button>
+        </div>
+    </div>
+
+    {{-- مبلغ و فیلد --}}
+    <div style="margin-top:1rem;background:#fff;border:1px solid var(--border);border-radius:18px;padding:1.15rem;">
+        <div style="display:flex;align-items:center;gap:8px;padding:0.7rem 0.9rem;background:var(--green-tint);border-radius:12px;font-size:0.82rem;color:var(--pine-deep);line-height:1.7;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--pine)" stroke-width="1.8" style="flex-shrink:0;"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01" stroke-linecap="round"/></svg>
+            <span>مبلغ <strong>{{ fa(number_format($price)) }} تومان</strong> را واریز و کد پیگیری را وارد کنید</span>
         </div>
 
         <form method="POST" action="{{ route('panel.payment.card', $event) }}">
             @csrf
-            <div style="font-size:0.78rem;color:var(--ink-mid);font-weight:600;margin-top:0.6rem;margin-bottom:0.4rem;">شمارهٔ پیگیری / کد رهگیری</div>
-            <input type="text" name="tracking_number" required placeholder="مثلاً ۱۲۳۴۵۶" style="width:100%;background:#fff;border:1px solid var(--border);border-radius:12px;padding:0.85rem 1rem;font-family:inherit;direction:ltr;text-align:right;">
-            <button type="submit" class="btn btn-primary" style="margin-top:0.9rem;">ثبت پرداخت و انتظار تایید</button>
+            <div style="font-size:0.78rem;color:var(--ink-mid);font-weight:600;margin-top:1rem;margin-bottom:0.4rem;">شمارهٔ پیگیری / کد رهگیری</div>
+            <input type="text" name="tracking_number" required placeholder="مثلاً ۱۲۳۴۵۶" style="width:100%;background:var(--bg-soft);border:1px solid var(--border);border-radius:12px;padding:0.9rem 1rem;font-family:inherit;direction:ltr;text-align:right;transition:border-color 0.2s;" onfocus="this.style.borderColor='var(--pine)';this.style.background='#fff';" onblur="this.style.borderColor='var(--border)';">
+            <button type="submit" class="btn btn-primary" style="margin-top:1rem;">ثبت پرداخت و انتظار تایید</button>
         </form>
     </div>
 </div>
@@ -151,8 +180,9 @@
         var num = document.getElementById('card-num').innerText.replace(/\s/g, '');
         navigator.clipboard.writeText(num).then(function () {
             var btn = document.getElementById('copy-btn');
-            btn.innerText = 'کپی شد ✓';
-            setTimeout(function () { btn.innerText = 'کپی'; }, 1500);
+            var original = btn.innerHTML;
+            btn.innerHTML = 'کپی شد ✓';
+            setTimeout(function () { btn.innerHTML = original; }, 1500);
         });
     }
     // پیش‌فرض: اگر کیف پول قابل استفاده است انتخابش کن، وگرنه کارت
