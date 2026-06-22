@@ -1,143 +1,120 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>بلیت — {{ $ticket->event->title }}</title>
-<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-<style>
-    :root {
-        --gold-1:#f0dca8; --gold-2:#d4af6a; --gold-3:#b8923f;
-        --bg:#08080a; --surface:#121214; --border:rgba(255,255,255,0.08);
-        --gold-border:rgba(212,175,106,0.25); --text:#ece9e4; --text-dim:#93908a;
-    }
-    html { background: var(--bg); }
-    * { box-sizing:border-box; margin:0; padding:0; }
-    body { font-family:'Vazirmatn',sans-serif; background:var(--bg); color:var(--text); padding:1.5rem; direction:rtl; min-height:100vh; }
-    .ticket-wrap { max-width:400px; margin:0 auto; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>بلیت — {{ $ticket->event->title }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100..900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <style>
+        :root { --pine:#2f5d50; --pine-bright:#3f7a68; --paper:#fcfcfb; --ink:#16181a; --dim:#8b8f93; --dim2:#9aa09c; }
+        * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+        html { background:#0e211c; }
+        body { font-family:'Vazirmatn',sans-serif; background:#0e211c; color:#eaf3ef; min-height:100vh; direction:rtl; -webkit-font-smoothing:antialiased; }
+        .screen { max-width:430px; margin:0 auto; min-height:100vh; display:flex; flex-direction:column; padding-bottom:1.5rem; }
+        svg { display:block; }
 
-    .ticket {
-        background:linear-gradient(160deg, rgba(212,175,106,0.1) 0%, var(--surface) 45%);
-        border:1px solid var(--gold-border); border-radius:24px; overflow:hidden;
-        position:relative;
-    }
-    .t-header { padding:1.5rem 1.5rem 1.25rem; text-align:center; border-bottom:1px dashed var(--gold-border); position:relative; }
-    .t-brand { font-size:1.3rem; font-weight:900;
-        background:linear-gradient(135deg,var(--gold-1),var(--gold-3));
-        -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
-    .t-brand-sub { font-size:0.62rem; color:var(--gold-2); letter-spacing:3px; margin-top:2px; }
-    /* بریدگی‌های بلیت */
-    .t-notch { position:absolute; bottom:-11px; width:22px; height:22px; background:var(--bg); border-radius:50%; }
-    .t-notch.r { right:-11px; } .t-notch.l { left:-11px; }
+        .t-head { display:flex; align-items:center; gap:14px; padding:1.4rem 1.5rem 0; }
+        .t-back { width:42px; height:42px; border-radius:13px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.06); display:flex; align-items:center; justify-content:center; text-decoration:none; }
+        .t-head-title { font-size:1.15rem; font-weight:800; }
+        .t-label { text-align:center; padding:0.9rem 1.5rem 0; }
+        .t-label span { font-size:0.7rem; letter-spacing:3px; color:#6ea38f; font-weight:700; }
 
-    .t-body { padding:1.5rem; }
-    .t-title { font-size:1.25rem; font-weight:700; color:#fff; text-align:center; }
-    .t-sub { font-size:0.82rem; color:var(--text-dim); text-align:center; margin-top:4px; }
+        /* کارت بلیت */
+        .ticket { margin:1.3rem 1.3rem 0; background:var(--paper); border-radius:26px; color:var(--ink); position:relative; overflow:hidden; box-shadow:0 30px 60px -30px rgba(0,0,0,0.5); }
+        .ticket-bar { height:8px; background:linear-gradient(90deg,var(--pine),var(--pine-bright)); }
+        .ticket-pad { padding:1.4rem 1.5rem 0.5rem; }
+        .t-title { font-size:1.35rem; font-weight:800; line-height:1.25; letter-spacing:-0.4px; }
+        .t-sub { font-size:0.78rem; color:var(--dim); margin-top:4px; }
+        .t-row { padding:0 1.5rem; display:flex; justify-content:space-between; margin-top:0.9rem; }
+        .t-row .k { font-size:0.7rem; color:var(--dim2); }
+        .t-row .v { font-size:0.88rem; font-weight:800; margin-top:3px; }
 
-    .t-info { display:flex; flex-direction:column; gap:0.7rem; margin:1.5rem 0; padding:1rem; background:rgba(0,0,0,0.25); border-radius:14px; }
-    .t-row { display:flex; justify-content:space-between; font-size:0.85rem; }
-    .t-row .lbl { color:var(--text-dim); }
-    .t-row .val { color:var(--text); font-weight:500; }
+        /* بریدگی و خط‌چین */
+        .t-perf { position:relative; height:28px; margin-top:1.1rem; }
+        .t-perf .notch { position:absolute; top:50%; width:28px; height:28px; border-radius:50%; background:#0e211c; transform:translateY(-50%); }
+        .t-perf .notch.r { right:-14px; }
+        .t-perf .notch.l { left:-14px; }
+        .t-perf .dash { position:absolute; top:50%; left:22px; right:22px; border-top:2px dashed #d8dcda; }
 
-    /* QR */
-    .t-qr-wrap { text-align:center; margin:1.5rem 0; }
-    .t-qr { display:inline-block; padding:14px; background:#fff; border-radius:16px; }
-    .t-qr img, .t-qr canvas { display:block; }
-    .t-code { font-family:monospace; font-size:1rem; color:var(--gold-1); margin-top:0.85rem; letter-spacing:2px; direction:ltr; }
-    .t-hint { font-size:0.72rem; color:var(--text-dim); margin-top:0.4rem; }
+        /* QR */
+        .t-qr-area { padding:1rem 1.5rem 1.6rem; display:flex; flex-direction:column; align-items:center; }
+        .t-qr { padding:14px; background:#fff; border-radius:18px; box-shadow:inset 0 0 0 1px #f0f1f0; }
+        .t-qr img, .t-qr canvas { display:block; }
+        .t-code-label { margin-top:14px; font-size:0.7rem; color:var(--dim2); }
+        .t-code { font-size:1.15rem; font-weight:800; letter-spacing:3px; margin-top:3px; direction:ltr; }
+        .t-status { margin-top:14px; display:inline-flex; align-items:center; gap:7px; font-size:0.75rem; font-weight:800; padding:8px 16px; border-radius:20px; }
+        .t-status.active { background:#e8efec; color:var(--pine); }
+        .t-status.used { background:#f0f1f0; color:var(--dim); }
+        .t-status.cancelled { background:#fbeae4; color:#c2552f; }
+        .t-status .dot { width:8px; height:8px; border-radius:50%; background:currentColor; animation:pkdot 2s infinite; }
+        @keyframes pkdot { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
 
-    .t-status {
-        text-align:center; padding:0.6rem; border-radius:12px; font-size:0.85rem; font-weight:600; margin-top:0.5rem;
-    }
-    .t-status.active { background:rgba(93,202,143,0.12); color:#5dca8f; }
-    .t-status.used { background:rgba(255,255,255,0.05); color:var(--text-dim); }
-    .t-status.cancelled { background:rgba(226,101,90,0.12); color:#e2655a; }
-
-    .actions { margin-top:1.5rem; display:flex; gap:0.75rem; }
-    .btn { flex:1; display:flex; align-items:center; justify-content:center; gap:6px;
-        padding:0.9rem; border-radius:14px; border:none; font-family:inherit; font-size:0.9rem;
-        font-weight:700; cursor:pointer; text-decoration:none; }
-    .btn-gold { background:linear-gradient(135deg,var(--gold-1),var(--gold-3)); color:#1a1408; }
-    .btn-ghost { background:var(--surface); color:var(--text); border:1px solid var(--border); }
-
-    @media print {
-        body { background:#fff; color:#000; padding:0; }
-        html { background:#fff; }
-        .actions, .no-print { display:none !important; }
-        .ticket { border:2px solid #d4af6a; background:#fff; }
-        .t-title, .t-row .val { color:#000; }
-        .t-info { background:#f5f5f5; }
-        .t-notch { background:#fff; }
-    }
-</style>
+        .t-note { text-align:center; padding:1.2rem 2.2rem 0; font-size:0.76rem; color:#6ea38f; line-height:1.9; }
+    </style>
 </head>
 <body>
-<div class="ticket-wrap">
+<div class="screen">
+    <div class="t-head">
+        <a href="{{ route('panel.tickets.index') }}" class="t-back">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#eaf3ef" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+        </a>
+        <div class="t-head-title">بلیت من</div>
+    </div>
+    <div class="t-label"><span>بلیت دورهمی پرده‌خوان</span></div>
+
     <div class="ticket">
-        <div class="t-header">
-            <div class="t-brand">پرده‌خوان</div>
-            <div class="t-brand-sub">بلیت ورود</div>
-            <div class="t-notch r"></div>
-            <div class="t-notch l"></div>
-        </div>
-        <div class="t-body">
+        <div class="ticket-bar"></div>
+        <div class="ticket-pad">
             <div class="t-title">{{ $ticket->event->title }}</div>
             @if($ticket->event->subtitle)
                 <div class="t-sub">{{ $ticket->event->subtitle }}</div>
             @endif
+        </div>
 
-            <div class="t-info">
-                <div class="t-row">
-                    <span class="lbl">صاحب بلیت</span>
-                    <span class="val">{{ $ticket->member->full_name }}</span>
-                </div>
-                <div class="t-row">
-                    <span class="lbl">تاریخ</span>
-                    <span class="val">{{ \Morilog\Jalali\Jalalian::fromDateTime($ticket->event->starts_at)->format('Y/m/d') }}</span>
-                </div>
-                <div class="t-row">
-                    <span class="lbl">ساعت</span>
-                    <span class="val">{{ $ticket->event->starts_at->format('H:i') }}</span>
-                </div>
-                @if($ticket->event->venue)
-                <div class="t-row">
-                    <span class="lbl">مکان</span>
-                    <span class="val">{{ $ticket->event->venue->name }}</span>
-                </div>
-                @endif
-            </div>
+        <div class="t-row">
+            <div><div class="k">صاحب بلیت</div><div class="v">{{ $ticket->member->full_name }}</div></div>
+            <div style="text-align:left;"><div class="k">لایه</div><div class="v" style="color:var(--pine);">{{ $ticket->member->layer?->name ?? '—' }}</div></div>
+        </div>
+        <div class="t-row">
+            <div><div class="k">تاریخ و ساعت</div><div class="v" style="font-size:0.82rem;">{{ fa(\Morilog\Jalali\Jalalian::fromDateTime($ticket->event->starts_at)->format('l j F')) }} · {{ fa($ticket->event->starts_at->format('H:i')) }}</div></div>
+            @if($ticket->event->venue)
+            <div style="text-align:left;"><div class="k">مکان</div><div class="v" style="font-size:0.82rem;">{{ $ticket->event->venue->name }}</div></div>
+            @endif
+        </div>
 
-            <div class="t-qr-wrap">
-                <div class="t-qr" id="qrcode"></div>
-                <div class="t-code">{{ $ticket->code }}</div>
-                <div class="t-hint">این کد را هنگام ورود نشان دهید</div>
-            </div>
+        <div class="t-perf">
+            <div class="notch r"></div>
+            <div class="notch l"></div>
+            <div class="dash"></div>
+        </div>
+
+        <div class="t-qr-area">
+            <div class="t-qr" id="qrcode"></div>
+            <div class="t-code-label">کد یکتای بلیت</div>
+            <div class="t-code">{{ fa($ticket->code) }}</div>
 
             <div class="t-status {{ $ticket->status }}">
-                @if($ticket->status === 'active') ✓ بلیت معتبر
-                @elseif($ticket->status === 'used') استفاده شده در {{ $ticket->used_at?->format('H:i') }}
-                @else باطل شده @endif
+                @if($ticket->status === 'active')
+                    <span class="dot"></span>معتبر · آمادهٔ ورود
+                @elseif($ticket->status === 'used')
+                    استفاده شده@if($ticket->used_at) · {{ fa($ticket->used_at->format('H:i')) }}@endif
+                @else
+                    لغو شده
+                @endif
             </div>
         </div>
     </div>
 
-    <div class="actions">
-        <button onclick="window.print()" class="btn btn-gold">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
-            پرینت / ذخیره PDF
-        </button>
-        <a href="{{ route('panel.tickets.index') }}" class="btn btn-ghost no-print">بازگشت</a>
-    </div>
+    <div class="t-note">این کد را هنگام ورود نشان دهید. بلیت قابل انتقال نیست.</div>
 </div>
 
 <script>
     new QRCode(document.getElementById("qrcode"), {
         text: "{{ $ticket->code }}",
-        width: 180,
-        height: 180,
-        colorDark: "#000000",
-        colorLight: "#ffffff",
+        width: 150, height: 150,
+        colorDark: "#11302a", colorLight: "#ffffff",
         correctLevel: QRCode.CorrectLevel.H
     });
 </script>
