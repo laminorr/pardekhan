@@ -25,9 +25,9 @@
         <div class="field">
             <label>متن پیام</label>
             <textarea name="body" rows="5" required placeholder="پیام خود را بنویسید..."
-                style="width:100%;background:#0d0d0f;border:1px solid var(--border);border-radius:13px;padding:0.85rem 1rem;color:var(--text);font-family:inherit;resize:vertical;">{{ old('body') }}</textarea>
+                style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:0.85rem 1rem;color:var(--ink);font-family:inherit;resize:vertical;">{{ old('body') }}</textarea>
         </div>
-        <button type="submit" class="btn btn-gold">ارسال به مدیریت</button>
+        <button type="submit" class="btn btn-primary">ارسال به مدیریت</button>
     </form>
 </div>
 @endsection

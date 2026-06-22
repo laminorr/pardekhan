@@ -346,6 +346,7 @@ Route::prefix('panel')->name('panel.')->middleware([AuthenticateMember::class])-
     Route::post('/questionnaire', [QuestionnaireController::class, 'submit']);
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
     Route::post('/profile', [ProfileController::class, 'update']);
+    Route::post('/profile/password', [ProfileController::class, 'changePassword'])->name('profile.password');
     Route::get('/events', [EventController::class, 'index'])->name('events.index');
     Route::get('/my-events', [EventController::class, 'myEvents'])->name('events.my');
     Route::get('/events/{event}/feedback', [FeedbackController::class, 'create'])->name('feedback.create');

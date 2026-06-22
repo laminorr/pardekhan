@@ -21,17 +21,17 @@
     @foreach($conversation->messages as $msg)
         @if($msg->sender_type === 'member')
             <div style="display:flex;justify-content:flex-start;">
-                <div style="max-width:80%;background:rgba(212,175,106,0.1);border:1px solid var(--gold-border);border-radius:14px;border-top-right-radius:4px;padding:0.85rem 1rem;">
-                    <div style="line-height:1.7;color:var(--text);">{{ $msg->body }}</div>
-                    <div style="font-size:0.65rem;color:var(--text-faint);margin-top:5px;">{{ $msg->created_at->format('H:i') }}</div>
+                <div style="max-width:80%;background:rgba(212,175,106,0.1);border:1px solid var(--border);border-radius:14px;border-top-right-radius:4px;padding:0.85rem 1rem;">
+                    <div style="line-height:1.7;color:var(--ink);">{{ $msg->body }}</div>
+                    <div style="font-size:0.65rem;color:var(--ink-faint);margin-top:5px;">{{ $msg->created_at->format('H:i') }}</div>
                 </div>
             </div>
         @else
             <div style="display:flex;justify-content:flex-end;">
                 <div style="max-width:80%;background:var(--surface);border:1px solid var(--border);border-radius:14px;border-top-left-radius:4px;padding:0.85rem 1rem;">
-                    <div style="font-size:0.68rem;color:var(--success);margin-bottom:4px;">مدیریت</div>
-                    <div style="line-height:1.7;color:var(--text);">{{ $msg->body }}</div>
-                    <div style="font-size:0.65rem;color:var(--text-faint);margin-top:5px;">{{ $msg->created_at->format('H:i') }}</div>
+                    <div style="font-size:0.68rem;color:var(--pine);margin-bottom:4px;">مدیریت</div>
+                    <div style="line-height:1.7;color:var(--ink);">{{ $msg->body }}</div>
+                    <div style="font-size:0.65rem;color:var(--ink-faint);margin-top:5px;">{{ $msg->created_at->format('H:i') }}</div>
                 </div>
             </div>
         @endif
@@ -45,12 +45,12 @@
         @csrf
         <div class="field">
             <textarea name="body" rows="2" required placeholder="پیام خود را بنویسید..."
-                style="width:100%;background:#0d0d0f;border:1px solid var(--border);border-radius:13px;padding:0.85rem 1rem;color:var(--text);font-family:inherit;resize:vertical;"></textarea>
+                style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:0.85rem 1rem;color:var(--ink);font-family:inherit;resize:vertical;"></textarea>
         </div>
-        <button type="submit" class="btn btn-gold">ارسال</button>
+        <button type="submit" class="btn btn-primary">ارسال</button>
     </form>
 </div>
 @else
-<div style="text-align:center;padding:1rem;color:var(--text-faint);font-size:0.82rem;">این گفتگو بسته شده است</div>
+<div style="text-align:center;padding:1rem;color:var(--ink-faint);font-size:0.82rem;">این گفتگو بسته شده است</div>
 @endif
 @endsection

@@ -58,4 +58,20 @@ class ProfileController extends Controller
 
         return back()->with('success', 'پروفایل با موفقیت به‌روزرسانی شد');
     }
+
+    public function changePassword(Request $request)
+    {
+        $request->validate([
+            'new_password' => ['required', 'string', 'min:6', 'confirmed'],
+        ], [
+            'new_password.required' => 'رمز جدید الزامی است',
+            'new_password.min' => 'رمز باید حداقل ۶ کاراکتر باشد',
+            'new_password.confirmed' => 'تکرار رمز مطابقت ندارد',
+        ]);
+
+        $member = auth('member')->user();
+        $member->update(['password' => bcrypt($request->new_password)]);
+
+        return back()->with('success', 'رمز عبور با موفقیت تغییر کرد');
+    }
 }

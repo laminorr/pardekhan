@@ -13,12 +13,12 @@
     <div class="alert alert-danger">{{ session('error') }}</div>
 @endif
 
-<div class="card card-gold">
-    <div style="font-size:1.1rem;font-weight:700;color:#fff;margin-bottom:0.5rem;">{{ $recipient->broadcast->subject }}</div>
-    <div style="font-size:0.7rem;color:var(--text-dim);margin-bottom:1rem;">
+<div class="card">
+    <div style="font-size:1.1rem;font-weight:700;color:var(--ink);margin-bottom:0.5rem;">{{ $recipient->broadcast->subject }}</div>
+    <div style="font-size:0.7rem;color:var(--ink-dim);margin-bottom:1rem;">
         مدیریت پرده‌خوان · {{ \Morilog\Jalali\Jalalian::fromDateTime($recipient->broadcast->created_at)->format('Y/m/d H:i') }}
     </div>
-    <div style="line-height:1.9;color:var(--text);">{!! nl2br(e($recipient->broadcast->body)) !!}</div>
+    <div style="line-height:1.9;color:var(--ink);">{!! nl2br(e($recipient->broadcast->body)) !!}</div>
 </div>
 
 {{-- اگه قابل پاسخ بود --}}
@@ -30,18 +30,18 @@
         </a>
     @else
         <div class="card">
-            <div style="font-size:0.85rem;color:var(--text-dim);margin-bottom:0.75rem;">پاسخ شما (فقط مدیریت می‌بیند)</div>
+            <div style="font-size:0.85rem;color:var(--ink-dim);margin-bottom:0.75rem;">پاسخ شما (فقط مدیریت می‌بیند)</div>
             <form method="POST" action="{{ route('panel.messages.broadcast.reply', $recipient) }}">
                 @csrf
                 <div class="field">
                     <textarea name="body" rows="3" required placeholder="پاسخ خود را بنویسید..."
-                        style="width:100%;background:#0d0d0f;border:1px solid var(--border);border-radius:13px;padding:0.85rem 1rem;color:var(--text);font-family:inherit;resize:vertical;"></textarea>
+                        style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:0.85rem 1rem;color:var(--ink);font-family:inherit;resize:vertical;"></textarea>
                 </div>
-                <button type="submit" class="btn btn-gold">ارسال پاسخ</button>
+                <button type="submit" class="btn btn-primary">ارسال پاسخ</button>
             </form>
         </div>
     @endif
 @else
-    <div style="text-align:center;padding:1rem;color:var(--text-faint);font-size:0.82rem;">این پیام فقط اطلاع‌رسانی است</div>
+    <div style="text-align:center;padding:1rem;color:var(--ink-faint);font-size:0.82rem;">این پیام فقط اطلاع‌رسانی است</div>
 @endif
 @endsection
