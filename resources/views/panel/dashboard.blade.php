@@ -203,7 +203,7 @@
         $menuItems = [
             ['دورهمی‌ها', 'مشاهده و ثبت‌نام', route('panel.events.index'), 'M2 4h20v16H2zM7 4v16M17 4v16M2 9h5M2 15h5M17 9h5M17 15h5', 'green'],
             ['بلیت‌های من', 'بلیت‌های فعال', route('panel.tickets.index'), 'M3 9a2 2 0 0 0 0 6v2a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-2a2 2 0 0 1 0-6V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z', 'burnt'],
-            ['کیف پول', fa(number_format($member->wallet_balance)) . ' ت', '#', 'M2 5h20v14H2zM2 10h20', 'green'],
+            ['کیف پول', fa(number_format($member->wallet_balance)) . ' ت', route('panel.wallet'), 'M2 5h20v14H2zM2 10h20', 'green'],
             ['پیام‌ها', ($unreadMessages ?? 0) > 0 ? (fa($unreadMessages) . ' پیام جدید') : 'بدون پیام جدید', route('panel.messages.index'), 'M2 4h20v16H2zM3 7l9 6 9-6', 'burnt'],
         ];
     @endphp

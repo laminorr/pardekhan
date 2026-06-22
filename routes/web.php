@@ -341,6 +341,7 @@ Route::prefix('panel')->name('panel.')->middleware([RedirectIfMemberAuthenticate
 Route::prefix('panel')->name('panel.')->middleware([AuthenticateMember::class])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/wallet', [\App\Http\Controllers\Panel\WalletController::class, 'index'])->name('wallet');
     Route::get('/questionnaire', [QuestionnaireController::class, 'show'])->name('questionnaire');
     Route::post('/questionnaire', [QuestionnaireController::class, 'submit']);
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
