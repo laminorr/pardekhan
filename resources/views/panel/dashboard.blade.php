@@ -221,7 +221,7 @@
 
 {{-- دورهمی پیشنهادی --}}
 @php
-    $suggested = \App\Models\Event::where('status', 'active')->where('starts_at', '>', now())->orderBy('starts_at')->first();
+    $suggested = \App\Models\Event::where('status', 'active')->where('starts_at', '>', now())->visibleTo($member)->orderBy('starts_at')->first();
 @endphp
 @if($suggested)
 <div class="section-head">

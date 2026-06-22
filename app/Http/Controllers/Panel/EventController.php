@@ -59,18 +59,9 @@ class EventController extends Controller
     // دورهمی‌های قابل مشاهده برای عضو
     private function visibleEvents($member)
     {
-        $layerId = $member->layer_id;
-
         return Event::query()
             ->whereIn('status', ['active', 'full', 'closed'])
-            ->where(function ($q) use ($member, $layerId) {
-                // لایه مجاز
-                if ($layerId) {
-                    $q->whereHas('layers', fn ($q) => $q->where('layers.id', $layerId));
-                }
-                // یا دعوت اختصاصی
-                $q->orWhereHas('invitedMembers', fn ($q) => $q->where('members.id', $member->id));
-            })
+            ->visibleTo($member)
             ->with('venue')
             ->orderBy('starts_at')
             ->get();
@@ -78,11 +69,15 @@ class EventController extends Controller
 
     private function canView($member, Event $event): bool
     {
+        // دورهمی عمومی (بدون لایه و بدون دعوت) → برای همه
+        if (! $event->layers()->exists() && ! $event->invitedMembers()->exists()) {
+            return true;
+        }
         // دعوت اختصاصی
         if ($event->invitedMembers()->where('members.id', $member->id)->exists()) {
             return true;
         }
-        // لایه مجاز
+        // لایهٔ مجاز
         if ($member->layer_id && $event->layers()->where('layers.id', $member->layer_id)->exists()) {
             return true;
         }

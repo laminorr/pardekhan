@@ -97,4 +97,23 @@ class Event extends Model
         $discount = $this->discountForLayer($member->layer);
         return (int) round($this->base_price * (100 - $discount) / 100);
     }
+
+    /**
+     * دورهمی‌های قابل‌دیدن برای یک عضو:
+     * عمومی (بدون لایه و دعوت) یا لایهٔ مجاز یا دعوت اختصاصی
+     */
+    public function scopeVisibleTo($query, $member)
+    {
+        $layerId = $member->layer_id;
+        return $query->where(function ($q) use ($member, $layerId) {
+            $q->where(function ($sub) {
+                $sub->whereDoesntHave('layers')->whereDoesntHave('invitedMembers');
+            });
+            if ($layerId) {
+                $q->orWhereHas('layers', fn ($qq) => $qq->where('layers.id', $layerId));
+            }
+            $q->orWhereHas('invitedMembers', fn ($qq) => $qq->where('members.id', $member->id));
+        });
+    }
+
 }
