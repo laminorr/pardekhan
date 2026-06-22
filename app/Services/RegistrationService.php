@@ -37,13 +37,14 @@ class RegistrationService
             }
 
             // ساخت ثبت‌نام
-            $registration = Registration::create([
-                'event_id'          => $event->id,
-                'member_id'         => $member->id,
-                'final_price'       => $price,
-                'attendance_status' => 'registered',
-                'payment_status'    => 'verified',
-            ]);
+            $registration = Registration::updateOrCreate(
+                ['event_id' => $event->id, 'member_id' => $member->id],
+                [
+                    'final_price'       => $price,
+                    'attendance_status' => 'registered',
+                    'payment_status'    => 'verified',
+                ]
+            );
 
             // پرداخت از کیف پول
             $payment = Payment::create([
@@ -86,13 +87,14 @@ class RegistrationService
 
             $price = $event->priceForMember($member);
 
-            $registration = Registration::create([
-                'event_id'          => $event->id,
-                'member_id'         => $member->id,
-                'final_price'       => $price,
-                'attendance_status' => 'registered',
-                'payment_status'    => 'pending',
-            ]);
+            $registration = Registration::updateOrCreate(
+                ['event_id' => $event->id, 'member_id' => $member->id],
+                [
+                    'final_price'       => $price,
+                    'attendance_status' => 'registered',
+                    'payment_status'    => 'pending',
+                ]
+            );
 
             $payment = Payment::create([
                 'member_id'       => $member->id,

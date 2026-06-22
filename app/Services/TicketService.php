@@ -12,9 +12,13 @@ class TicketService
      */
     public function issue(Registration $registration): Ticket
     {
-        // اگه بلیت قبلاً صادر شده، همون رو برگردون
+        // اگه بلیت قبلاً صادر شده
         $existing = Ticket::where('registration_id', $registration->id)->first();
         if ($existing) {
+            // اگه کنسل شده بود، دوباره فعالش کن
+            if ($existing->status !== 'active') {
+                $existing->update(['status' => 'active', 'used_at' => null]);
+            }
             return $existing;
         }
 
