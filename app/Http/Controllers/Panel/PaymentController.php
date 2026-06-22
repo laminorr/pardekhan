@@ -27,6 +27,9 @@ class PaymentController extends Controller
         }
 
         $price = $event->priceForMember($member);
+        $basePrice = $event->base_price;
+        $discount = $event->discountForLayer($member->layer);
+        $discountAmount = $basePrice - $price;
         $walletBalance = $member->wallet_balance;
         $canUseWallet = $walletBalance >= $price;
 
@@ -36,7 +39,8 @@ class PaymentController extends Controller
         $cardToCardEnabled = Setting::get('card_to_card_enabled') === '1';
 
         return view('panel.payment.checkout', compact(
-            'event', 'price', 'walletBalance', 'canUseWallet',
+            'event', 'price', 'basePrice', 'discount', 'discountAmount',
+            'walletBalance', 'canUseWallet',
             'cardNumber', 'cardHolder', 'gatewayEnabled', 'cardToCardEnabled'
         ));
     }
