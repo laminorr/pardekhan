@@ -2,6 +2,7 @@
 @section('title', 'پروفایل')
 
 @push('styles')
+<link rel="stylesheet" href="https://unpkg.com/persian-datepicker@1.2.0/dist/css/persian-datepicker.min.css">
 <style>
     .menu-row { display:flex; align-items:center; gap:0.85rem; padding:0.95rem 1rem; cursor:pointer; background:none; border:none; width:100%; font-family:inherit; text-align:right; text-decoration:none; color:inherit; }
     .menu-row:not(:last-child) { border-bottom:1px solid #f3f4f3; }
@@ -9,6 +10,12 @@
     .menu-row .label { flex:1; font-size:0.9rem; font-weight:700; }
     .collapse { max-height:0; opacity:0; overflow:hidden; transition:max-height 0.4s ease, opacity 0.3s; }
     .collapse.open { max-height:1200px; opacity:1; }
+    /* هماهنگ‌سازی رنگ تقویم با تم سبز */
+    .datepicker-plot-area { font-family:'Vazirmatn',sans-serif !important; }
+    .datepicker-day-view .table-days td.selected,
+    .datepicker-month-view .month.selected,
+    .datepicker-year-view .year.selected { background:var(--pine) !important; }
+    .datepicker-day-view .table-days td span:hover { background:var(--green-soft) !important; color:var(--pine) !important; }
 </style>
 @endpush
 
@@ -74,7 +81,12 @@
         <div class="field"><label>شهر</label><input type="text" name="city" value="{{ old('city', $member->city) }}" placeholder="مثلاً تهران"></div>
         <div class="field"><label>شغل</label><input type="text" name="job" value="{{ old('job', $member->job) }}" placeholder="شغل یا حوزه فعالیت"></div>
         <div class="field"><label>تحصیلات</label><input type="text" name="education" value="{{ old('education', $member->education) }}" placeholder="میزان تحصیلات"></div>
-        <div class="field"><label>تاریخ تولد</label><input type="date" name="birth_date" value="{{ old('birth_date', $member->birth_date?->format('Y-m-d')) }}" style="direction:ltr;"></div>
+        <div class="field"><label>تاریخ تولد</label>
+            <input type="text" id="birth_date_display" readonly placeholder="انتخاب تاریخ تولد" autocomplete="off"
+                value="{{ $member->birth_date ? \Morilog\Jalali\Jalalian::fromDateTime($member->birth_date)->format('Y/m/d') : '' }}"
+                style="direction:rtl;text-align:right;cursor:pointer;background:var(--surface);">
+            <input type="hidden" name="birth_date" id="birth_date_value" value="{{ old('birth_date', $member->birth_date?->format('Y-m-d')) }}">
+        </div>
         <div class="field"><label>معرفی کوتاه</label><textarea name="bio" rows="3" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:0.9rem 1rem;color:var(--ink);font-family:inherit;resize:vertical;" placeholder="چند جمله درباره خودتان...">{{ old('bio', $member->bio) }}</textarea></div>
         @if(!$member->profile_completed)
             <p style="color:var(--pine);font-size:0.8rem;margin-bottom:1rem;">با تکمیل پروفایل (شهر و شغل) امتیاز دریافت می‌کنید</p>
@@ -125,6 +137,9 @@
 @endsection
 
 @push('scripts')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://unpkg.com/persian-date@1.1.0/dist/persian-date.min.js"></script>
+<script src="https://unpkg.com/persian-datepicker@1.2.0/dist/js/persian-datepicker.min.js"></script>
 <script>
     function toggleSection(id) {
         var el = document.getElementById('section-' + id);
@@ -133,5 +148,28 @@
             setTimeout(function(){ el.scrollIntoView({behavior:'smooth', block:'nearest'}); }, 100);
         }
     }
+
+    // راه‌اندازی تقویم شمسی برای تاریخ تولد
+    $(function () {
+        var $display = $('#birth_date_display');
+        var hidden = document.getElementById('birth_date_value');
+
+        // مقدار اولیه (اگر تاریخ میلادی ذخیره شده)
+        var initial = hidden.value ? new persianDate(new Date(hidden.value)).valueOf() : null;
+
+        $display.persianDatepicker({
+            format: 'YYYY/MM/DD',
+            initialValue: !!initial,
+            initialValueType: 'gregorian',
+            observer: true,
+            calendar: { persian: { locale: 'fa' } },
+            toolbox: { calendarSwitch: { enabled: false } },
+            onSelect: function (unix) {
+                // تبدیل به میلادی برای ذخیره در دیتابیس
+                var g = new persianDate(unix).toCalendar('gregorian').toLocale('en');
+                hidden.value = g.format('YYYY-MM-DD');
+            }
+        });
+    });
 </script>
 @endpush

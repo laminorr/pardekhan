@@ -39,9 +39,25 @@ class ProfileController extends Controller
             if ($member->avatar) {
                 Storage::disk('public')->delete($member->avatar);
             }
-            $path = $request->file('avatar')->store('avatars', 'public');
-            $data['avatar'] = $path;
-            $data['avatar_approved'] = false;
+
+            // فشرده‌سازی به زیر ۱۵۰ کیلوبایت (همیشه به jpg تبدیل می‌شود)
+            $filename = 'avatars/' . \Illuminate\Support\Str::random(40) . '.jpg';
+            $destFull = Storage::disk('public')->path($filename);
+
+            // مطمئن شو پوشه وجود دارد
+            if (! is_dir(dirname($destFull))) {
+                mkdir(dirname($destFull), 0755, true);
+            }
+
+            \App\Services\ImageCompressor::compress(
+                $request->file('avatar')->getRealPath(),
+                $destFull,
+                150,  // حداکثر ۱۵۰ کیلوبایت
+                800   // حداکثر ابعاد ۸۰۰ پیکسل
+            );
+
+            $data['avatar'] = $filename;
+            $data['avatar_approved'] = false; // می‌رود برای تأیید مدیر
         }
 
         // ذخیره اطلاعات
