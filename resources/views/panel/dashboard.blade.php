@@ -71,6 +71,8 @@
         animation: badge-pop 0.4s cubic-bezier(.5,1.6,.5,1) both;
     }
     @keyframes badge-pop { from { transform: scale(0); } to { transform: scale(1); } }
+    @keyframes pulse-ring { 0% { transform: scale(0.8); opacity: 0.7; } 80%, 100% { transform: scale(2.2); opacity: 0; } }
+    .stat-tick { transition: opacity 0.25s; }
 </style>
 @endpush
 
@@ -91,7 +93,28 @@
     </div>
 </a>
 
-{{-- کارت عضویت با حلقه پیشرفت --}}
+{{-- نوار آمار زنده --}}
+<div style="display:flex;gap:0.6rem;margin-bottom:1.1rem;">
+    <div style="flex:1;display:flex;align-items:center;gap:0.55rem;background:#fff;border:1px solid var(--border);border-radius:14px;padding:0.6rem 0.7rem;">
+        <span style="position:relative;display:flex;width:8px;height:8px;flex-shrink:0;">
+            <span style="position:absolute;width:100%;height:100%;border-radius:50%;background:#3fb27f;opacity:0.6;animation:pulse-ring 2s infinite;"></span>
+            <span style="position:relative;width:8px;height:8px;border-radius:50%;background:#3fb27f;"></span>
+        </span>
+        <div style="min-width:0;">
+            <div id="stat-online" style="font-size:0.92rem;font-weight:800;color:var(--ink);line-height:1.1;">۰</div>
+            <div style="font-size:0.63rem;color:var(--ink-faint);">نفر آنلاین‌اند</div>
+        </div>
+    </div>
+    <div style="flex:1;display:flex;align-items:center;gap:0.55rem;background:#fff;border:1px solid var(--border);border-radius:14px;padding:0.6rem 0.7rem;">
+        <div style="width:26px;height:26px;border-radius:8px;background:var(--green-tint);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--pine)" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        </div>
+        <div style="min-width:0;">
+            <div id="stat-watching" style="font-size:0.92rem;font-weight:800;color:var(--ink);line-height:1.1;">۰</div>
+            <div style="font-size:0.63rem;color:var(--ink-faint);">در حال دیدن فیلم هفته</div>
+        </div>
+    </div>
+</div>
 @php
     $layer = $member->layer;
     $score = $member->score;
@@ -281,3 +304,70 @@
 @section('nav')
     @include('panel.partials.bottom-nav', ['active' => 'home'])
 @endsection
+
+@push('scripts')
+<script>
+(function () {
+    var faDigits = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
+    function toFa(n) {
+        return String(n).replace(/\d/g, function (d) { return faDigits[d]; })
+                        .replace(/\B(?=(\d{3})+(?!\d))/g, '٬'); // جداکننده هزارگان فارسی
+    }
+    // جداکننده را هم فارسی کن
+    function faNum(n) {
+        var s = String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        return s.replace(/\d/g, function (d) { return faDigits[d]; }).replace(/,/g, '٬');
+    }
+
+    // ── الگوریتم پایه بر اساس ساعت روز ──
+    // شب‌ها (۲۰ تا ۲۴) اوج، نیمه‌شب و صبح زود کف
+    function baseFor(hour, peak, low) {
+        // منحنی نرم: کمینه ساعت ۵ صبح، بیشینه ساعت ۲۲
+        var t = (hour - 5 + 24) % 24;            // فاصله از کف
+        var frac = Math.sin((t / 24) * Math.PI); // 0..1..0
+        return Math.round(low + (peak - low) * frac);
+    }
+
+    var now = new Date();
+    var hour = now.getHours();
+
+    // اعداد پایه (فیک ولی معقول) — می‌توانی بعداً peak/low را تغییر دهی
+    var online = {
+        el: document.getElementById('stat-online'),
+        value: baseFor(hour, 1200, 180),
+        jitter: 6   // دامنه نوسان هر تیک
+    };
+    var watching = {
+        el: document.getElementById('stat-watching'),
+        value: baseFor(hour, 760, 90),
+        jitter: 4
+    };
+
+    function render(s) {
+        if (!s.el) return;
+        s.el.classList.add('stat-tick');
+        s.el.style.opacity = '0.45';
+        setTimeout(function () {
+            s.el.textContent = faNum(s.value);
+            s.el.style.opacity = '1';
+        }, 200);
+    }
+
+    // مقدار اولیه
+    online.el && (online.el.textContent = faNum(online.value));
+    watching.el && (watching.el.textContent = faNum(watching.value));
+
+    // ── تغییر زنده و آرام ──
+    function step(s, floor) {
+        // حرکت آرام: بیشتر اوقات +/- کم، گاهی صفر
+        var delta = Math.round((Math.random() - 0.45) * s.jitter);
+        s.value = Math.max(floor, s.value + delta);
+        render(s);
+    }
+
+    // هر چند ثانیه یکی را به‌روز کن (نه هم‌زمان، تا طبیعی باشد)
+    setInterval(function () { step(online, 50); }, 3500);
+    setInterval(function () { step(watching, 30); }, 5200);
+})();
+</script>
+@endpush
