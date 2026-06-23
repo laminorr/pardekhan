@@ -334,13 +334,13 @@
     // اعداد پایه (فیک ولی معقول) — می‌توانی بعداً peak/low را تغییر دهی
     var online = {
         el: document.getElementById('stat-online'),
-        value: baseFor(hour, 1200, 180),
-        jitter: 6   // دامنه نوسان هر تیک
+        value: baseFor(hour, 480, 320),
+        jitter: 5   // دامنه نوسان هر تیک
     };
     var watching = {
         el: document.getElementById('stat-watching'),
-        value: baseFor(hour, 760, 90),
-        jitter: 4
+        value: baseFor(hour, 65, 35),
+        jitter: 3
     };
 
     function render(s) {
@@ -366,7 +366,7 @@
     }
 
     // هر چند ثانیه یکی را به‌روز کن (نه هم‌زمان، تا طبیعی باشد)
-    setInterval(function () { step(online, 50); }, 3500);
+    setInterval(function () { step(online, 300); }, 3500);
     setInterval(function () { step(watching, 30); }, 5200);
 })();
 </script>
