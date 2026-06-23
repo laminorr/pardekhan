@@ -69,7 +69,7 @@ class EventResource extends Resource
                             ->seconds(false)
                             ->live()
                             ->helperText(fn ($state) => $state
-                                ? 'معادل شمسی: ' . jdate($state, 'l j F Y - H:i')
+                                ? 'معادل شمسی: ' . pdate($state, 'l j F Y - H:i')
                                 : 'تاریخ میلادی را انتخاب کنید؛ معادل شمسی اینجا نمایش داده می‌شود'),
                     ]),
 
@@ -151,7 +151,7 @@ class EventResource extends Resource
                     ->description(fn (Event $r) => $r->subtitle),
                 Tables\Columns\TextColumn::make('starts_at')
                     ->label('تاریخ')
-                    ->formatStateUsing(fn ($state) => jdate($state, 'Y/m/d H:i'))
+                    ->formatStateUsing(fn ($state) => pdate($state, 'Y/m/d H:i'))
                     ->sortable(),
                 Tables\Columns\TextColumn::make('capacity')
                     ->label('ظرفیت')

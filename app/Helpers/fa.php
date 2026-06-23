@@ -16,13 +16,13 @@ if (! function_exists('fanum')) {
     }
 }
 
-if (! function_exists('jdate')) {
+if (! function_exists('pdate')) {
     /**
      * تبدیل تاریخ میلادی به شمسی با ارقام فارسی
      * @param mixed  $date   مقدار تاریخ (Carbon یا رشته)
      * @param string $format فرمت جلالی (پیش‌فرض: Y/m/d H:i)
      */
-    function jdate($date, string $format = 'Y/m/d H:i'): string
+    function pdate($date, string $format = 'Y/m/d H:i'): string
     {
         if (! $date) return '—';
         try {

@@ -39,7 +39,7 @@ class ContactResource extends Resource
                     ->copyable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('تاریخ عضویت')
-                    ->formatStateUsing(fn ($state) => jdate($state, 'Y/m/d H:i'))
+                    ->formatStateUsing(fn ($state) => pdate($state, 'Y/m/d H:i'))
                     ->sortable(),
             ])
             ->defaultSort('created_at', 'desc')

@@ -302,7 +302,7 @@ Forms\Components\FileUpload::make('cover_image')
                             ->label('تاریخ انتشار')
                             ->default(now())
                             ->live()
-                            ->helperText(fn ($state) => $state ? 'معادل شمسی: ' . jdate($state, 'Y/m/d H:i') : null),
+                            ->helperText(fn ($state) => $state ? 'معادل شمسی: ' . pdate($state, 'Y/m/d H:i') : null),
                     ]),
 
             ])->columnSpanFull(),

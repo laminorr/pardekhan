@@ -175,7 +175,7 @@ class MemberResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('تاریخ عضویت')
-                    ->formatStateUsing(fn ($state) => jdate($state, 'Y/m/d'))
+                    ->formatStateUsing(fn ($state) => pdate($state, 'Y/m/d'))
                     ->sortable(),
             ])
             ->defaultSort('created_at', 'desc')
