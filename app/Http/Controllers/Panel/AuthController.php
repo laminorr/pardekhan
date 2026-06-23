@@ -178,27 +178,24 @@ class AuthController extends Controller
             'phone.required' => 'شماره موبایل الزامی است',
         ]);
 
-        $member = Member::where('phone', $request->phone)->first();
-
-        // فقط اعضای تاییدشده می‌توانند با کد وارد شوند
-        if (! $member || $member->status !== 'approved') {
-            return back()->withErrors([
-                'phone' => 'عضو تاییدشده‌ای با این شماره یافت نشد.',
-            ])->withInput();
-        }
-
-        // محدودیت ارسال
-        $key = 'login_otp_' . $request->phone;
+        // محدودیت ارسال (ضد سوءاستفاده)
+        $key = 'login_otp_' . $request->phone . ':' . $request->ip();
         if (RateLimiter::tooManyAttempts($key, 3)) {
             return back()->withErrors(['phone' => 'تعداد درخواست کد زیاد است. چند دقیقه صبر کنید.'])->withInput();
         }
         RateLimiter::hit($key, 600);
 
-        $this->sendOtp($member);
+        $member = Member::where('phone', $request->phone)->first();
 
-        session(['otp_phone' => $request->phone, 'otp_login' => true]);
+        // فقط اگر عضو تاییدشده باشد، کد ارسال می‌شود — اما وجود/عدم وجود عضو افشا نمی‌شود
+        if ($member && $member->status === 'approved') {
+            $this->sendOtp($member);
+            session(['otp_phone' => $request->phone, 'otp_login' => true]);
+            return redirect()->route('panel.otp');
+        }
 
-        return redirect()->route('panel.otp');
+        // پیام یکسان برای جلوگیری از User Enumeration
+        return back()->with('status', 'اگر این شماره در سامانه فعال باشد، کد ورود برایتان ارسال می‌شود.')->withInput();
     }
 
     // ── لاگین ────────────────────────────────────────────
@@ -212,13 +209,26 @@ class AuthController extends Controller
             'password.required' => 'رمز عبور الزامی است',
         ]);
 
+        // محدودیت تلاش ورود (ضد brute-force): کلید ترکیبی شماره + IP
+        $throttleKey = 'login:' . $request->phone . ':' . $request->ip();
+        if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
+            $seconds = RateLimiter::availableIn($throttleKey);
+            throw ValidationException::withMessages([
+                'phone' => "تعداد تلاش‌های ناموفق زیاد است. لطفاً {$seconds} ثانیه دیگر تلاش کنید.",
+            ]);
+        }
+
         $member = Member::where('phone', $request->phone)->first();
 
         if (! $member || ! Hash::check($request->password, $member->password)) {
+            RateLimiter::hit($throttleKey, 60); // قفل ۶۰ ثانیه‌ای پنجره
             throw ValidationException::withMessages([
                 'phone' => 'شماره موبایل یا رمز عبور اشتباه است.',
             ]);
         }
+
+        // ورود موفق → پاک کردن شمارنده
+        RateLimiter::clear($throttleKey);
 
         Auth::guard('member')->login($member, $request->boolean('remember'));
 
@@ -241,13 +251,13 @@ class AuthController extends Controller
         $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
         $member->update([
-            'otp_code'        => $code,
+            'otp_code'        => \Illuminate\Support\Facades\Hash::make($code),
             'otp_expires_at'  => now()->addMinutes(5),
             'otp_attempts'    => 0,
             'otp_locked_until'=> null,
         ]);
 
-        // ارسال پیامک کد تایید
+        // ارسال پیامک کد تایید (کد اصلی، نه هش‌شده)
         $patternCode = \App\Models\Setting::get('sms_pattern_otp', '');
         if ($patternCode) {
             app(\App\Services\SmsService::class)->sendPattern(
@@ -255,9 +265,9 @@ class AuthController extends Controller
                 $member->phone,
                 ['code' => $code]
             );
-        } else {
-            // اگه پترن تنظیم نشده، لاگ کن
-            \Illuminate\Support\Facades\Log::info("OTP for {$member->phone}: {$code}");
+        } elseif (app()->environment('local')) {
+            // فقط در محیط توسعه، کد در لاگ نوشته می‌شود
+            \Illuminate\Support\Facades\Log::debug("OTP for {$member->phone}: {$code}");
         }
     }
 }

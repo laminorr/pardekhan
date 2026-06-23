@@ -77,7 +77,8 @@ class Member extends Authenticatable
     // ── OTP ────────────────────────────────────────────
     public function isOtpValid(string $code): bool
     {
-        return $this->otp_code === $code
+        return $this->otp_code
+            && \Illuminate\Support\Facades\Hash::check($code, $this->otp_code)
             && $this->otp_expires_at
             && $this->otp_expires_at->isFuture();
     }

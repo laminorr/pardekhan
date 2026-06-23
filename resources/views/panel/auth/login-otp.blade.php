@@ -6,6 +6,9 @@
     <h2>ورود با کد یک‌بارمصرف</h2>
     <p class="lead">شماره موبایل خود را وارد کنید تا کد ورود برایتان ارسال شود. نیازی به رمز عبور نیست.</p>
 
+    @if (session('status'))
+        <div class="alert alert-success">{{ session('status') }}</div>
+    @endif
     @if ($errors->any())
         <div class="alert alert-danger">
             @foreach ($errors->all() as $error)<div>{{ $error }}</div>@endforeach
