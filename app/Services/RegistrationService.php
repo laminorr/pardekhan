@@ -108,8 +108,8 @@ class RegistrationService
 
             $registration->update(['payment_id' => $payment->id]);
 
-            // صدور بلیت (ثبت‌نام بر اساس اعتماد قطعیه)
-            app(TicketService::class)->issue($registration);
+            // صدور بلیت با وضعیت «در انتظار تایید پرداخت» (تا تایید پرداخت برای ورود معتبر نیست)
+            app(TicketService::class)->issue($registration, 'pending_payment');
 
             $this->updateEventCapacityStatus($event);
 
@@ -179,6 +179,11 @@ class RegistrationService
 
         $registration->update(['attendance_status' => 'cancelled_by_user']);
 
+        // باطل کردن بلیت (مهم: تا بلیت فعال برای ورود باقی نماند)
+        \App\Models\Ticket::where('registration_id', $registration->id)
+            ->whereIn('status', ['active', 'pending_payment'])
+            ->update(['status' => 'cancelled']);
+
         // امتیاز انصراف با اطلاع
         app(ScoreService::class)->addByKey($member, 'cancellation');
 
@@ -217,6 +222,11 @@ class RegistrationService
                     $refunded++;
                 }
                 $reg->update(['attendance_status' => 'cancelled_by_admin']);
+
+                // باطل کردن بلیت این ثبت‌نام
+                \App\Models\Ticket::where('registration_id', $reg->id)
+                    ->whereIn('status', ['active', 'pending_payment'])
+                    ->update(['status' => 'cancelled']);
             }
 
             $event->update(['status' => 'cancelled']);

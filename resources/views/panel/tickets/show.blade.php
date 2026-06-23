@@ -46,6 +46,7 @@
         .t-code { font-size:1.15rem; font-weight:800; letter-spacing:3px; margin-top:3px; direction:ltr; }
         .t-status { margin-top:14px; display:inline-flex; align-items:center; gap:7px; font-size:0.75rem; font-weight:800; padding:8px 16px; border-radius:20px; }
         .t-status.active { background:#e8efec; color:var(--pine); }
+        .t-status.pending_payment { background:#fbeee4; color:#c2552f; }
         .t-status.used { background:#f0f1f0; color:var(--dim); }
         .t-status.cancelled { background:#fbeae4; color:#c2552f; }
         .t-status .dot { width:8px; height:8px; border-radius:50%; background:currentColor; animation:pkdot 2s infinite; }
@@ -98,6 +99,8 @@
             <div class="t-status {{ $ticket->status }}">
                 @if($ticket->status === 'active')
                     <span class="dot"></span>معتبر · آمادهٔ ورود
+                @elseif($ticket->status === 'pending_payment')
+                    در انتظار تایید پرداخت
                 @elseif($ticket->status === 'used')
                     استفاده شده@if($ticket->used_at) · {{ fa($ticket->used_at->format('H:i')) }}@endif
                 @else

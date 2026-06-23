@@ -22,6 +22,7 @@
     @php
         $statusInfo = match($ticket->status) {
             'active' => ['معتبر', 'var(--pine)', 'var(--green-soft)'],
+            'pending_payment' => ['در انتظار پرداخت', 'var(--burnt)', '#fbeee4'],
             'used' => ['استفاده شده', 'var(--ink-dim)', '#f0f1f0'],
             default => ['لغو شده', 'var(--burnt)', '#fbeae4'],
         };

@@ -128,7 +128,9 @@ class RegistrationResource extends Resource
                                 'verified_by' => auth()->id(),
                             ]);
                         }
-                        \Filament\Notifications\Notification::make()->success()->title('پرداخت تایید شد')->send();
+                        // فعال‌سازی بلیت در انتظار پرداخت
+                        app(\App\Services\TicketService::class)->activate($r);
+                        \Filament\Notifications\Notification::make()->success()->title('پرداخت تایید شد و بلیت فعال شد')->send();
                     }),
                 \Filament\Actions\Action::make('reject_payment')
                     ->label('رد پرداخت')
@@ -145,6 +147,10 @@ class RegistrationResource extends Resource
                         if ($r->payment) {
                             $r->payment->update(['status' => 'rejected']);
                         }
+                        // باطل کردن بلیت
+                        \App\Models\Ticket::where('registration_id', $r->id)
+                            ->whereIn('status', ['active', 'pending_payment'])
+                            ->update(['status' => 'cancelled']);
                         // امتیاز منفی
                         app(\App\Services\ScoreService::class)->addByKey($r->member, 'invalid_payment');
                         \Filament\Notifications\Notification::make()->danger()->title('پرداخت رد شد')->send();

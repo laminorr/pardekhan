@@ -10,14 +10,14 @@ class TicketService
     /**
      * صدور بلیت برای یک ثبت‌نام
      */
-    public function issue(Registration $registration): Ticket
+    public function issue(Registration $registration, string $initialStatus = 'active'): Ticket
     {
         // اگه بلیت قبلاً صادر شده
         $existing = Ticket::where('registration_id', $registration->id)->first();
         if ($existing) {
-            // اگه کنسل شده بود، دوباره فعالش کن
-            if ($existing->status !== 'active') {
-                $existing->update(['status' => 'active', 'used_at' => null]);
+            // اگه کنسل شده بود، به وضعیت درست برگردون
+            if ($existing->status === 'cancelled') {
+                $existing->update(['status' => $initialStatus, 'used_at' => null]);
             }
             return $existing;
         }
@@ -27,8 +27,18 @@ class TicketService
             'member_id'       => $registration->member_id,
             'event_id'        => $registration->event_id,
             'code'            => Ticket::generateCode(),
-            'status'          => 'active',
+            'status'          => $initialStatus,
         ]);
+    }
+
+    /**
+     * فعال‌سازی بلیت پس از تایید پرداخت
+     */
+    public function activate(Registration $registration): void
+    {
+        Ticket::where('registration_id', $registration->id)
+            ->where('status', 'pending_payment')
+            ->update(['status' => 'active']);
     }
 
     /**
@@ -44,6 +54,10 @@ class TicketService
 
         if ($ticket->status === 'cancelled') {
             return ['ok' => false, 'status' => 'cancelled', 'message' => 'این بلیت باطل شده است', 'ticket' => $ticket];
+        }
+
+        if ($ticket->status === 'pending_payment') {
+            return ['ok' => false, 'status' => 'pending_payment', 'message' => 'پرداخت این بلیت هنوز تایید نشده است', 'ticket' => $ticket];
         }
 
         if ($ticket->status === 'used') {
