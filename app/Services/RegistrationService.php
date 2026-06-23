@@ -108,8 +108,8 @@ class RegistrationService
 
             $registration->update(['payment_id' => $payment->id]);
 
-            // صدور بلیت با وضعیت «در انتظار تایید پرداخت» (تا تایید پرداخت برای ورود معتبر نیست)
-            app(TicketService::class)->issue($registration, 'pending_payment');
+            // صدور بلیت فعال بر اساس اعتماد (اگر پرداخت بعداً رد شود، بلیت باطل می‌شود)
+            app(TicketService::class)->issue($registration, 'active');
 
             $this->updateEventCapacityStatus($event);
 
