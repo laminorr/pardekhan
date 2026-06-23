@@ -14,14 +14,14 @@ class FeedbackController extends Controller
     {
         $member = auth('member')->user();
 
-        // باید در این دورهمی ثبت‌نام کرده باشه
+        // فقط کسی که واقعاً در دورهمی حاضر شده می‌تواند بازخورد دهد
         $registration = $event->registrations()
             ->where('member_id', $member->id)
-            ->whereIn('attendance_status', ['attended', 'absent', 'registered'])
+            ->where('attendance_status', 'attended')
             ->first();
 
         if (! $registration) {
-            return redirect()->route('panel.events.my')->with('error', 'شما در این دورهمی شرکت نداشته‌اید');
+            return redirect()->route('panel.events.my')->with('error', 'فقط شرکت‌کنندگان حاضر در دورهمی می‌توانند بازخورد دهند');
         }
 
         // دورهمی باید گذشته باشه
@@ -44,6 +44,17 @@ class FeedbackController extends Controller
     public function store(Request $request, Event $event)
     {
         $member = auth('member')->user();
+
+        // باید واقعاً در دورهمی حاضر شده باشد
+        $registration = $event->registrations()
+            ->where('member_id', $member->id)
+            ->where('attendance_status', 'attended')
+            ->first();
+
+        abort_unless($registration, 403, 'شما در این دورهمی حضور نداشته‌اید');
+
+        // دورهمی باید گذشته باشد
+        abort_if($event->starts_at->isFuture(), 422, 'این دورهمی هنوز برگزار نشده است');
 
         $request->validate([
             'rating'  => ['required', 'integer', 'min:1', 'max:5'],
