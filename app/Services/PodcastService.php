@@ -30,14 +30,48 @@ class PodcastService
         Cache::forget('podcast_feed');
     }
 
+    /**
+     * دانلود محتوای فید — اول cURL (مطمئن‌تر روی هاست اشتراکی)، بعد file_get_contents
+     */
+    private static function fetch(string $url): ?string
+    {
+        // روش ۱: cURL
+        if (function_exists('curl_init')) {
+            $ch = curl_init($url);
+            curl_setopt_array($ch, [
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_MAXREDIRS      => 5,
+                CURLOPT_TIMEOUT        => 12,
+                CURLOPT_CONNECTTIMEOUT => 8,
+                CURLOPT_USERAGENT      => 'Mozilla/5.0 (compatible; PardekhanBot/1.0)',
+                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_SSL_VERIFYHOST => false,
+                CURLOPT_ENCODING       => '',
+            ]);
+            $data = curl_exec($ch);
+            $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            if ($data !== false && $code >= 200 && $code < 400 && strlen($data) > 0) {
+                return $data;
+            }
+        }
+
+        // روش ۲: file_get_contents (پشتیبان)
+        $context = stream_context_create([
+            'http'  => ['timeout' => 10, 'user_agent' => 'Mozilla/5.0 (compatible; PardekhanBot/1.0)', 'follow_location' => 1],
+            'https' => ['timeout' => 10],
+            'ssl'   => ['verify_peer' => false, 'verify_peer_name' => false],
+        ]);
+        $data = @file_get_contents($url, false, $context);
+
+        return $data !== false ? $data : null;
+    }
+
     private static function parse(string $feedUrl, int $limit): array
     {
         try {
-            $context = stream_context_create([
-                'http' => ['timeout' => 8, 'user_agent' => 'PardekhanBot/1.0'],
-                'https' => ['timeout' => 8],
-            ]);
-            $raw = @file_get_contents($feedUrl, false, $context);
+            $raw = self::fetch($feedUrl);
             if (! $raw) {
                 return ['show' => null, 'episodes' => []];
             }
