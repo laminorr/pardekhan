@@ -139,11 +139,34 @@ class PodcastService
                     $audioUrl = (string) ($encAttrs['url'] ?? '');
                 }
 
-                // کاور قسمت (اگر نبود، کاور پادکست)
-                $epImage = $showImage;
+                // کاور قسمت — از چند منبع ممکن (در نهایت کاور پادکست)
+                $epImage = '';
+                // ۱) itunes:image href
                 if (isset($itItunes->image)) {
                     $imgAttrs = $itItunes->image->attributes();
-                    $epImage = (string) ($imgAttrs['href'] ?? $showImage);
+                    $epImage = (string) ($imgAttrs['href'] ?? '');
+                }
+                // ۲) تگ image معمولی (متن یا url)
+                if (! $epImage && isset($item->image)) {
+                    if (isset($item->image->url)) {
+                        $epImage = (string) $item->image->url;
+                    } else {
+                        $imgAttrs = $item->image->attributes();
+                        $epImage = (string) ($imgAttrs['href'] ?? trim((string) $item->image));
+                    }
+                }
+                // ۳) media:thumbnail یا media:content
+                if (! $epImage) {
+                    $media = $item->children('http://search.yahoo.com/mrss/');
+                    if (isset($media->thumbnail)) {
+                        $epImage = (string) $media->thumbnail->attributes()['url'];
+                    } elseif (isset($media->content)) {
+                        $epImage = (string) $media->content->attributes()['url'];
+                    }
+                }
+                // ۴) در نهایت، کاور پادکست
+                if (! $epImage) {
+                    $epImage = $showImage;
                 }
 
                 $episodes[] = [

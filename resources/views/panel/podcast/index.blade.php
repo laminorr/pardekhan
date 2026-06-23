@@ -7,18 +7,17 @@
     .pod-hero .deco { position:absolute; border-radius:50%; background:rgba(255,255,255,0.06); }
     .pod-cover { width:88px; height:88px; border-radius:20px; object-fit:cover; box-shadow:0 10px 24px -10px rgba(0,0,0,0.5); flex-shrink:0; background:rgba(255,255,255,0.1); }
 
-    .ep-card { background:#fff; border:1px solid var(--border); border-radius:20px; padding:1.15rem 1.2rem; box-shadow:0 4px 20px rgba(40,60,50,0.05); transition:transform 0.25s, box-shadow 0.25s; }
-    .ep-card:hover { transform:translateY(-2px); box-shadow:0 10px 28px rgba(40,60,50,0.1); }
-    .ep-num { width:44px; height:44px; border-radius:14px; background:linear-gradient(135deg,var(--pine),var(--pine-bright)); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:1rem; flex-shrink:0; }
+    .ep-card { background:#fff; border:1px solid var(--border); border-radius:18px; padding:0.9rem 1rem; box-shadow:0 3px 14px rgba(40,60,50,0.04); transition:transform 0.25s, box-shadow 0.25s; }
+    .ep-card:hover { transform:translateY(-2px); box-shadow:0 8px 22px rgba(40,60,50,0.08); }
 
     /* پلیر سفارشی */
-    .player { margin-top:0.9rem; background:var(--green-tint); border-radius:14px; padding:0.7rem 0.85rem; display:flex; align-items:center; gap:0.7rem; }
-    .play-btn { width:42px; height:42px; border-radius:50%; background:var(--pine); border:none; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; transition:transform 0.15s; box-shadow:0 4px 12px rgba(47,93,80,0.3); }
+    .player { margin-top:0.75rem; background:var(--green-tint); border-radius:12px; padding:0.55rem 0.7rem; display:flex; align-items:center; gap:0.65rem; }
+    .play-btn { width:36px; height:36px; border-radius:50%; background:var(--pine); border:none; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; transition:transform 0.15s; box-shadow:0 4px 12px rgba(47,93,80,0.3); }
     .play-btn:active { transform:scale(0.92); }
     .player-mid { flex:1; min-width:0; }
-    .progress-wrap { height:6px; background:rgba(47,93,80,0.15); border-radius:99px; cursor:pointer; overflow:hidden; }
+    .progress-wrap { height:5px; background:rgba(47,93,80,0.15); border-radius:99px; cursor:pointer; overflow:hidden; }
     .progress-bar { height:100%; width:0%; background:var(--pine); border-radius:99px; transition:width 0.1s linear; }
-    .player-time { display:flex; justify-content:space-between; font-size:0.62rem; color:var(--pine-deep); margin-top:5px; font-variant-numeric:tabular-nums; }
+    .player-time { display:flex; justify-content:space-between; font-size:0.6rem; color:var(--pine-deep); margin-top:4px; font-variant-numeric:tabular-nums; }
 
     /* اسلاید ورود اپیزودها */
     .ep-card { opacity:0; transform:translateY(16px); animation:epIn 0.5s ease forwards; }
@@ -69,32 +68,38 @@
         <div style="font-size:0.8rem;color:var(--ink-faint);margin-top:4px;">به‌زودی برمی‌گردیم</div>
     </div>
 @else
-    <div style="display:flex;flex-direction:column;gap:1rem;">
+    <div style="display:flex;flex-direction:column;gap:0.7rem;">
         @foreach($episodes as $i => $ep)
-        <div class="ep-card" style="animation-delay:{{ $i * 0.06 }}s;">
-            <div style="display:flex;align-items:flex-start;gap:0.85rem;">
-                <div class="ep-num">{{ fa(count($episodes) - $i) }}</div>
+        <div class="ep-card" style="animation-delay:{{ $i * 0.05 }}s;">
+            <div style="display:flex;align-items:center;gap:0.8rem;">
+                {{-- عکس اپیزود --}}
+                @if(!empty($ep['image']))
+                    <img src="{{ $ep['image'] }}" alt="" style="width:52px;height:52px;border-radius:13px;object-fit:cover;flex-shrink:0;background:var(--green-soft);">
+                @else
+                    <div style="width:52px;height:52px;border-radius:13px;background:var(--green-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--pine)" stroke-width="1.6"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+                    </div>
+                @endif
+
+                {{-- عنوان و تاریخ --}}
                 <div style="flex:1;min-width:0;">
-                    <div style="font-size:0.98rem;font-weight:800;line-height:1.45;">{{ $ep['title'] }}</div>
-                    <div style="display:flex;align-items:center;gap:0.6rem;margin-top:4px;font-size:0.7rem;color:var(--ink-faint);">
+                    <div style="font-size:0.92rem;font-weight:800;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ $ep['title'] }}</div>
+                    <div style="display:flex;align-items:center;gap:0.5rem;margin-top:3px;font-size:0.68rem;color:var(--ink-faint);">
                         @if($ep['pubDate'])<span>{{ fa(\Carbon\Carbon::parse($ep['pubDate'])->format('Y/m/d')) }}</span>@endif
                         @if($ep['duration'])<span>· {{ \App\Services\PodcastService::humanDuration($ep['duration']) }}</span>@endif
                     </div>
                 </div>
-            </div>
 
-            @if($ep['description'])
-                <div style="font-size:0.82rem;color:var(--ink-mid);line-height:1.9;margin-top:0.7rem;text-align:justify;">
-                    {{ \Illuminate\Support\Str::limit(trim(strip_tags($ep['description'])), 200) }}
-                </div>
-            @endif
+                {{-- شماره قسمت - گوشه چپ --}}
+                <div style="font-size:0.66rem;font-weight:800;color:var(--pine);background:var(--green-soft);width:26px;height:26px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">{{ fa(count($episodes) - $i) }}</div>
+            </div>
 
             @if($ep['audio'])
             {{-- پلیر سفارشی --}}
             <div class="player" data-src="{{ $ep['audio'] }}">
                 <button type="button" class="play-btn" aria-label="پخش">
-                    <svg class="ic-play" width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>
-                    <svg class="ic-pause" width="18" height="18" viewBox="0 0 24 24" fill="#fff" style="display:none;"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>
+                    <svg class="ic-play" width="17" height="17" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>
+                    <svg class="ic-pause" width="17" height="17" viewBox="0 0 24 24" fill="#fff" style="display:none;"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>
                 </button>
                 <div class="player-mid">
                     <div class="progress-wrap"><div class="progress-bar"></div></div>
