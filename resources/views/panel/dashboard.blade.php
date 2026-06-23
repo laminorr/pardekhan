@@ -319,17 +319,24 @@
         return s.replace(/\d/g, function (d) { return faDigits[d]; }).replace(/,/g, '٬');
     }
 
-    // ── الگوریتم پایه بر اساس ساعت روز ──
-    // شب‌ها (۲۰ تا ۲۴) اوج، نیمه‌شب و صبح زود کف
+    // ── الگوریتم پایه بر اساس ساعت روز (وقت تهران) ──
     function baseFor(hour, peak, low) {
-        // منحنی نرم: کمینه ساعت ۵ صبح، بیشینه ساعت ۲۲
-        var t = (hour - 5 + 24) % 24;            // فاصله از کف
+        // منحنی نرم: کف ساعت ۵ صبح، اوج ساعت ۲۲
+        var t = (hour - 5 + 24) % 24;
         var frac = Math.sin((t / 24) * Math.PI); // 0..1..0
-        return Math.round(low + (peak - low) * frac);
+        var val = low + (peak - low) * frac;
+
+        // ساعت ۲ تا ۹ صبح به وقت ایران: همه خواب‌اند → آمار خیلی کم
+        if (hour >= 2 && hour < 9) {
+            // عمیق‌ترین کف حدود ۵-۶ صبح
+            var deep = 1 - Math.sin(((hour - 2) / 7) * Math.PI) * 0.7; // 1..0.3..1
+            val = val * 0.18 * deep + low * 0.12;
+        }
+        return Math.round(val);
     }
 
     var now = new Date();
-    var hour = now.getHours();
+    var hour = {{ (int) \Carbon\Carbon::now('Asia/Tehran')->format('G') }}; // ساعت تهران از سرور
 
     // اعداد پایه (فیک ولی معقول) — می‌توانی بعداً peak/low را تغییر دهی
     var online = {
@@ -366,8 +373,12 @@
     }
 
     // هر چند ثانیه یکی را به‌روز کن (نه هم‌زمان، تا طبیعی باشد)
-    setInterval(function () { step(online, 300); }, 3500);
-    setInterval(function () { step(watching, 30); }, 5200);
+    // کف نوسان نسبت به مقدار اولیه تنظیم می‌شود (تا در ساعات خلوت هم منطقی بماند)
+    var onlineFloor = Math.max(20, Math.round(online.value * 0.85));
+    var watchingFloor = Math.max(5, Math.round(watching.value * 0.8));
+
+    setInterval(function () { step(online, onlineFloor); }, 3500);
+    setInterval(function () { step(watching, watchingFloor); }, 5200);
 })();
 </script>
 @endpush
