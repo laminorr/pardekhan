@@ -116,9 +116,12 @@
     </div>
 </div>
 @php
-    $layer = $member->layer;
     $score = $member->score;
     $allLayers = \App\Models\Layer::active()->orderBy('min_score')->get();
+
+    // لایه فعلی را بر اساس امتیاز واقعی محاسبه کن (نه layer_id ذخیره‌شده که ممکن است عقب باشد)
+    $layer = $allLayers->filter(fn($l) => $l->min_score <= $score)->sortByDesc('min_score')->first() ?? $allLayers->first();
+
     $nextLayer = $allLayers->where('min_score', '>', $score)->first();
     $currentMin = $layer?->min_score ?? 0;
     $nextMin = $nextLayer?->min_score;
@@ -133,7 +136,7 @@
     $circumference = 477.5;
     $dashoffset = $circumference * (1 - $progress / 100);
 
-    // ایندکس لایه فعلی برای نردبان
+    // ایندکس لایه فعلی برای نردبان (بر اساس امتیاز)
     $currentIndex = $layer ? $allLayers->search(fn($l) => $l->id === $layer->id) : -1;
 @endphp
 <div style="border:1px solid #ededeb;border-radius:28px;padding:1.75rem 1.4rem 1.5rem;display:flex;flex-direction:column;align-items:center;background:linear-gradient(180deg,#ffffff,#fbfcfb);box-shadow:0 1px 0 #fff,0 20px 40px -34px rgba(47,93,80,0.5);margin-bottom:1rem;">
