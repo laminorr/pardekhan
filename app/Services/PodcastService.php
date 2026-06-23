@@ -8,6 +8,30 @@ use Illuminate\Support\Facades\Cache;
 class PodcastService
 {
     /**
+     * تبدیل مدت‌زمان (ثانیه یا HH:MM:SS) به فرمت خوانا
+     */
+    public static function humanDuration(string $duration): string
+    {
+        $duration = trim($duration);
+        if ($duration === '') return '';
+
+        // اگر عدد خالص بود (ثانیه)
+        if (is_numeric($duration)) {
+            $sec = (int) $duration;
+            $m = intdiv($sec, 60);
+            $s = $sec % 60;
+            return $m . ':' . str_pad((string) $s, 2, '0', STR_PAD_LEFT);
+        }
+
+        // اگر HH:MM:SS بود، ساعت صفر را حذف کن
+        $parts = explode(':', $duration);
+        if (count($parts) === 3 && (int) $parts[0] === 0) {
+            return ltrim($parts[1], '0') ?: '0' . ':' . $parts[2];
+        }
+        return $duration;
+    }
+
+    /**
      * خواندن فید RSS و استخراج قسمت‌ها (با کش ۳۰ دقیقه‌ای)
      */
     public static function episodes(int $limit = 50): array
