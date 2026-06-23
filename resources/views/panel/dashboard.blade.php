@@ -195,28 +195,43 @@
     @endif
 </div>
 
-{{-- آمار سریع --}}
+{{-- باکس‌های پادکست و فیلم امروز --}}
 @php
-    $eventsAttended = $member->registrations()->where('attendance_status', 'attended')->count();
-    $activeTickets = \App\Models\Ticket::where('member_id', $member->id)->where('status', 'active')->count();
+    $todayFilm = \App\Models\DailyFilm::where('is_active', true)->latest('show_date')->first();
 @endphp
-@php
-    $stats = [
-        ['val' => fa($eventsAttended), 'unit' => '', 'cap' => 'دورهمی'],
-        ['val' => fa($activeTickets), 'unit' => '', 'cap' => 'بلیت فعال'],
-        ['val' => fa(number_format($member->wallet_balance / 1000)), 'unit' => ' هزار', 'cap' => 'کیف پول'],
-    ];
-@endphp
-<div style="margin-top:1.5rem;display:flex;align-items:stretch;text-align:center;">
-    @foreach($stats as $i => $s)
-        <div style="flex:1;display:flex;flex-direction:column;justify-content:center;min-height:54px;">
-            <div style="font-size:1.45rem;font-weight:800;letter-spacing:-0.5px;color:var(--ink);line-height:1;text-shadow:0 2px 6px rgba(47,93,80,0.1);">{{ $s['val'] }}@if($s['unit'])<span style="font-size:0.64rem;color:var(--ink-dim);font-weight:600;text-shadow:none;">{{ $s['unit'] }}</span>@endif</div>
-            <div style="font-size:0.7rem;color:var(--ink-dim);margin-top:7px;line-height:1;">{{ $s['cap'] }}</div>
+<div style="margin-top:1.4rem;display:flex;gap:0.7rem;">
+    {{-- پادکست‌زده --}}
+    <a href="{{ route('panel.podcast') }}" style="flex:1;position:relative;overflow:hidden;text-decoration:none;color:#fff;border-radius:20px;background:linear-gradient(145deg,var(--pine-bright),var(--pine-deep));padding:1.1rem 1.05rem;min-height:128px;display:flex;flex-direction:column;box-shadow:0 10px 26px -12px rgba(47,93,80,0.55);">
+        <div style="position:absolute;top:-30px;left:-25px;width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,0.07);"></div>
+        <div style="position:absolute;bottom:-35px;right:-15px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.05);"></div>
+        <div style="position:relative;display:flex;align-items:center;justify-content:space-between;">
+            <div style="width:40px;height:40px;border-radius:13px;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/></svg>
+            </div>
+            <div style="width:30px;height:30px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--pine)"><path d="M8 5v14l11-7z"/></svg>
+            </div>
         </div>
-        @if($i < 2)
-            <div style="width:1px;background:linear-gradient(180deg,transparent,#c4ccc8 18%,#b6beba 50%,#c4ccc8 82%,transparent);"></div>
-        @endif
-    @endforeach
+        <div style="position:relative;margin-top:auto;">
+            <div style="font-size:1rem;font-weight:800;">پادکست‌زده</div>
+            <div style="font-size:0.72rem;color:rgba(234,243,239,0.85);margin-top:2px;">عدم قطعیت</div>
+        </div>
+    </a>
+
+    {{-- فیلم امروز --}}
+    <a href="{{ $todayFilm ? route('panel.film.today') : '#' }}" style="flex:1;position:relative;overflow:hidden;text-decoration:none;color:#fff;border-radius:20px;background:linear-gradient(145deg,#d06236,#a8431f);padding:1.1rem 1.05rem;min-height:128px;display:flex;flex-direction:column;box-shadow:0 10px 26px -12px rgba(168,67,31,0.5);{{ $todayFilm ? '' : 'opacity:0.92;' }}">
+        <div style="position:absolute;top:-30px;right:-25px;width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,0.08);"></div>
+        <div style="position:absolute;bottom:-35px;left:-15px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.05);"></div>
+        <div style="position:relative;display:flex;align-items:center;justify-content:space-between;">
+            <div style="width:40px;height:40px;border-radius:13px;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7"><rect x="2" y="2" width="20" height="20" rx="2.5"/><path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 17h5M17 7h5"/></svg>
+            </div>
+        </div>
+        <div style="position:relative;margin-top:auto;">
+            <div style="font-size:1rem;font-weight:800;">فیلم امروز</div>
+            <div style="font-size:0.72rem;color:rgba(255,255,255,0.85);margin-top:2px;">{{ $todayFilm ? \Illuminate\Support\Str::limit($todayFilm->title, 16) : 'به‌زودی' }}</div>
+        </div>
+    </a>
 </div>
 
 {{-- منوی دسترسی سریع --}}
@@ -240,41 +255,6 @@
         <div style="font-size:0.72rem;color:var(--ink-dim);margin-top:2px;">{{ $desc }}</div>
     </a>
     @endforeach
-</div>
-
-{{-- باکس‌های پادکست و فیلم امروز --}}
-<div style="display:flex;gap:0.7rem;margin-bottom:0.4rem;">
-    {{-- پادکست‌زده --}}
-    <a href="{{ route('panel.podcast') }}" style="flex:1;text-decoration:none;color:inherit;background:#fff;border:1px solid var(--border);border-radius:18px;padding:1rem;box-shadow:0 2px 14px rgba(40,60,50,0.04);display:flex;flex-direction:column;gap:0.6rem;min-height:118px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;">
-            <div style="width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--pine),var(--pine-bright));display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/></svg>
-            </div>
-            <div style="width:26px;height:26px;border-radius:50%;background:var(--green-soft);display:flex;align-items:center;justify-content:center;">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="var(--pine)"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-        </div>
-        <div style="margin-top:auto;">
-            <div style="font-size:0.92rem;font-weight:800;">پادکست‌زده</div>
-            <div style="font-size:0.7rem;color:var(--ink-faint);margin-top:1px;">عدم قطعیت</div>
-        </div>
-    </a>
-
-    {{-- فیلم امروز --}}
-    @php
-        $todayFilm = \App\Models\DailyFilm::where('is_active', true)->latest('show_date')->first();
-    @endphp
-    <a href="{{ $todayFilm ? route('panel.film.today') : '#' }}" style="flex:1;text-decoration:none;color:inherit;background:#fff;border:1px solid var(--border);border-radius:18px;padding:1rem;box-shadow:0 2px 14px rgba(40,60,50,0.04);display:flex;flex-direction:column;gap:0.6rem;min-height:118px;{{ $todayFilm ? '' : 'opacity:0.6;pointer-events:none;' }}">
-        <div style="display:flex;align-items:center;justify-content:space-between;">
-            <div style="width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--burnt),#a8431f);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7"><rect x="2" y="2" width="20" height="20" rx="2.5"/><path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 17h5M17 7h5"/></svg>
-            </div>
-        </div>
-        <div style="margin-top:auto;">
-            <div style="font-size:0.92rem;font-weight:800;">فیلم امروز</div>
-            <div style="font-size:0.7rem;color:var(--ink-faint);margin-top:1px;">{{ $todayFilm ? \Illuminate\Support\Str::limit($todayFilm->title, 18) : 'به‌زودی' }}</div>
-        </div>
-    </a>
 </div>
 
 {{-- دورهمی پیشنهادی --}}
