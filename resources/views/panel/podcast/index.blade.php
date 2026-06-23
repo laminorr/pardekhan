@@ -7,11 +7,27 @@
     .pod-hero .deco { position:absolute; border-radius:50%; background:rgba(255,255,255,0.06); }
     .pod-cover { width:88px; height:88px; border-radius:20px; object-fit:cover; box-shadow:0 10px 24px -10px rgba(0,0,0,0.5); flex-shrink:0; background:rgba(255,255,255,0.1); }
 
-    .ep-card { background:#fff; border:1px solid var(--border); border-radius:18px; padding:0.9rem 1rem; box-shadow:0 3px 14px rgba(40,60,50,0.04); transition:transform 0.25s, box-shadow 0.25s; }
+    .ep-card { background:#fff; border:1px solid var(--border); border-radius:18px; padding:0.9rem 1rem; box-shadow:0 3px 14px rgba(40,60,50,0.04); transition:transform 0.25s, box-shadow 0.25s, border-color 0.3s, background 0.3s; }
     .ep-card:hover { transform:translateY(-2px); box-shadow:0 8px 22px rgba(40,60,50,0.08); }
 
+    /* حالت در حال پخش */
+    .ep-card.playing { border-color:var(--pine); background:linear-gradient(135deg,#f4f9f7,#eef5f1); box-shadow:0 8px 26px -8px rgba(47,93,80,0.28); }
+    .ep-card.playing .ep-thumb { box-shadow:0 0 0 3px rgba(47,93,80,0.18); }
+
+    /* نشانگر «در حال پخش» با موج */
+    .now-playing { display:none; align-items:center; gap:5px; margin-top:5px; }
+    .ep-card.playing .now-playing { display:inline-flex; }
+    .eq { display:inline-flex; align-items:flex-end; gap:2px; height:11px; }
+    .eq span { width:2.5px; background:var(--pine); border-radius:2px; animation:eq 0.9s ease-in-out infinite; }
+    .eq span:nth-child(1){ height:40%; animation-delay:0s; }
+    .eq span:nth-child(2){ height:100%; animation-delay:0.2s; }
+    .eq span:nth-child(3){ height:60%; animation-delay:0.4s; }
+    .eq span:nth-child(4){ height:85%; animation-delay:0.1s; }
+    @keyframes eq { 0%,100%{ transform:scaleY(0.4); } 50%{ transform:scaleY(1); } }
+
     /* پلیر سفارشی */
-    .player { margin-top:0.75rem; background:var(--green-tint); border-radius:12px; padding:0.55rem 0.7rem; display:flex; align-items:center; gap:0.65rem; }
+    .player { margin-top:0.75rem; background:var(--green-tint); border-radius:12px; padding:0.55rem 0.7rem; display:flex; align-items:center; gap:0.65rem; transition:background 0.3s; }
+    .ep-card.playing .player { background:#e3efe9; }
     .play-btn { width:36px; height:36px; border-radius:50%; background:var(--pine); border:none; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; transition:transform 0.15s; box-shadow:0 4px 12px rgba(47,93,80,0.3); }
     .play-btn:active { transform:scale(0.92); }
     .player-mid { flex:1; min-width:0; }
@@ -74,9 +90,9 @@
             <div style="display:flex;align-items:center;gap:0.8rem;">
                 {{-- عکس اپیزود --}}
                 @if(!empty($ep['image']))
-                    <img src="{{ $ep['image'] }}" alt="" style="width:52px;height:52px;border-radius:13px;object-fit:cover;flex-shrink:0;background:var(--green-soft);">
+                    <img src="{{ $ep['image'] }}" alt="" class="ep-thumb" style="width:52px;height:52px;border-radius:13px;object-fit:cover;flex-shrink:0;background:var(--green-soft);transition:box-shadow 0.3s;">
                 @else
-                    <div style="width:52px;height:52px;border-radius:13px;background:var(--green-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <div class="ep-thumb" style="width:52px;height:52px;border-radius:13px;background:var(--green-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:box-shadow 0.3s;">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--pine)" stroke-width="1.6"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
                     </div>
                 @endif
@@ -87,6 +103,11 @@
                     <div style="display:flex;align-items:center;gap:0.5rem;margin-top:3px;font-size:0.68rem;color:var(--ink-faint);">
                         @if($ep['pubDate'])<span>{{ pdate($ep['pubDate'], 'Y/m/d') }}</span>@endif
                         @if($ep['duration'])<span>· {{ fa(\App\Services\PodcastService::humanDuration($ep['duration'])) }}</span>@endif
+                    </div>
+                    {{-- نشانگر در حال پخش --}}
+                    <div class="now-playing">
+                        <span class="eq"><span></span><span></span><span></span><span></span></span>
+                        <span style="font-size:0.64rem;font-weight:800;color:var(--pine);">در حال پخش</span>
                     </div>
                 </div>
 
@@ -128,7 +149,16 @@
 
     var current = null; // audio در حال پخش
 
+    function clearAllPlaying() {
+        document.querySelectorAll('.ep-card').forEach(function (c) { c.classList.remove('playing'); });
+        document.querySelectorAll('.play-btn').forEach(function (b) {
+            b.querySelector('.ic-play').style.display = '';
+            b.querySelector('.ic-pause').style.display = 'none';
+        });
+    }
+
     document.querySelectorAll('.player').forEach(function (player) {
+        var card = player.closest('.ep-card');
         var btn = player.querySelector('.play-btn');
         var icPlay = player.querySelector('.ic-play');
         var icPause = player.querySelector('.ic-pause');
@@ -149,7 +179,9 @@
                 tCur.textContent = fmt(audio.currentTime);
             });
             audio.addEventListener('ended', function () {
-                icPlay.style.display = ''; icPause.style.display = 'none'; bar.style.width = '0%'; tCur.textContent = fmt(0);
+                icPlay.style.display = ''; icPause.style.display = 'none';
+                bar.style.width = '0%'; tCur.textContent = fmt(0);
+                card.classList.remove('playing');
             });
             return audio;
         }
@@ -157,20 +189,18 @@
         btn.addEventListener('click', function () {
             var a = ensureAudio();
             if (a.paused) {
-                // توقف بقیه پلیرها
-                if (current && current !== a) {
-                    current.pause();
-                    document.querySelectorAll('.play-btn').forEach(function (b) {
-                        b.querySelector('.ic-play').style.display = '';
-                        b.querySelector('.ic-pause').style.display = 'none';
-                    });
-                }
+                // توقف بقیه پلیرها و پاک‌کردن حالت فعالشان
+                if (current && current !== a) current.pause();
+                clearAllPlaying();
+
                 a.play();
                 current = a;
                 icPlay.style.display = 'none'; icPause.style.display = '';
+                card.classList.add('playing');
             } else {
                 a.pause();
                 icPlay.style.display = ''; icPause.style.display = 'none';
+                card.classList.remove('playing');
             }
         });
 
