@@ -213,7 +213,7 @@
             </div>
         </div>
         <div style="position:relative;margin-top:auto;">
-            <div style="font-size:1rem;font-weight:800;">پادکست‌زده</div>
+            <div style="font-size:1rem;font-weight:800;">پادکست</div>
             <div style="font-size:0.72rem;color:rgba(234,243,239,0.85);margin-top:2px;">عدم قطعیت</div>
         </div>
     </a>
