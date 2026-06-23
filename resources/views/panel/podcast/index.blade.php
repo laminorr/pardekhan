@@ -85,8 +85,8 @@
                 <div style="flex:1;min-width:0;">
                     <div style="font-size:0.92rem;font-weight:800;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ $ep['title'] }}</div>
                     <div style="display:flex;align-items:center;gap:0.5rem;margin-top:3px;font-size:0.68rem;color:var(--ink-faint);">
-                        @if($ep['pubDate'])<span>{{ fa(\Carbon\Carbon::parse($ep['pubDate'])->format('Y/m/d')) }}</span>@endif
-                        @if($ep['duration'])<span>· {{ \App\Services\PodcastService::humanDuration($ep['duration']) }}</span>@endif
+                        @if($ep['pubDate'])<span>{{ pdate($ep['pubDate'], 'Y/m/d') }}</span>@endif
+                        @if($ep['duration'])<span>· {{ fa(\App\Services\PodcastService::humanDuration($ep['duration'])) }}</span>@endif
                     </div>
                 </div>
 
