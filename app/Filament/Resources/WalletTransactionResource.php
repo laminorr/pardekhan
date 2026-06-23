@@ -30,7 +30,7 @@ class WalletTransactionResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('تاریخ')
-                    ->dateTime('Y/m/d H:i')
+                    ->formatStateUsing(fn ($state) => jdate($state, 'Y/m/d H:i'))
                     ->sortable(),
                 Tables\Columns\TextColumn::make('member.full_name')
                     ->label('عضو')

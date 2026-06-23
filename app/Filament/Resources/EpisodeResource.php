@@ -300,7 +300,9 @@ Forms\Components\FileUpload::make('cover_image')
                             ->default(false),
                         Forms\Components\DateTimePicker::make('published_at')
                             ->label('تاریخ انتشار')
-                            ->default(now()),
+                            ->default(now())
+                            ->live()
+                            ->helperText(fn ($state) => $state ? 'معادل شمسی: ' . jdate($state, 'Y/m/d H:i') : null),
                     ]),
 
             ])->columnSpanFull(),

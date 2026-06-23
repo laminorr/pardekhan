@@ -96,7 +96,7 @@ class RegistrationResource extends Resource
                     }),
                 Tables\Columns\TextColumn::make('registered_at')
                     ->label('تاریخ')
-                    ->dateTime('Y/m/d H:i')
+                    ->formatStateUsing(fn ($state) => jdate($state, 'Y/m/d H:i'))
                     ->sortable(),
             ])
             ->defaultSort('registered_at', 'desc')

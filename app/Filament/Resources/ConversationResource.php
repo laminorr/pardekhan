@@ -64,7 +64,7 @@ class ConversationResource extends Resource
                     ->color(fn ($state) => $state === 'open' ? 'success' : 'gray'),
                 Tables\Columns\TextColumn::make('last_message_at')
                     ->label('آخرین پیام')
-                    ->dateTime('Y/m/d H:i')
+                    ->formatStateUsing(fn ($state) => jdate($state, 'Y/m/d H:i'))
                     ->sortable(),
             ])
             ->defaultSort('last_message_at', 'desc')

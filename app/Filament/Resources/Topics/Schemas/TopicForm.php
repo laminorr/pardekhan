@@ -115,7 +115,9 @@ class TopicForm
                     ->default(0),
 
                 DateTimePicker::make('published_at')
-                    ->label('زمان انتشار'),
+                    ->label('زمان انتشار')
+                    ->live()
+                    ->helperText(fn ($state) => $state ? 'معادل شمسی: ' . jdate($state, 'Y/m/d H:i') : null),
             ]);
     }
 }

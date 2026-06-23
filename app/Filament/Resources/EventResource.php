@@ -66,7 +66,11 @@ class EventResource extends Resource
                         Forms\Components\DateTimePicker::make('starts_at')
                             ->label('تاریخ و ساعت برگزاری')
                             ->required()
-                            ->seconds(false),
+                            ->seconds(false)
+                            ->live()
+                            ->helperText(fn ($state) => $state
+                                ? 'معادل شمسی: ' . jdate($state, 'l j F Y - H:i')
+                                : 'تاریخ میلادی را انتخاب کنید؛ معادل شمسی اینجا نمایش داده می‌شود'),
                     ]),
 
                 // تب ۳: ظرفیت و قیمت
@@ -147,7 +151,7 @@ class EventResource extends Resource
                     ->description(fn (Event $r) => $r->subtitle),
                 Tables\Columns\TextColumn::make('starts_at')
                     ->label('تاریخ')
-                    ->dateTime('Y/m/d H:i')
+                    ->formatStateUsing(fn ($state) => jdate($state, 'Y/m/d H:i'))
                     ->sortable(),
                 Tables\Columns\TextColumn::make('capacity')
                     ->label('ظرفیت')

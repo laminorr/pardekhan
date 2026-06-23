@@ -15,3 +15,21 @@ if (! function_exists('fanum')) {
         return fa(number_format((float) $value));
     }
 }
+
+if (! function_exists('jdate')) {
+    /**
+     * تبدیل تاریخ میلادی به شمسی با ارقام فارسی
+     * @param mixed  $date   مقدار تاریخ (Carbon یا رشته)
+     * @param string $format فرمت جلالی (پیش‌فرض: Y/m/d H:i)
+     */
+    function jdate($date, string $format = 'Y/m/d H:i'): string
+    {
+        if (! $date) return '—';
+        try {
+            $carbon = $date instanceof \Carbon\Carbon ? $date : \Carbon\Carbon::parse($date);
+            return fa(\Morilog\Jalali\Jalalian::fromDateTime($carbon)->format($format));
+        } catch (\Throwable $e) {
+            return '—';
+        }
+    }
+}
