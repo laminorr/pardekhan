@@ -13,12 +13,17 @@ class SyncLayers extends Command
 
     public function handle(): int
     {
-        $layers = Layer::active()->orderByDesc('min_score')->get();
+        $layers = Layer::active()->get();
         $fixed = 0;
 
         Member::where('status', 'approved')->chunk(100, function ($members) use ($layers, &$fixed) {
             foreach ($members as $member) {
-                $correct = $layers->first(fn ($l) => $l->min_score <= $member->score);
+                // بزرگ‌ترین لایه‌ای که آستانه‌اش ≤ امتیاز عضو است (مستقل از ترتیب کالکشن)
+                $correct = $layers
+                    ->filter(fn ($l) => $l->min_score <= $member->score)
+                    ->sortByDesc('min_score')
+                    ->first();
+
                 if ($correct && $member->layer_id !== $correct->id) {
                     $member->updateQuietly(['layer_id' => $correct->id]);
                     $this->line("«{$member->full_name}»: امتیاز {$member->score} → لایهٔ {$correct->name}");

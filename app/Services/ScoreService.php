@@ -83,7 +83,7 @@ class ScoreService
     {
         if ($member->status !== 'approved') return;
 
-        $appropriateLayer = Layer::active()
+        $appropriateLayer = Layer::where('is_active', true)
             ->where('min_score', '<=', $member->score)
             ->orderByDesc('min_score')
             ->first();
