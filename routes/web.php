@@ -339,35 +339,42 @@ Route::prefix('panel')->name('panel.')->middleware([RedirectIfMemberAuthenticate
 
 // مسیرهای با لاگین
 Route::prefix('panel')->name('panel.')->middleware([AuthenticateMember::class])->group(function () {
+    // ── مسیرهای پایه (هر عضو لاگین‌شده، حتی تاییدنشده) ──
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/wallet', [\App\Http\Controllers\Panel\WalletController::class, 'index'])->name('wallet');
     Route::get('/questionnaire', [QuestionnaireController::class, 'show'])->name('questionnaire');
     Route::post('/questionnaire', [QuestionnaireController::class, 'submit']);
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
     Route::post('/profile', [ProfileController::class, 'update']);
     Route::post('/profile/password', [ProfileController::class, 'changePassword'])->name('profile.password');
-    Route::get('/events', [EventController::class, 'index'])->name('events.index');
-    Route::get('/my-events', [EventController::class, 'myEvents'])->name('events.my');
-    Route::get('/events/{event}/feedback', [FeedbackController::class, 'create'])->name('feedback.create');
-    Route::post('/events/{event}/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
-    Route::get('/tickets', [TicketController::class, 'index'])->name('tickets.index');
-    Route::get('/tickets/{ticket}', [TicketController::class, 'show'])->name('tickets.show');
 
-    // پیام‌ها
-    Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
-    Route::get('/messages/new', [MessageController::class, 'newConversation'])->name('messages.new');
-    Route::post('/messages/new', [MessageController::class, 'storeConversation'])->name('messages.store');
-    Route::get('/messages/broadcast/{recipient}', [MessageController::class, 'showBroadcast'])->name('messages.broadcast');
-    Route::post('/messages/broadcast/{recipient}/reply', [MessageController::class, 'replyBroadcast'])->name('messages.broadcast.reply');
-    Route::get('/messages/conversation/{conversation}', [MessageController::class, 'showConversation'])->name('messages.conversation');
-    Route::post('/messages/conversation/{conversation}/reply', [MessageController::class, 'replyConversation'])->name('messages.conversation.reply');
-    Route::get('/events/{event}', [EventController::class, 'show'])->name('events.show');
-    Route::post('/events/{event}/waitlist', [EventController::class, 'joinWaitlist'])->name('events.waitlist');
-    Route::get('/events/{event}/checkout', [PaymentController::class, 'checkout'])->name('payment.checkout');
-    Route::post('/events/{event}/pay/wallet', [PaymentController::class, 'payWithWallet'])->name('payment.wallet');
-    Route::post('/events/{event}/pay/card', [PaymentController::class, 'payWithCardToCard'])->name('payment.card');
-    Route::post('/events/{event}/cancel', [EventController::class, 'cancel'])->name('events.cancel');
+    // ── مسیرهای فقط برای اعضای تاییدشده ──
+    Route::middleware([\App\Http\Middleware\EnsureMemberApproved::class])->group(function () {
+        Route::get('/wallet', [\App\Http\Controllers\Panel\WalletController::class, 'index'])->name('wallet');
+        Route::get('/events', [EventController::class, 'index'])->name('events.index');
+        Route::get('/my-events', [EventController::class, 'myEvents'])->name('events.my');
+        Route::get('/events/{event}/feedback', [FeedbackController::class, 'create'])->name('feedback.create');
+        Route::post('/events/{event}/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
+        Route::get('/tickets', [TicketController::class, 'index'])->name('tickets.index');
+        Route::get('/tickets/{ticket}', [TicketController::class, 'show'])->name('tickets.show');
+
+        // پیام‌ها
+        Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
+        Route::get('/messages/new', [MessageController::class, 'newConversation'])->name('messages.new');
+        Route::post('/messages/new', [MessageController::class, 'storeConversation'])->name('messages.store');
+        Route::get('/messages/broadcast/{recipient}', [MessageController::class, 'showBroadcast'])->name('messages.broadcast');
+        Route::post('/messages/broadcast/{recipient}/reply', [MessageController::class, 'replyBroadcast'])->name('messages.broadcast.reply');
+        Route::get('/messages/conversation/{conversation}', [MessageController::class, 'showConversation'])->name('messages.conversation');
+        Route::post('/messages/conversation/{conversation}/reply', [MessageController::class, 'replyConversation'])->name('messages.conversation.reply');
+
+        // رویداد و پرداخت
+        Route::get('/events/{event}', [EventController::class, 'show'])->name('events.show');
+        Route::post('/events/{event}/waitlist', [EventController::class, 'joinWaitlist'])->name('events.waitlist');
+        Route::get('/events/{event}/checkout', [PaymentController::class, 'checkout'])->name('payment.checkout');
+        Route::post('/events/{event}/pay/wallet', [PaymentController::class, 'payWithWallet'])->name('payment.wallet');
+        Route::post('/events/{event}/pay/card', [PaymentController::class, 'payWithCardToCard'])->name('payment.card');
+        Route::post('/events/{event}/cancel', [EventController::class, 'cancel'])->name('events.cancel');
+    });
 });
 
 /*
