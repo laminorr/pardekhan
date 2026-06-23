@@ -242,6 +242,41 @@
     @endforeach
 </div>
 
+{{-- باکس‌های پادکست و فیلم امروز --}}
+<div style="display:flex;gap:0.7rem;margin-bottom:0.4rem;">
+    {{-- پادکست‌زده --}}
+    <a href="{{ route('panel.podcast') }}" style="flex:1;text-decoration:none;color:inherit;background:#fff;border:1px solid var(--border);border-radius:18px;padding:1rem;box-shadow:0 2px 14px rgba(40,60,50,0.04);display:flex;flex-direction:column;gap:0.6rem;min-height:118px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div style="width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--pine),var(--pine-bright));display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/></svg>
+            </div>
+            <div style="width:26px;height:26px;border-radius:50%;background:var(--green-soft);display:flex;align-items:center;justify-content:center;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="var(--pine)"><path d="M8 5v14l11-7z"/></svg>
+            </div>
+        </div>
+        <div style="margin-top:auto;">
+            <div style="font-size:0.92rem;font-weight:800;">پادکست‌زده</div>
+            <div style="font-size:0.7rem;color:var(--ink-faint);margin-top:1px;">عدم قطعیت</div>
+        </div>
+    </a>
+
+    {{-- فیلم امروز --}}
+    @php
+        $todayFilm = \App\Models\DailyFilm::where('is_active', true)->latest('show_date')->first();
+    @endphp
+    <a href="{{ $todayFilm ? route('panel.film.today') : '#' }}" style="flex:1;text-decoration:none;color:inherit;background:#fff;border:1px solid var(--border);border-radius:18px;padding:1rem;box-shadow:0 2px 14px rgba(40,60,50,0.04);display:flex;flex-direction:column;gap:0.6rem;min-height:118px;{{ $todayFilm ? '' : 'opacity:0.6;pointer-events:none;' }}">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div style="width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--burnt),#a8431f);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7"><rect x="2" y="2" width="20" height="20" rx="2.5"/><path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 17h5M17 7h5"/></svg>
+            </div>
+        </div>
+        <div style="margin-top:auto;">
+            <div style="font-size:0.92rem;font-weight:800;">فیلم امروز</div>
+            <div style="font-size:0.7rem;color:var(--ink-faint);margin-top:1px;">{{ $todayFilm ? \Illuminate\Support\Str::limit($todayFilm->title, 18) : 'به‌زودی' }}</div>
+        </div>
+    </a>
+</div>
+
 {{-- دورهمی پیشنهادی --}}
 @php
     $suggested = \App\Models\Event::where('status', 'active')->where('starts_at', '>', now())->visibleTo($member)->orderBy('starts_at')->first();

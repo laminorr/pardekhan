@@ -359,6 +359,8 @@ Route::prefix('panel')->name('panel.')->middleware([AuthenticateMember::class])-
         Route::get('/events/{event}/feedback', [FeedbackController::class, 'create'])->name('feedback.create');
         Route::post('/events/{event}/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
         Route::get('/tickets', [TicketController::class, 'index'])->name('tickets.index');
+        Route::get('/podcast', [\App\Http\Controllers\Panel\PodcastController::class, 'index'])->name('podcast');
+        Route::get('/film/today', [\App\Http\Controllers\Panel\FilmController::class, 'today'])->name('film.today');
         Route::get('/tickets/{ticket}', [TicketController::class, 'show'])->name('tickets.show');
 
         // پیام‌ها
