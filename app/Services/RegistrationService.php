@@ -20,7 +20,8 @@ class RegistrationService
      */
     public function registerWithWallet(Member $member, Event $event): array
     {
-        return DB::transaction(function () use ($member, $event) {
+        try {
+            return DB::transaction(function () use ($member, $event) {
             // قفل رویداد برای کنترل ظرفیت
             $event = Event::lockForUpdate()->find($event->id);
 
@@ -69,7 +70,10 @@ class RegistrationService
             $this->updateEventCapacityStatus($event);
 
             return ['ok' => true, 'registration' => $registration, 'message' => 'ثبت‌نام با موفقیت انجام شد'];
-        });
+            });
+        } catch (\App\Exceptions\InsufficientBalanceException $e) {
+            return ['ok' => false, 'message' => 'موجودی کیف پول کافی نیست'];
+        }
     }
 
     /**

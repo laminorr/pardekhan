@@ -24,6 +24,11 @@ class WalletService
             // قفل ردیف member برای جلوگیری از race condition
             $member = Member::lockForUpdate()->find($member->id);
 
+            // جلوگیری از منفی شدن موجودی (برای برداشت‌ها) — پس از قفل بررسی می‌شود
+            if ($amount < 0 && ($member->wallet_balance + $amount) < 0) {
+                throw new \App\Exceptions\InsufficientBalanceException();
+            }
+
             $newBalance = $member->wallet_balance + $amount;
             $member->update(['wallet_balance' => $newBalance]);
 
