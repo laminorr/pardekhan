@@ -21,16 +21,20 @@ class MessageController extends Controller
     {
         $member = auth('member')->user();
 
-        // پیام‌های پخشی دریافتی
-        $broadcasts = BroadcastRecipient::where('member_id', $member->id)
-            ->with('broadcast.sender')
-            ->latest()
-            ->get();
-
-        // گفتگوهای فعال
+        // گفتگوهای فعال (شامل پاسخ به اطلاعیه‌ها)
         $conversations = Conversation::where('member_id', $member->id)
             ->with('latestMessage')
             ->latest('last_message_at')
+            ->get();
+
+        // شناسه اطلاعیه‌هایی که قبلاً به آن‌ها پاسخ داده شده (گفتگو دارند)
+        $repliedBroadcastIds = $conversations->pluck('broadcast_id')->filter()->all();
+
+        // اطلاعیه‌های دریافتی که هنوز گفتگویی برایشان باز نشده
+        $broadcasts = BroadcastRecipient::where('member_id', $member->id)
+            ->whereHas('broadcast', fn ($q) => $q->whereNotIn('id', $repliedBroadcastIds))
+            ->with('broadcast.sender')
+            ->latest()
             ->get();
 
         return view('panel.messages.index', compact('member', 'broadcasts', 'conversations'));

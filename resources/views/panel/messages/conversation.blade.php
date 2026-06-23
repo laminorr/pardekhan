@@ -20,6 +20,17 @@
 
 {{-- پیام‌ها (چت) --}}
 <div style="display:flex;flex-direction:column;gap:0.6rem;margin-bottom:1.5rem;">
+    {{-- اگر این گفتگو از یک اطلاعیه شروع شده، متن اطلاعیه را اول نشان بده --}}
+    @if($conversation->broadcast)
+        <div style="display:flex;justify-content:flex-end;">
+            <div style="max-width:78%;background:#fff;border:1px solid var(--border);border-radius:16px;border-top-left-radius:5px;padding:0.7rem 0.9rem;">
+                <div style="font-size:0.62rem;color:var(--pine);font-weight:700;margin-bottom:3px;">مدیریت · اطلاعیه</div>
+                <div style="font-size:0.82rem;font-weight:700;color:var(--ink);margin-bottom:2px;">{{ $conversation->broadcast->subject }}</div>
+                <div style="font-size:0.84rem;line-height:1.75;color:var(--ink-mid);">{{ $conversation->broadcast->body }}</div>
+            </div>
+        </div>
+    @endif
+
     @foreach($conversation->messages as $msg)
         @if($msg->sender_type === 'member')
             {{-- پیام کاربر - راست --}}
