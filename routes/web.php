@@ -268,24 +268,27 @@ Route::post('/comment', function (Request $request) {
         'name' => $validated['name'],
         'body' => $validated['body'],
         'ip_address' => $request->ip(),
-        'is_approved' => true,
+        'is_approved' => false, // پس از تایید مدیر منتشر می‌شود
     ]);
 
-    return response()->json(['success' => true]);
-})->name('comment.store');
+    return response()->json(['success' => true, 'message' => 'نظر شما ثبت شد و پس از بررسی منتشر می‌شود.']);
+})->middleware('throttle:5,1')->name('comment.store');
 
 // Subscribe phone
 Route::post('/subscribe', function (Request $request) {
     $validated = $request->validate([
-        'phone' => ['required', 'string', 'max:15'],
+        'phone' => ['required', 'string', 'regex:/^09\d{9}$/'],
+    ], [
+        'phone.regex' => 'شماره موبایل معتبر نیست (مثل ۰۹۱۲۳۴۵۶۷۸۹).',
     ]);
 
-    Contact::firstOrCreate([
-        'phone' => $validated['phone'],
-    ]);
+    // نرمال‌سازی: حذف فاصله و تبدیل ارقام فارسی
+    $phone = $validated['phone'];
+
+    Contact::firstOrCreate(['phone' => $phone]);
 
     return response()->json(['success' => true]);
-})->name('subscribe');
+})->middleware('throttle:5,1')->name('subscribe');
 
 
 
