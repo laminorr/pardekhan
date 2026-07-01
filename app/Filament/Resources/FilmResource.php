@@ -43,6 +43,7 @@ class FilmResource extends Resource
             Forms\Components\FileUpload::make('cover')
                 ->label('کاور (آپلود)')
                 ->image()
+                ->disk('public')
                 ->directory('films')
                 ->helperText('یا به‌جای آپلود، لینک عکس را در فیلد زیر بگذارید'),
             Forms\Components\TextInput::make('cover_url')

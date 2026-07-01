@@ -40,6 +40,7 @@ class PostResource extends Resource
             Forms\Components\FileUpload::make('cover')
                 ->label('عکس کاور')
                 ->image()
+                ->disk('public')
                 ->directory('posts')
                 ->imageEditor()
                 ->helperText('عکس به‌صورت خودکار بهینه و کم‌حجم می‌شود'),
