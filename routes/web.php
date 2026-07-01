@@ -361,6 +361,8 @@ Route::prefix('panel')->name('panel.')->middleware([AuthenticateMember::class])-
         Route::get('/tickets', [TicketController::class, 'index'])->name('tickets.index');
         Route::get('/podcast', [\App\Http\Controllers\Panel\PodcastController::class, 'index'])->name('podcast');
         Route::get('/film/today', [\App\Http\Controllers\Panel\FilmController::class, 'today'])->name('film.today');
+        Route::get('/posts', [\App\Http\Controllers\Panel\PostController::class, 'index'])->name('posts.index');
+        Route::get('/posts/{post}', [\App\Http\Controllers\Panel\PostController::class, 'show'])->name('posts.show');
         Route::get('/tickets/{ticket}', [TicketController::class, 'show'])->name('tickets.show');
 
         // پیام‌ها

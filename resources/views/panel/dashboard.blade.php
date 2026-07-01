@@ -317,6 +317,34 @@
     </div>
 </a>
 @endif
+
+{{-- مجله / وبلاگ --}}
+@php
+    $latestPosts = \App\Models\Post::where('is_published', true)
+        ->orderByDesc('published_at')->orderByDesc('created_at')
+        ->limit(4)->get();
+@endphp
+@if($latestPosts->isNotEmpty())
+<div class="section-head" style="margin-top:1.8rem;">
+    <div class="section-title">مجله پرده‌خوان</div>
+    <a href="{{ route('panel.posts.index') }}" style="font-size:0.78rem;color:var(--pine);font-weight:700;text-decoration:none;">همه</a>
+</div>
+
+<div style="display:flex;flex-direction:column;margin-top:0.5rem;">
+    @foreach($latestPosts as $post)
+    <a href="{{ route('panel.posts.show', $post) }}" style="display:flex;gap:0.9rem;padding:0.95rem 0;{{ !$loop->last ? 'border-bottom:1px solid var(--bg-mute);' : '' }}text-decoration:none;color:inherit;">
+        <div style="flex:1;min-width:0;">
+            <div style="font-size:0.95rem;font-weight:800;line-height:1.5;">{{ $post->title }}</div>
+            <div style="font-size:0.79rem;color:var(--ink-mid);line-height:1.8;margin-top:0.4rem;">{{ \Illuminate\Support\Str::limit($post->summary, 68) }}</div>
+            <div style="font-size:0.7rem;color:var(--ink-faint);margin-top:0.55rem;">{{ pdate($post->published_at ?? $post->created_at, 'j F') }}</div>
+        </div>
+        @if($post->cover_src)
+            <img src="{{ $post->cover_src }}" alt="" style="width:82px;height:82px;border-radius:14px;object-fit:cover;flex-shrink:0;background:var(--green-soft);">
+        @endif
+    </a>
+    @endforeach
+</div>
+@endif
 @endsection
 
 @section('nav')
