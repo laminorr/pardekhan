@@ -26,9 +26,9 @@
         <a href="{{ route('panel.posts.show', $post) }}" style="display:flex;gap:0.85rem;align-items:flex-start;padding:0.95rem 0;{{ !$loop->last ? 'border-bottom:1.5px dashed #eceeec;' : '' }}text-decoration:none;color:inherit;">
             {{-- کاور سمت راست --}}
             @if($post->cover_src)
-                <img src="{{ $post->cover_src }}" alt="" style="width:96px;height:106px;border-radius:12px;object-fit:cover;flex:0 0 96px;background:var(--green-soft);">
+                <img src="{{ $post->cover_src }}" alt="" style="width:100px;height:140px;border-radius:12px;object-fit:cover;flex:0 0 100px;background:var(--green-soft);">
             @else
-                <div style="width:96px;height:106px;border-radius:12px;background:var(--green-soft);display:flex;align-items:center;justify-content:center;flex:0 0 96px;">
+                <div style="width:100px;height:140px;border-radius:12px;background:var(--green-soft);display:flex;align-items:center;justify-content:center;flex:0 0 100px;">
                     <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--pine)" stroke-width="1.5"><path d="M4 4h16v16H4zM4 9h16M9 4v16"/></svg>
                 </div>
             @endif
