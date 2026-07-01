@@ -23,7 +23,7 @@
             $remaining = $event->remainingCapacity();
             $isSpecial = $event->layers->isNotEmpty();
             $price = $event->priceForMember($member);
-            $regOpen = $event->status === 'active' && $remaining > 0;
+            $regOpen = $event->isRegistrationOpen();
         @endphp
         <a href="{{ route('panel.events.show', $event) }}" style="display:block;text-decoration:none;color:inherit;border:1px solid var(--border);border-radius:22px;overflow:hidden;background:#fff;box-shadow:0 20px 40px -36px rgba(47,93,80,0.5);">
             {{-- تصویر --}}
@@ -60,8 +60,8 @@
                         <span style="font-size:0.72rem;color:var(--ink-dim);font-weight:600;">ظرفیت تکمیل</span>
                         <span style="font-size:0.74rem;font-weight:700;color:var(--ink-mid);background:var(--bg-mute);padding:6px 13px;border-radius:14px;">لیست انتظار</span>
                     @else
-                        <span style="font-size:0.72rem;color:var(--ink-dim);">{{ fa(number_format($price)) }} تومان</span>
-                        <span style="font-size:0.74rem;font-weight:700;color:var(--ink-mid);background:var(--bg-mute);padding:6px 13px;border-radius:14px;">جزئیات</span>
+                        <span style="font-size:0.72rem;color:var(--ink-dim);">{{ pdate($event->starts_at, 'j F') }}</span>
+                        <span style="font-size:0.74rem;font-weight:700;color:var(--ink-mid);background:var(--bg-mute);padding:6px 13px;border-radius:14px;">ثبت‌نام بسته شد</span>
                     @endif
                 </div>
             </div>

@@ -144,6 +144,12 @@
         </div>
     @elseif($isWaiting)
         <span style="font-size:0.82rem;color:var(--ink-mid);font-weight:600;background:var(--bg-soft);padding:0.85rem 1.4rem;border-radius:14px;">در لیست انتظار</span>
+    @elseif(! $event->isRegistrationOpen() && $event->remainingCapacity() > 0)
+        {{-- ثبت‌نام طبق برنامه بسته شده (زمان گذشته یا رویداد غیرفعال) --}}
+        <span style="display:flex;align-items:center;gap:7px;font-size:0.82rem;color:var(--ink-mid);font-weight:700;background:var(--bg-soft);padding:0.85rem 1.4rem;border-radius:14px;">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--ink-dim)" stroke-width="1.8"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+            ثبت‌نام بسته شد
+        </span>
     @elseif($event->remainingCapacity() <= 0)
         <form method="POST" action="{{ route('panel.events.waitlist', $event) }}">
             @csrf
