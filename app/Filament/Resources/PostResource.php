@@ -28,6 +28,10 @@ class PostResource extends Resource
                 ->label('عنوان')
                 ->required()
                 ->maxLength(255),
+            Forms\Components\TextInput::make('author')
+                ->label('نویسنده')
+                ->placeholder('نام نویسنده این مطلب')
+                ->maxLength(100),
             Forms\Components\Textarea::make('excerpt')
                 ->label('خلاصه (اختیاری)')
                 ->rows(2)
@@ -62,6 +66,7 @@ class PostResource extends Resource
             ->columns([
                 Tables\Columns\ImageColumn::make('cover')->label('کاور')->square(),
                 Tables\Columns\TextColumn::make('title')->label('عنوان')->searchable()->limit(40),
+                Tables\Columns\TextColumn::make('author')->label('نویسنده')->searchable()->toggleable(),
                 Tables\Columns\TextColumn::make('views')->label('بازدید')->sortable(),
                 Tables\Columns\IconColumn::make('is_published')->label('منتشر')->boolean(),
                 Tables\Columns\TextColumn::make('published_at')

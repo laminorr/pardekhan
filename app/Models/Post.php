@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Storage;
 class Post extends Model
 {
     protected $fillable = [
-        'title', 'excerpt', 'body', 'cover',
+        'title', 'author', 'excerpt', 'body', 'cover',
         'is_published', 'published_at', 'views',
     ];
 

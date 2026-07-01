@@ -330,21 +330,27 @@
     <a href="{{ route('panel.posts.index') }}" style="font-size:0.78rem;color:var(--pine);font-weight:700;text-decoration:none;">همه</a>
 </div>
 
-<div style="display:flex;flex-direction:column;gap:0.8rem;margin-top:0.6rem;">
+<div style="margin-top:0.6rem;background:#fff;border:1px solid var(--border);border-radius:20px;padding:0.4rem 1.1rem;box-shadow:0 3px 16px rgba(40,60,50,0.05);">
     @foreach($latestPosts as $post)
-    <a href="{{ route('panel.posts.show', $post) }}" style="display:flex;gap:0.9rem;align-items:center;padding:0.85rem;background:#fff;border:1px solid var(--border);border-radius:18px;box-shadow:0 3px 14px rgba(40,60,50,0.04);text-decoration:none;color:inherit;transition:transform 0.2s,box-shadow 0.2s;">
+    <a href="{{ route('panel.posts.show', $post) }}" style="display:flex;gap:1rem;align-items:center;padding:1.1rem 0;{{ !$loop->last ? 'border-bottom:1.5px dashed var(--bg-mute);' : '' }}text-decoration:none;color:inherit;">
+        <div style="flex:1;min-width:0;">
+            <div style="font-size:0.98rem;font-weight:800;line-height:1.55;">{{ $post->title }}</div>
+            <div style="font-size:0.8rem;color:var(--ink-mid);line-height:1.85;margin-top:0.45rem;">{{ \Illuminate\Support\Str::limit($post->summary, 105) }}</div>
+            <div style="display:flex;align-items:center;gap:0.6rem;font-size:0.7rem;color:var(--ink-faint);margin-top:0.6rem;">
+                <span>{{ pdate($post->published_at ?? $post->created_at, 'j F') }}</span>
+                @if($post->author)
+                    <span style="width:3px;height:3px;border-radius:50%;background:var(--ink-faint);"></span>
+                    <span>{{ $post->author }}</span>
+                @endif
+            </div>
+        </div>
         @if($post->cover_src)
-            <img src="{{ $post->cover_src }}" alt="" style="width:74px;height:74px;border-radius:14px;object-fit:cover;flex-shrink:0;background:var(--green-soft);">
+            <img src="{{ $post->cover_src }}" alt="" style="width:82px;height:104px;border-radius:14px;object-fit:cover;flex-shrink:0;background:var(--green-soft);">
         @else
-            <div style="width:74px;height:74px;border-radius:14px;background:var(--green-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <div style="width:82px;height:104px;border-radius:14px;background:var(--green-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                 <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--pine)" stroke-width="1.5"><path d="M4 4h16v16H4zM4 9h16M9 4v16"/></svg>
             </div>
         @endif
-        <div style="flex:1;min-width:0;">
-            <div style="font-size:0.94rem;font-weight:800;line-height:1.5;">{{ $post->title }}</div>
-            <div style="font-size:0.77rem;color:var(--ink-mid);line-height:1.75;margin-top:0.3rem;">{{ \Illuminate\Support\Str::limit($post->summary, 58) }}</div>
-            <div style="font-size:0.68rem;color:var(--ink-faint);margin-top:0.5rem;">{{ pdate($post->published_at ?? $post->created_at, 'j F') }}</div>
-        </div>
     </a>
     @endforeach
 </div>

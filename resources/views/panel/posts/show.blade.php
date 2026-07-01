@@ -16,11 +16,17 @@
     <h1 style="font-size:1.45rem;font-weight:800;letter-spacing:-0.5px;line-height:1.5;color:var(--ink);">{{ $post->title }}</h1>
 
     {{-- متادیتا --}}
-    <div style="display:flex;align-items:center;gap:0.9rem;margin-top:0.8rem;padding-bottom:1.2rem;border-bottom:1px solid var(--bg-mute);font-size:0.74rem;color:var(--ink-faint);">
+    <div style="display:flex;align-items:center;gap:0.9rem;flex-wrap:wrap;margin-top:0.8rem;padding-bottom:1.2rem;border-bottom:1px solid var(--bg-mute);font-size:0.74rem;color:var(--ink-faint);">
         <span style="display:flex;align-items:center;gap:5px;">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
             {{ pdate($post->published_at ?? $post->created_at, 'l j F Y') }}
         </span>
+        @if($post->author)
+        <span style="display:flex;align-items:center;gap:5px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/></svg>
+            {{ $post->author }}
+        </span>
+        @endif
         <span style="display:flex;align-items:center;gap:5px;">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
             {{ fa($post->views) }} بازدید
