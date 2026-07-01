@@ -21,19 +21,21 @@
         <div style="font-size:0.95rem;">هنوز مطلبی منتشر نشده است</div>
     </div>
 @else
-    <div style="display:flex;flex-direction:column;">
+    <div style="display:flex;flex-direction:column;gap:0.9rem;">
         @foreach($posts as $post)
-        <a href="{{ route('panel.posts.show', $post) }}" style="display:flex;gap:1rem;padding:1.1rem 0;border-bottom:1px solid var(--bg-mute);text-decoration:none;color:inherit;">
-            <div style="flex:1;min-width:0;">
-                <div style="font-size:1.02rem;font-weight:800;line-height:1.5;">{{ $post->title }}</div>
-                <div style="font-size:0.82rem;color:var(--ink-mid);line-height:1.85;margin-top:0.5rem;">{{ \Illuminate\Support\Str::limit($post->summary, 90) }}</div>
-                <div style="font-size:0.72rem;color:var(--ink-faint);margin-top:0.7rem;">
-                    {{ pdate($post->published_at ?? $post->created_at, 'l j F') }}
-                </div>
-            </div>
+        <a href="{{ route('panel.posts.show', $post) }}" style="display:flex;gap:1rem;align-items:center;padding:0.9rem;background:#fff;border:1px solid var(--border);border-radius:18px;box-shadow:0 3px 14px rgba(40,60,50,0.04);text-decoration:none;color:inherit;">
             @if($post->cover_src)
-                <img src="{{ $post->cover_src }}" alt="" style="width:96px;height:96px;border-radius:16px;object-fit:cover;flex-shrink:0;background:var(--green-soft);">
+                <img src="{{ $post->cover_src }}" alt="" style="width:88px;height:88px;border-radius:14px;object-fit:cover;flex-shrink:0;background:var(--green-soft);">
+            @else
+                <div style="width:88px;height:88px;border-radius:14px;background:var(--green-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--pine)" stroke-width="1.5"><path d="M4 4h16v16H4zM4 9h16M9 4v16"/></svg>
+                </div>
             @endif
+            <div style="flex:1;min-width:0;">
+                <div style="font-size:1rem;font-weight:800;line-height:1.5;">{{ $post->title }}</div>
+                <div style="font-size:0.8rem;color:var(--ink-mid);line-height:1.75;margin-top:0.4rem;">{{ \Illuminate\Support\Str::limit($post->summary, 62) }}</div>
+                <div style="font-size:0.7rem;color:var(--ink-faint);margin-top:0.55rem;">{{ pdate($post->published_at ?? $post->created_at, 'l j F') }}</div>
+            </div>
         </a>
         @endforeach
     </div>
