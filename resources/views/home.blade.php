@@ -90,13 +90,14 @@
 </main>
 
 <footer class="home-footer">
-  <div class="home-footer-contact">
-    <p>نشانی: استان تهران، شهرستان تهران، بخش مرکزی، شهر تهران، محله کشاورز، خیابان رستاک، خیابان ورنوس، پلاک ۹، طبقه ۱، واحد ۲</p>
-    <p>تلفن ثابت: ۰۲۱-۸۸۹۹۸۲۵۰</p>
-  </div>
-
   <div class="home-footer-inner">
-    <span class="home-footer-text">پرده‌خوان — پیمان شیرپور</span>
+    <div class="home-footer-brand">
+      <span class="home-footer-text">پرده‌خوان — پیمان شیرپور</span>
+      <div class="home-footer-contact">
+        <p>نشانی: استان تهران، شهرستان تهران، بخش مرکزی، شهر تهران، محله کشاورز، خیابان رستاک، خیابان ورنوس، پلاک ۹، طبقه ۱، واحد ۲</p>
+        <p>تلفن ثابت: ۰۲۱-۸۸۹۹۸۲۵۰</p>
+      </div>
+    </div>
 
     <div class="home-footer-tools">
       <div class="home-footer-socials">
