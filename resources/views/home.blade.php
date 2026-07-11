@@ -124,8 +124,8 @@
       </div>
 
       <div class="home-enamad">
-        <a referrerpolicy="origin" target="_blank" href="https://trustseal.enamad.ir/?id=6174007&Code=zSYYrQjm5BS7fX0QrdURANvznKm6tCCP">
-          <img referrerpolicy="origin" src="https://trustseal.enamad.ir/logo.aspx?id=6174007&Code=zSYYrQjm5BS7fX0QrdURANvznKm6tCCP" alt="نماد اعتماد الکترونیکی" style="cursor:pointer" code="zSYYrQjm5BS7fX0QrdURANvznKm6tCCP">
+        <a referrerpolicy="origin" target="_blank" href="https://trustseal.enamad.ir/?id=727918&Code=zSYYrQjm5BS7fX0QrdURANvznKm6tCCP">
+          <img referrerpolicy="origin" src="https://trustseal.enamad.ir/logo.aspx?id=727918&Code=zSYYrQjm5BS7fX0QrdURANvznKm6tCCP" alt="نماد اعتماد الکترونیکی" style="cursor:pointer" code="zSYYrQjm5BS7fX0QrdURANvznKm6tCCP">
         </a>
       </div>
     </div>
