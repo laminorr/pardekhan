@@ -318,7 +318,7 @@ footer{text-align:center;padding:40px 20px;border-top:1px solid var(--border)}
 .home-subscribe-btn:disabled{opacity:0.6;cursor:not-allowed}
 .home-footer-brand{display:flex;flex-direction:column;gap:5px;direction:rtl;text-align:right}
 .home-footer-brand .home-footer-text{text-align:right}
-.home-footer-contact p{font-size:0.66rem;color:#a3b0bf;line-height:1.7;margin:0;text-align:right;max-width:560px}
+.home-footer-contact p{font-size:0.72rem;color:#a3b0bf;line-height:1.75;margin:0;text-align:right;max-width:560px}
 .home-msg{padding:10px;border-radius:8px;font-size:0.84rem;margin-bottom:10px}
 .home-msg-ok{background:#f0fdf4;border:1px solid #bbf7d0;color:#166534}
 .home-msg-err{background:#fef2f2;border:1px solid #fecaca;color:#991b1b}
