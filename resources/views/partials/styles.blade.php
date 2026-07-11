@@ -216,11 +216,8 @@ footer{text-align:center;padding:40px 20px;border-top:1px solid var(--border)}
 .f-by{font-size:0.85rem;color:var(--text2);margin-bottom:6px;text-align:center}
 .f-by strong{color:var(--teal);font-weight:700}
 .f-desc{font-size:0.82rem;color:var(--text3);margin-bottom:20px;max-width:380px;margin-left:auto;margin-right:auto}
-.f-contact{max-width:520px;margin:0 auto 20px;display:flex;flex-direction:column;gap:8px}
-.f-contact p{display:flex;align-items:flex-start;justify-content:center;gap:7px;font-size:0.78rem;color:var(--text2);line-height:1.8;margin:0}
-.f-contact svg{width:15px;height:15px;flex-shrink:0;margin-top:4px;color:var(--teal)}
-.f-contact a{color:var(--teal);text-decoration:none;font-weight:600}
-.f-contact a:hover{text-decoration:underline}
+.f-contact{max-width:560px;margin:0 auto 18px}
+.f-contact p{font-size:0.76rem;color:var(--text3);line-height:1.9;margin:0 0 4px;text-align:center}
 .f-socials{display:flex;justify-content:center;gap:8px;margin-bottom:16px}
 .f-socials a{width:40px;height:40px;border-radius:12px;background:var(--bg2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;text-decoration:none;color:var(--text2);transition:all 0.3s;-webkit-tap-highlight-color:transparent}
 .f-socials a:hover{color:var(--teal);border-color:var(--teal);background:var(--teal-50)}
