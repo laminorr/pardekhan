@@ -37,10 +37,14 @@ class PostResource extends Resource
                 ->rows(2)
                 ->maxLength(300)
                 ->helperText('اگر خالی بماند، از ابتدای متن ساخته می‌شود'),
-            Forms\Components\Textarea::make('body')
+            Forms\Components\RichEditor::make('body')
                 ->label('متن کامل')
-                ->rows(14)
-                ->required(),
+                ->required()
+                ->columnSpanFull()
+                // تصاویری که داخل متن آپلود می‌شوند باید روی دیسک عمومی ذخیره شوند
+                // (دیسک local/private روی این هاست برای تصاویر خطای 403 می‌دهد)
+                ->fileAttachmentsDisk('public')
+                ->fileAttachmentsDirectory('posts/inline'),
             Forms\Components\FileUpload::make('cover')
                 ->label('عکس کاور')
                 ->image()
