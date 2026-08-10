@@ -2,22 +2,105 @@
 @section('title', 'داشبورد')
 
 @section('content')
-{{-- هدر --}}
-<div class="topbar">
-    <div class="greeting">
-        @php
-            $h = (int) \Carbon\Carbon::now('Asia/Tehran')->format('H');
-            $greet = $h < 5 ? 'شب بخیر،' : ($h < 12 ? 'صبح بخیر،' : ($h < 17 ? 'ظهر بخیر،' : ($h < 20 ? 'عصر بخیر،' : 'شب بخیر،')));
-        @endphp
-        <div class="hi">{{ $greet }}</div>
-        <div class="name">{{ $member->full_name }}</div>
+{{-- هدر یکپارچه: خوش‌آمد + زنگوله + حلقهٔ لایهٔ عضویت + نردبان --}}
+@php
+    $h = (int) \Carbon\Carbon::now('Asia/Tehran')->format('H');
+    $greet = $h < 5 ? 'شب بخیر،' : ($h < 12 ? 'صبح بخیر،' : ($h < 17 ? 'ظهر بخیر،' : ($h < 20 ? 'عصر بخیر،' : 'شب بخیر،')));
+
+    // ── محاسبات لایهٔ عضویت (منطق بدون تغییر؛ فقط از پایین صفحه به این هدر منتقل شده) ──
+    $score = $member->score;
+    $allLayers = \App\Models\Layer::active()->orderBy('min_score')->get();
+
+    // لایه فعلی را بر اساس امتیاز واقعی محاسبه کن (نه layer_id ذخیره‌شده که ممکن است عقب باشد)
+    $layer = $allLayers->filter(fn($l) => $l->min_score <= $score)->sortByDesc('min_score')->first() ?? $allLayers->first();
+
+    $nextLayer = $allLayers->where('min_score', '>', $score)->first();
+    $currentMin = $layer?->min_score ?? 0;
+    $nextMin = $nextLayer?->min_score;
+    if ($nextMin && $nextMin > $currentMin) {
+        $progress = min(100, (($score - $currentMin) / ($nextMin - $currentMin)) * 100);
+        $toNext = $nextMin - $score;
+    } else {
+        $progress = 100;
+        $toNext = null;
+    }
+    // محاسبه dashoffset برای حلقه (محیط دایره r=76 → 477.5)
+    $circumference = 477.5;
+    $dashoffset = $circumference * (1 - $progress / 100);
+
+    // ایندکس لایه فعلی برای نردبان (بر اساس امتیاز)
+    $currentIndex = $layer ? $allLayers->search(fn($l) => $l->id === $layer->id) : -1;
+@endphp
+<div class="pk-hero">
+    <span class="pk-hero__deco pk-hero__deco--a" aria-hidden="true"></span>
+    <span class="pk-hero__deco pk-hero__deco--b" aria-hidden="true"></span>
+
+    {{-- خوش‌آمد + زنگوله --}}
+    <div class="pk-hero__top">
+        <div class="pk-hero__greet">
+            <div class="pk-hero__hi">{{ $greet }}</div>
+            <div class="pk-hero__name">{{ $member->full_name }}</div>
+        </div>
+        <a href="{{ route('panel.messages.index') }}" class="bell-btn {{ ($unreadMessages ?? 0) > 0 ? 'has-unread' : '' }}" aria-label="پیام‌ها">
+            @if(($unreadMessages ?? 0) > 0)
+                <span class="bell-badge">{{ fa($unreadMessages) }}</span>
+            @endif
+            <svg class="bell-svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+        </a>
     </div>
-    <a href="{{ route('panel.messages.index') }}" class="bell-btn {{ ($unreadMessages ?? 0) > 0 ? 'has-unread' : '' }}">
-        @if(($unreadMessages ?? 0) > 0)
-            <span class="bell-badge">{{ fa($unreadMessages) }}</span>
-        @endif
-        <svg class="bell-svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
-    </a>
+
+    {{-- حلقهٔ پیشرفت لایه --}}
+    <div class="pk-hero__ringwrap">
+        <svg class="pk-hero__ring" width="152" height="152" viewBox="0 0 188 188" aria-hidden="true">
+            <circle cx="94" cy="94" r="76" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="8"/>
+            <circle cx="94" cy="94" r="76" fill="none" stroke="#e9f7ef" stroke-width="8" stroke-linecap="round"
+                stroke-dasharray="477.5" stroke-dashoffset="{{ $dashoffset }}" transform="rotate(-90 94 94)"
+                style="animation:pkring 1.4s cubic-bezier(.5,0,.1,1) .3s both;"/>
+        </svg>
+        <div class="pk-hero__ringtext">
+            <div class="pk-hero__ringlabel">لایهٔ عضویت</div>
+            <div class="pk-hero__tier">{{ $layer?->name ?? 'مهمان' }}</div>
+            <div class="pk-hero__score"><b>{{ fa(number_format($score)) }}</b><span>امتیاز</span></div>
+        </div>
+    </div>
+
+    {{-- امتیاز تا لایهٔ بعد --}}
+    @if($toNext && $nextLayer)
+        <div class="pk-hero__next">{{ fa(number_format($toNext)) }} امتیاز تا لایهٔ <b>{{ $nextLayer->name }}</b></div>
+    @else
+        <div class="pk-hero__next pk-hero__next--top">بالاترین لایه 🏆</div>
+    @endif
+
+    {{-- نردبان لایه‌ها --}}
+    @if($allLayers->count() > 1)
+    <div class="pk-hero__ladder">
+        @foreach($allLayers as $i => $l)
+            @php
+                $isPast = $i < $currentIndex;
+                $isCurrent = $i === $currentIndex;
+            @endphp
+            {{-- نقطه --}}
+            <div class="pk-hero__step">
+                @if($isCurrent)
+                    <span class="pk-hero__dot pk-hero__dot--current"></span>
+                    <span class="pk-hero__steplabel pk-hero__steplabel--current">{{ $l->name }}</span>
+                @else
+                    <span class="pk-hero__dot {{ $isPast ? 'pk-hero__dot--done' : '' }}"></span>
+                    <span class="pk-hero__steplabel">{{ $l->name }}</span>
+                @endif
+            </div>
+            {{-- خط اتصال --}}
+            @if(!$loop->last)
+                @php
+                    if ($i < $currentIndex) { $lineBg = '#ffffff'; }
+                    elseif ($i === $currentIndex) { $lineBg = 'linear-gradient(270deg,#ffffff ' . round($progress) . '%,rgba(255,255,255,0.22) ' . round($progress) . '%)'; }
+                    else { $lineBg = 'rgba(255,255,255,0.22)'; }
+                @endphp
+                <div class="pk-hero__line" style="background:{{ $lineBg }};"></div>
+            @endif
+        @endforeach
+    </div>
+    @endif
 </div>
 
 @push('styles')
@@ -73,6 +156,64 @@
     @keyframes badge-pop { from { transform: scale(0); } to { transform: scale(1); } }
     @keyframes pulse-ring { 0% { transform: scale(0.8); opacity: 0.7; } 80%, 100% { transform: scale(2.2); opacity: 0; } }
     .stat-tick { transition: opacity 0.25s; }
+
+    /* ── هدر یکپارچهٔ سبز (همه‌چیز زیر .pk-hero اسکوپ شده) ── */
+    .pk-hero {
+        position: relative;
+        overflow: hidden;
+        border-radius: 28px;
+        margin: 0 0 1.1rem;
+        padding: 20px 20px 24px;
+        background: linear-gradient(158deg, #356450, #2b5241);
+        box-shadow: 0 18px 40px -18px rgba(31,77,64,0.55);
+        color: #fff;
+    }
+    .pk-hero__deco {
+        position: absolute; border-radius: 50%; pointer-events: none;
+        background: rgba(255,255,255,0.06);
+    }
+    .pk-hero__deco--a { top: -45px; left: -30px; width: 150px; height: 150px; }
+    .pk-hero__deco--b { bottom: -55px; right: -25px; width: 120px; height: 120px; background: rgba(255,255,255,0.045); }
+
+    .pk-hero__top { position: relative; display: flex; align-items: center; justify-content: space-between; }
+    .pk-hero__hi { font-size: 0.8rem; color: rgba(255,255,255,0.72); font-weight: 500; }
+    .pk-hero__name { font-size: 1.4rem; font-weight: 700; color: #fff; line-height: 1.15; letter-spacing: -0.02em; margin-top: 2px; }
+
+    /* زنگوله روی زمینهٔ سبز — نسخهٔ روشن و نیمه‌شفاف */
+    .pk-hero .bell-btn {
+        background: rgba(255,255,255,0.18);
+        border-color: rgba(255,255,255,0.28);
+        color: #fff;
+        box-shadow: 0 4px 14px rgba(20,40,32,0.18);
+    }
+    .pk-hero .bell-btn.has-unread {
+        background: rgba(255,255,255,0.28);
+        border-color: rgba(255,255,255,0.40);
+        color: #fff;
+        box-shadow: 0 6px 18px rgba(20,40,32,0.25);
+    }
+
+    .pk-hero__ringwrap { position: relative; width: 152px; height: 152px; margin: 1.1rem auto 0; }
+    .pk-hero__ring { display: block; }
+    .pk-hero__ringtext { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .pk-hero__ringlabel { font-size: 0.6rem; letter-spacing: 3px; color: rgba(255,255,255,0.6); font-weight: 700; }
+    .pk-hero__tier { font-size: 1.7rem; font-weight: 800; color: #fff; line-height: 1.05; margin-top: 3px; letter-spacing: -0.5px; }
+    .pk-hero__score { display: flex; align-items: baseline; gap: 4px; margin-top: 4px; color: #fff; }
+    .pk-hero__score b { font-size: 1.05rem; }
+    .pk-hero__score span { font-size: 0.68rem; color: rgba(255,255,255,0.7); }
+
+    .pk-hero__next { position: relative; text-align: center; margin-top: 10px; font-size: 0.78rem; color: rgba(255,255,255,0.72); }
+    .pk-hero__next b { color: #fff; font-weight: 800; }
+    .pk-hero__next--top { color: #fff; font-weight: 600; }
+
+    .pk-hero__ladder { position: relative; margin-top: 1.15rem; display: flex; align-items: center; }
+    .pk-hero__step { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1; }
+    .pk-hero__dot { width: 11px; height: 11px; border-radius: 50%; background: rgba(255,255,255,0.35); }
+    .pk-hero__dot--done { background: #fff; }
+    .pk-hero__dot--current { width: 16px; height: 16px; background: #fff; box-shadow: 0 0 0 4px rgba(255,255,255,0.22); }
+    .pk-hero__steplabel { font-size: 0.62rem; color: rgba(255,255,255,0.6); }
+    .pk-hero__steplabel--current { color: #fff; font-weight: 800; }
+    .pk-hero__line { height: 2px; flex: 1; margin-bottom: 17px; border-radius: 2px; }
 </style>
 @endpush
 
@@ -114,88 +255,6 @@
             <div style="font-size:0.63rem;color:var(--ink-faint);">در حال دیدن فیلم هفته</div>
         </div>
     </div>
-</div>
-@php
-    $score = $member->score;
-    $allLayers = \App\Models\Layer::active()->orderBy('min_score')->get();
-
-    // لایه فعلی را بر اساس امتیاز واقعی محاسبه کن (نه layer_id ذخیره‌شده که ممکن است عقب باشد)
-    $layer = $allLayers->filter(fn($l) => $l->min_score <= $score)->sortByDesc('min_score')->first() ?? $allLayers->first();
-
-    $nextLayer = $allLayers->where('min_score', '>', $score)->first();
-    $currentMin = $layer?->min_score ?? 0;
-    $nextMin = $nextLayer?->min_score;
-    if ($nextMin && $nextMin > $currentMin) {
-        $progress = min(100, (($score - $currentMin) / ($nextMin - $currentMin)) * 100);
-        $toNext = $nextMin - $score;
-    } else {
-        $progress = 100;
-        $toNext = null;
-    }
-    // محاسبه dashoffset برای حلقه (محیط دایره r=76 → 477.5)
-    $circumference = 477.5;
-    $dashoffset = $circumference * (1 - $progress / 100);
-
-    // ایندکس لایه فعلی برای نردبان (بر اساس امتیاز)
-    $currentIndex = $layer ? $allLayers->search(fn($l) => $l->id === $layer->id) : -1;
-@endphp
-<div style="border:1px solid #ededeb;border-radius:28px;padding:1.75rem 1.4rem 1.5rem;display:flex;flex-direction:column;align-items:center;background:linear-gradient(180deg,#ffffff,#fbfcfb);box-shadow:0 1px 0 #fff,0 20px 40px -34px rgba(47,93,80,0.5);margin-bottom:1rem;">
-    {{-- حلقه --}}
-    <div style="position:relative;width:188px;height:188px;">
-        <svg width="188" height="188" viewBox="0 0 188 188">
-            <defs><linearGradient id="pkg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3f7a68"/><stop offset="1" stop-color="#1f4d40"/></linearGradient></defs>
-            <circle cx="94" cy="94" r="76" fill="none" stroke="#eef1ef" stroke-width="12"/>
-            <circle cx="94" cy="94" r="76" fill="none" stroke="url(#pkg)" stroke-width="12" stroke-linecap="round"
-                stroke-dasharray="477.5" stroke-dashoffset="{{ $dashoffset }}" transform="rotate(-90 94 94)"
-                style="animation:pkring 1.4s cubic-bezier(.5,0,.1,1) .3s both;"/>
-        </svg>
-        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-            <div style="font-size:0.62rem;letter-spacing:3px;color:var(--ink-faint);font-weight:700;">لایهٔ عضویت</div>
-            <div style="font-size:2rem;font-weight:800;color:var(--pine);line-height:1.05;margin-top:3px;letter-spacing:-0.5px;">{{ $layer?->name ?? 'مهمان' }}</div>
-            <div style="display:flex;align-items:baseline;gap:4px;margin-top:4px;">
-                <b style="font-size:1.15rem;">{{ fa(number_format($score)) }}</b>
-                <span style="font-size:0.7rem;color:var(--ink-dim);">امتیاز</span>
-            </div>
-        </div>
-    </div>
-
-    @if($toNext && $nextLayer)
-        <div style="margin-top:6px;font-size:0.78rem;color:var(--ink-dim);">{{ fa(number_format($toNext)) }} امتیاز تا لایهٔ <b style="color:var(--pine);">{{ $nextLayer->name }}</b></div>
-    @else
-        <div style="margin-top:6px;font-size:0.78rem;color:var(--pine);font-weight:600;">بالاترین لایه 🏆</div>
-    @endif
-
-    {{-- نردبان لایه‌ها --}}
-    @if($allLayers->count() > 1)
-    <div style="margin-top:1.1rem;width:100%;display:flex;align-items:center;">
-        @foreach($allLayers as $i => $l)
-            @php
-                $isPast = $i < $currentIndex;
-                $isCurrent = $i === $currentIndex;
-                $dotColor = ($isPast || $isCurrent) ? 'var(--pine)' : '#dfe3e1';
-            @endphp
-            {{-- نقطه --}}
-            <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;">
-                @if($isCurrent)
-                    <span style="width:16px;height:16px;border-radius:50%;background:var(--pine);border:4px solid #d3e3dd;box-shadow:0 0 0 1px var(--pine);"></span>
-                    <span style="font-size:0.62rem;color:var(--pine);font-weight:800;">{{ $l->name }}</span>
-                @else
-                    <span style="width:11px;height:11px;border-radius:50%;background:{{ $dotColor }};"></span>
-                    <span style="font-size:0.62rem;color:var(--ink-faint);">{{ $l->name }}</span>
-                @endif
-            </div>
-            {{-- خط اتصال --}}
-            @if(!$loop->last)
-                @php
-                    if ($i < $currentIndex) { $lineBg = 'var(--pine)'; }
-                    elseif ($i === $currentIndex) { $lineBg = 'linear-gradient(270deg,var(--pine) ' . round($progress) . '%,#e4e7e5 ' . round($progress) . '%)'; }
-                    else { $lineBg = '#e4e7e5'; }
-                @endphp
-                <div style="height:2px;flex:1;background:{{ $lineBg }};margin-bottom:17px;border-radius:2px;"></div>
-            @endif
-        @endforeach
-    </div>
-    @endif
 </div>
 
 {{-- باکس‌های پادکست و فیلم امروز --}}
