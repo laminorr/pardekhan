@@ -34,7 +34,7 @@
     </div>
 
     {{-- متن --}}
-    <div style="font-size:0.95rem;color:var(--ink-mid);line-height:2.15;margin-top:1.3rem;text-align:justify;">
+    <div style="font-size:0.95rem;color:#1a1e28;line-height:1.7;margin-top:1.3rem;text-align:justify;">
         {!! nl2br(e($post->body)) !!}
     </div>
 </article>
