@@ -68,7 +68,7 @@ class PostResource extends Resource
         return $table
             ->defaultSort('published_at', 'desc')
             ->columns([
-                Tables\Columns\ImageColumn::make('cover')->label('کاور')->square(),
+                Tables\Columns\ImageColumn::make('cover')->label('کاور')->disk('public')->square(),
                 Tables\Columns\TextColumn::make('title')->label('عنوان')->searchable()->limit(40),
                 Tables\Columns\TextColumn::make('author')->label('نویسنده')->searchable()->toggleable(),
                 Tables\Columns\TextColumn::make('views')->label('بازدید')->sortable(),
