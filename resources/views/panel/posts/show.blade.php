@@ -32,7 +32,6 @@
             {{ fa($post->views) }} بازدید
         </span>
     </div>
-
     {{-- متن (HTML ذخیره‌شده از ویرایشگر، پاک‌سازی‌شده برای جلوگیری از XSS) --}}
     <div class="pk-prose">
         {!! clean($post->body) !!}
@@ -51,8 +50,8 @@
     /* استایل متن مجله — فقط داخل .pk-prose (بدون نشت به بقیه‌ی اپ) */
     .pk-prose {
         font-size: 0.97rem;
-        color: var(--ink-mid);
-        line-height: 1.9;
+        color: #1a1e28;
+        line-height: 1.7;
         margin-top: 1.3rem;
         text-align: justify;
         word-break: break-word;
