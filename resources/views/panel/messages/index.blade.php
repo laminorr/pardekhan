@@ -3,14 +3,14 @@
 
 @section('content')
 {{-- هدر --}}
-<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.3rem;">
-    <div>
+<div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.3rem;">
+    <a href="{{ route('panel.dashboard') }}" class="icon-btn" style="flex-shrink:0;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+    </a>
+    <div style="flex:1;">
         <div style="font-size:1.5rem;font-weight:800;letter-spacing:-0.5px;">پیام‌ها</div>
         <div style="font-size:0.82rem;color:var(--ink-faint);margin-top:3px;">گفتگو با مدیریت باشگاه</div>
     </div>
-    <a href="{{ route('panel.dashboard') }}" class="icon-btn">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
-    </a>
 </div>
 
 @if (session('success'))
