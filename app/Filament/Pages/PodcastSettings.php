@@ -35,7 +35,8 @@ class PodcastSettings extends Page implements HasForms
     public function mount(): void
     {
         $this->form->fill([
-            'podcast_rss_url' => Setting::get('podcast_rss_url'),
+            'podcast_rss_url'          => Setting::get('podcast_rss_url'),
+            'podcast_rss_url_hegemony' => Setting::get('podcast_rss_url_hegemony'),
         ]);
     }
 
@@ -43,11 +44,15 @@ class PodcastSettings extends Page implements HasForms
     {
         return $schema->components([
             \Filament\Schemas\Components\Section::make('فید پادکست (RSS)')
-                ->description('آدرس RSS پادکست را از Acast کپی کنید (دکمه Share Links → RSS Feed). قسمت‌ها به‌صورت خودکار خوانده می‌شوند.')
+                ->description('آدرس RSS هر پادکست را از شنوتو کپی کنید. قسمت‌ها به‌صورت خودکار خوانده می‌شوند.')
                 ->schema([
                     Forms\Components\TextInput::make('podcast_rss_url')
-                        ->label('آدرس RSS')
-                        ->placeholder('https://feeds.acast.com/public/shows/uncertainty')
+                        ->label('آدرس RSS — عدم قطعیت')
+                        ->placeholder('https://shenoto.net/feed/uncertainty')
+                        ->url(),
+                    Forms\Components\TextInput::make('podcast_rss_url_hegemony')
+                        ->label('آدرس RSS — هژمونی')
+                        ->placeholder('https://shenoto.net/feed/hegemony')
                         ->url(),
                 ]),
         ])->statePath('data');
@@ -71,6 +76,7 @@ class PodcastSettings extends Page implements HasForms
     {
         $data = $this->form->getState();
         Setting::set('podcast_rss_url', $data['podcast_rss_url'] ?? '');
+        Setting::set('podcast_rss_url_hegemony', $data['podcast_rss_url_hegemony'] ?? '');
         PodcastService::clearCache();
 
         Notification::make()->success()->title('تنظیمات پادکست ذخیره شد')->send();

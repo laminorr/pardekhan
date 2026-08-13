@@ -360,6 +360,7 @@ Route::prefix('panel')->name('panel.')->middleware([AuthenticateMember::class])-
         Route::post('/events/{event}/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
         Route::get('/tickets', [TicketController::class, 'index'])->name('tickets.index');
         Route::get('/podcast', [\App\Http\Controllers\Panel\PodcastController::class, 'index'])->name('podcast');
+        Route::get('/podcast/{slug}', [\App\Http\Controllers\Panel\PodcastController::class, 'show'])->name('podcast.show')->where('slug', 'uncertainty|hegemony');
         Route::get('/film/today', [\App\Http\Controllers\Panel\FilmController::class, 'today'])->name('film.today');
         Route::get('/posts', [\App\Http\Controllers\Panel\PostController::class, 'index'])->name('posts.index');
         Route::get('/posts/{post}', [\App\Http\Controllers\Panel\PostController::class, 'show'])->name('posts.show');

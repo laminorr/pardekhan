@@ -8,6 +8,28 @@ use Illuminate\Support\Facades\Cache;
 class PodcastService
 {
     /**
+     * پادکست‌های تعریف‌شده — slug ⇐⇒ کلید تنظیمات فید و عنوان پیش‌فرض
+     */
+    public const PODCASTS = [
+        'uncertainty' => [
+            'setting_key'   => 'podcast_rss_url',           // سازگاری با گذشته — تغییرش نده
+            'default_title' => 'عدم قطعیت',
+        ],
+        'hegemony' => [
+            'setting_key'   => 'podcast_rss_url_hegemony',
+            'default_title' => 'هژمونی',
+        ],
+    ];
+
+    /**
+     * بررسی معتبر بودن slug پادکست
+     */
+    public static function isValidSlug(string $slug): bool
+    {
+        return array_key_exists($slug, self::PODCASTS);
+    }
+
+    /**
      * تبدیل مدت‌زمان (ثانیه یا HH:MM:SS) به فرمت خوانا
      */
     public static function humanDuration(string $duration): string
@@ -32,26 +54,33 @@ class PodcastService
     }
 
     /**
-     * خواندن فید RSS و استخراج قسمت‌ها (با کش ۳۰ دقیقه‌ای)
+     * خواندن فید RSS و استخراج قسمت‌ها (با کش ۳۰ دقیقه‌ای) — به‌ازای هر پادکست
      */
-    public static function episodes(int $limit = 50): array
+    public static function episodes(string $slug = 'uncertainty', int $limit = 50): array
     {
-        $feedUrl = Setting::get('podcast_rss_url', '');
+        if (! self::isValidSlug($slug)) {
+            return ['show' => null, 'episodes' => []];
+        }
+
+        $feedUrl = Setting::get(self::PODCASTS[$slug]['setting_key'], '');
         if (! $feedUrl) {
             return ['show' => null, 'episodes' => []];
         }
 
-        return Cache::remember('podcast_feed', now()->addMinutes(30), function () use ($feedUrl, $limit) {
+        // کش به‌ازای هر پادکست تا فیدها روی هم بازنویسی نشوند
+        return Cache::remember("podcast_feed_{$slug}", now()->addMinutes(30), function () use ($feedUrl, $limit) {
             return self::parse($feedUrl, $limit);
         });
     }
 
     /**
-     * پاک کردن کش (برای دکمه «به‌روزرسانی» در ادمین)
+     * پاک کردن کش هر دو پادکست (برای دکمه «به‌روزرسانی» در ادمین)
      */
     public static function clearCache(): void
     {
-        Cache::forget('podcast_feed');
+        foreach (array_keys(self::PODCASTS) as $slug) {
+            Cache::forget("podcast_feed_{$slug}");
+        }
     }
 
     /**
