@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('books', function (Blueprint $table) {
             $table->id();
             $table->string('cover');                 // عکس کاور کتاب
-            $table->string('buy_url')->nullable();   // لینک خرید از دیجی‌کالا
+            $table->text('buy_url')->nullable();   // لینک خرید از دیجی‌کالا
             $table->timestamps();
         });
     }
