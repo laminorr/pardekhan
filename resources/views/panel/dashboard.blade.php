@@ -415,6 +415,20 @@
     @endforeach
 </div>
 @endif
+
+{{-- باکس دعوت به گفتگو --}}
+<div style="position:relative;overflow:hidden;background:var(--bg-mute);border:1px solid var(--border);border-radius:22px;padding:1.4rem 1.3rem;margin-top:1.5rem;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="var(--pine)" stroke-width="1.4" style="position:absolute;left:-14px;bottom:-14px;width:120px;height:120px;opacity:0.07;transform:rotate(-8deg);"><path d="M12 2L2 22h20z" stroke-linejoin="round"/></svg>
+    <div style="position:relative;z-index:2;">
+        <div style="font-size:0.72rem;font-weight:800;color:var(--pine);letter-spacing:-0.2px;margin-bottom:0.55rem;">اولین قدم</div>
+        <div style="font-size:1.12rem;font-weight:800;line-height:1.55;color:var(--ink);letter-spacing:-0.4px;">آماده‌اید با هم<br>اولین قدم را برداریم؟</div>
+        <div style="font-size:0.82rem;color:var(--ink-mid);margin-top:0.6rem;line-height:1.7;">تو چه کتاب یا چه موضوعی رو پیشنهاد می‌دی؟</div>
+        <a href="{{ route('panel.messages.index') }}" style="display:inline-flex;align-items:center;gap:8px;margin-top:1.15rem;background:var(--pine);color:#fff;font-weight:800;font-size:0.9rem;padding:0.8rem 1.5rem;border-radius:14px;text-decoration:none;">
+            <span>پیام بده</span>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </a>
+    </div>
+</div>
 @endsection
 
 @section('nav')
