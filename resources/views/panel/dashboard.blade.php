@@ -429,6 +429,18 @@
         </a>
     </div>
 </div>
+
+{{-- بنر باشگاه کتاب‌خوانی --}}
+<a href="{{ route('panel.books.index') }}" style="display:flex;align-items:center;gap:0.9rem;background:var(--bg-mute);border:1px solid var(--border);border-radius:22px;padding:1.1rem 1.2rem;margin-top:1.1rem;text-decoration:none;color:inherit;">
+    <div style="width:44px;height:44px;border-radius:13px;background:var(--green-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="var(--pine)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+    </div>
+    <div style="flex:1;min-width:0;">
+        <div style="font-size:0.98rem;font-weight:800;color:var(--ink);letter-spacing:-0.3px;">باشگاه کتاب‌خوانی</div>
+        <div style="font-size:0.76rem;color:var(--ink-mid);margin-top:2px;line-height:1.6;">کتاب‌های خوب را باهم به اشتراک بگذاریم و در موردشان حرف بزنیم</div>
+    </div>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink-faint)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M15 18l-6-6 6-6"/></svg>
+</a>
 @endsection
 
 @section('nav')
