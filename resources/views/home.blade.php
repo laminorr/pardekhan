@@ -15,6 +15,13 @@
 <meta property="og:locale" content="fa_IR">
 <link rel="alternate" type="application/rss+xml" title="پرده‌خوان" href="{{ route('feed') }}">
 <link rel="stylesheet" href="/css/pardekhan.css">
+<style>
+  /* لینک ظریف «دیدن ادامه» و بخش تئاتر — بدون بازنویسی استایل سراسری */
+  .home-more{text-align:left;padding:0 2px 8px;margin-top:-14px}
+  .home-more-link{display:inline-flex;align-items:center;gap:4px;font-size:0.82rem;font-weight:700;color:#0d9488;text-decoration:none;transition:opacity .2s}
+  .home-more-link:hover{opacity:.65}
+  .home-theater{margin-top:12px;border-top:0.5px solid rgba(0,0,0,0.06);padding-top:8px}
+</style>
 </head>
 <body>
 
@@ -74,6 +81,37 @@
     </div>
     @endforelse
   </div>
+
+  <div class="home-more">
+    <a href="{{ route('episodes.index') }}" class="home-more-link">دیدن ادامهٔ نقدها →</a>
+  </div>
+
+  @if(isset($theaterReviews) && $theaterReviews->isNotEmpty())
+  <div class="home-header home-theater">
+    <div class="home-header-icon">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="2"><path d="M2 12s2.5-7 10-7 10 7 10 7"/><path d="M6 12a2 2 0 0 0 4 0"/><path d="M14 12a2 2 0 0 0 4 0"/></svg>
+      <span>نقد و تحلیل تئاتر</span>
+    </div>
+    <h2 class="home-title">نقد تئاتر</h2>
+    <p class="home-subtitle">تحلیل و نقد اجراهای صحنه</p>
+  </div>
+
+  <div class="home-grid">
+    @foreach($theaterReviews as $review)
+    <a href="{{ route('theater.show', $review) }}" class="ep-card">
+      <div class="ep-cover">
+        <img src="{{ $review->cover ? asset('storage/'.$review->cover) : '' }}" alt="{{ $review->title }}" style="{{ $review->cover ? '' : 'display:none' }}">
+        <div class="ep-cover-fallback" style="{{ $review->cover ? 'display:none' : '' }}">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"><path d="M2 12s2.5-7 10-7 10 7 10 7"/><path d="M6 12a2 2 0 0 0 4 0"/><path d="M14 12a2 2 0 0 0 4 0"/></svg>
+        </div>
+      </div>
+      <div class="ep-info">
+        <h2 class="ep-title">{{ $review->title }}</h2>
+      </div>
+    </a>
+    @endforeach
+  </div>
+  @endif
 
   <div class="home-subscribe" id="subscribe">
     <div class="home-subscribe-inner">

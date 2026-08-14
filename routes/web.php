@@ -3,6 +3,7 @@
 use App\Models\Comment;
 use App\Models\Contact;
 use App\Models\Episode;
+use App\Models\TheaterReview;
 use App\Models\Topic;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -15,13 +16,19 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-// Home — list of published episodes
+// Home — latest 10 film reviews (2×5) + latest 10 theater reviews
 Route::get('/', function () {
     $episodes = Episode::published()
         ->orderBy('episode_number', 'desc')
+        ->limit(10)
         ->get();
 
-    return view('home', compact('episodes'));
+    $theaterReviews = TheaterReview::published()
+        ->latest()
+        ->limit(10)
+        ->get();
+
+    return view('home', compact('episodes', 'theaterReviews'));
 })->name('home');
 
 
@@ -106,6 +113,16 @@ Route::get('/episodes', function (Request $request) {
         'selectedTags'
     ));
 })->name('episodes.index');
+
+
+// Theater review detail (route-model-bound by slug)
+Route::get('/theater/{theaterReview}', function (TheaterReview $theaterReview) {
+    if (! $theaterReview->is_published) {
+        abort(404);
+    }
+
+    return view('theater.show', ['review' => $theaterReview]);
+})->name('theater.show');
 
 
 // Tag page
