@@ -10,7 +10,7 @@ class BookController extends Controller
     public function index()
     {
         // جدیدترین‌ها اول — ۱۰ ردیف × ۳ ستون در هر صفحه
-        $books = Book::latest()->paginate(30);
+        $books = Book::with('event')->latest()->paginate(30);
 
         return view('panel.books.index', compact('books'));
     }

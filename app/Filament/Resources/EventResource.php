@@ -131,6 +131,14 @@ class EventResource extends Resource
                             ])
                             ->default('draft')
                             ->required(),
+                        Forms\Components\Select::make('book_id')
+                            ->label('کتاب مرتبط')
+                            ->relationship('book', 'title')
+                            ->getOptionLabelFromRecordUsing(fn ($record) => filled($record->title) ? $record->title : 'کتاب #' . $record->id)
+                            ->searchable()
+                            ->preload(false)
+                            ->nullable()
+                            ->helperText('اگر این دورهمی دربارهٔ یک کتاب است، آن را انتخاب کنید'),
                     ]),
             ])->columnSpanFull(),
         ]);

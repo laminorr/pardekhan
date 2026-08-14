@@ -30,6 +30,39 @@
         object-fit: cover;
         background: var(--green-soft);
     }
+    /* ── حلقهٔ نازک دورِ کتاب‌های دارای دورهمی ── */
+    /* دورهمی پیش‌ِرو: سبز فسفری ظریف */
+    .bookclub-item--upcoming {
+        box-shadow: 0 0 0 2px #4ade80, 0 4px 14px rgba(40,60,50,0.10);
+    }
+    /* دورهمی گذشته: سبز کاجِ مرده (برند) */
+    .bookclub-item--past {
+        box-shadow: 0 0 0 2px var(--pine), 0 4px 14px rgba(40,60,50,0.10);
+    }
+
+    /* ── دکمهٔ دورهمیِ مرتبط در مودال ── */
+    .bookclub-modal__gathering {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: #fff;
+        text-decoration: none;
+        background: var(--pine);
+        border: 1px solid rgba(255,255,255,0.22);
+        padding: 0.55rem 1.15rem;
+        border-radius: 99px;
+        transition: filter 0.18s;
+    }
+    .bookclub-modal__gathering:active { filter: brightness(1.15); }
+    .bookclub-modal__actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 0.6rem;
+    }
 
     /* ── مودال (پاپ‌آپ) ── */
     .bookclub-modal {
@@ -160,9 +193,20 @@
 @else
     <div class="bookclub-grid">
         @foreach($books as $book)
-        <button type="button" class="bookclub-item"
+            @php
+                $ev = $book->event;
+                // حلقه: پیش‌ِرو (>= اکنون) سبز فسفری، گذشته سبز کاج، بدون دورهمی بدون حلقه
+                $ringClass = '';
+                if ($ev) {
+                    $ringClass = ($ev->starts_at && $ev->starts_at->gte(now()))
+                        ? 'bookclub-item--upcoming'
+                        : 'bookclub-item--past';
+                }
+            @endphp
+        <button type="button" class="bookclub-item {{ $ringClass }}"
             data-cover="{{ $book->cover_src }}"
-            data-buy="{{ $book->buy_url }}">
+            data-buy="{{ $book->buy_url }}"
+            data-event="{{ $ev?->id }}">
             <img src="{{ $book->cover_src }}" alt="" loading="lazy">
         </button>
         @endforeach
@@ -180,10 +224,16 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
         </button>
         <img src="" alt="" class="bookclub-modal__img" id="bookModalImg">
-        <a href="#" target="_blank" rel="noopener" class="bookclub-modal__buy" id="bookModalBuy" style="display:none;">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18M16 10a4 4 0 0 1-8 0"/></svg>
-            خرید از دیجی‌کالا
-        </a>
+        <div class="bookclub-modal__actions">
+            <a href="#" target="_blank" rel="noopener" class="bookclub-modal__buy" id="bookModalBuy" style="display:none;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18M16 10a4 4 0 0 1-8 0"/></svg>
+                خرید از دیجی‌کالا
+            </a>
+            <a href="#" class="bookclub-modal__gathering" id="bookModalGathering" style="display:none;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                دورهمی مربوط به این کتاب
+            </a>
+        </div>
     </div>
 </div>
 
@@ -200,10 +250,14 @@
     var modal = document.getElementById('bookModal');
     var modalImg = document.getElementById('bookModalImg');
     var modalBuy = document.getElementById('bookModalBuy');
+    var modalGathering = document.getElementById('bookModalGathering');
     var closeBtn = document.getElementById('bookModalClose');
     if (!modal) return;
 
-    function openModal(cover, buy) {
+    // آدرس صفحهٔ دورهمی — جای‌گزینِ شناسه با آدرس واقعی پُر می‌شود
+    var eventUrlBase = "{{ route('panel.events.show', ['event' => '__EVENT_ID__']) }}";
+
+    function openModal(cover, buy, eventId) {
         modalImg.src = cover || '';
         if (buy) {
             modalBuy.href = buy;
@@ -211,6 +265,13 @@
         } else {
             modalBuy.style.display = 'none';
             modalBuy.removeAttribute('href');
+        }
+        if (eventId) {
+            modalGathering.href = eventUrlBase.replace('__EVENT_ID__', eventId);
+            modalGathering.style.display = 'inline-flex';
+        } else {
+            modalGathering.style.display = 'none';
+            modalGathering.removeAttribute('href');
         }
         modal.classList.add('open');
     }
@@ -222,7 +283,11 @@
 
     document.querySelectorAll('.bookclub-item').forEach(function (item) {
         item.addEventListener('click', function () {
-            openModal(item.getAttribute('data-cover'), item.getAttribute('data-buy'));
+            openModal(
+                item.getAttribute('data-cover'),
+                item.getAttribute('data-buy'),
+                item.getAttribute('data-event')
+            );
         });
     });
 

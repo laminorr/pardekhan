@@ -24,6 +24,12 @@ class Event extends Model
         return $this->belongsTo(Venue::class);
     }
 
+    // کتاب مرتبط با این دورهمی (اختیاری)
+    public function book(): BelongsTo
+    {
+        return $this->belongsTo(Book::class);
+    }
+
     public function layers(): BelongsToMany
     {
         return $this->belongsToMany(Layer::class, 'event_layer')

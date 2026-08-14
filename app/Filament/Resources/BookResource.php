@@ -24,6 +24,10 @@ class BookResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
+            Forms\Components\TextInput::make('title')
+                ->label('نام کتاب')
+                ->helperText('فقط برای شناسایی در پنل — به کاربر نمایش داده نمی‌شود')
+                ->nullable(),
             Forms\Components\FileUpload::make('cover')
                 ->label('کاور کتاب')
                 ->image()
@@ -45,6 +49,7 @@ class BookResource extends Resource
         return $table
             ->defaultSort('created_at', 'desc')
             ->columns([
+                Tables\Columns\TextColumn::make('title')->label('نام')->searchable(),
                 Tables\Columns\ImageColumn::make('cover')->label('کاور')->disk('public')->square(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('تاریخ افزودن')
