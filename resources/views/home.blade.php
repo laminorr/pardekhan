@@ -52,6 +52,13 @@
 </div>
 </nav>
 
+{{-- بنر معرفی سراسری --}}
+<div style="background:linear-gradient(135deg,#0f766e,#115e59);color:#fff;">
+  <div style="max-width:1200px;margin:0 auto;padding:18px 32px;font-size:0.95rem;line-height:1.9;text-align:center;font-weight:500;">
+    نقد و خوانش فیلم و تئاتر با رویکرد روان‌شناختی؛ از ساختار شخصیت و پویایی روابط تا تعارض‌های درون‌روانی، الگوهای دلبستگی و جهان ذهنی انسان.
+  </div>
+</div>
+
 <main class="home-main">
   <div class="home-header">
     <div class="home-header-icon">
