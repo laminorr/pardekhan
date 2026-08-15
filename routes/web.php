@@ -3,6 +3,7 @@
 use App\Models\Comment;
 use App\Models\Contact;
 use App\Models\Episode;
+use App\Models\ShowcaseCover;
 use App\Models\TheaterReview;
 use App\Models\Topic;
 use Illuminate\Http\Request;
@@ -28,7 +29,20 @@ Route::get('/', function () {
         ->limit(10)
         ->get();
 
-    return view('home', compact('episodes', 'theaterReviews'));
+    // ویترین کاورها — دو ردیف (فیلم بالا، کتاب پایین) برای نوار متحرک صفحه اصلی
+    $showcaseFilms = ShowcaseCover::active()
+        ->where('type', 'film')
+        ->orderBy('sort_order')
+        ->orderBy('id')
+        ->get();
+
+    $showcaseBooks = ShowcaseCover::active()
+        ->where('type', 'book')
+        ->orderBy('sort_order')
+        ->orderBy('id')
+        ->get();
+
+    return view('home', compact('episodes', 'theaterReviews', 'showcaseFilms', 'showcaseBooks'));
 })->name('home');
 
 

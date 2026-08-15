@@ -29,6 +29,81 @@
     .home-subtitle{font-size:0.82rem;text-align:left;margin:0;color:#94a3b8}
     .home-grid{padding-top:12px}
   }
+
+  /* ── ویترین کاورها: نوار تزئینی تمام‌عرض با دو ردیف بی‌نهایت ── */
+  /* استایل کاملاً محدود به .showcase-marquee است و روی سایر صفحات اثری ندارد */
+  .showcase-marquee{
+    width:100%;
+    background:#0b0b0c;
+    padding:30px 0;
+    overflow:hidden;                 /* پنهان‌کردن سرریز افقی نوار بلند */
+    border-top:1px solid rgba(255,255,255,0.05);
+    border-bottom:1px solid rgba(255,255,255,0.05);
+    /* محو نرم لبه‌های چپ و راست برای حس «پرمیوم» */
+    -webkit-mask-image:linear-gradient(to right,transparent 0,#000 7%,#000 93%,transparent 100%);
+    mask-image:linear-gradient(to right,transparent 0,#000 7%,#000 93%,transparent 100%);
+  }
+  .showcase-row{overflow:visible}   /* اجازه‌ی بالا‌آمدن کاور هنگام هاور داخل paddingِ نوار */
+  .showcase-row + .showcase-row{margin-top:18px}
+  .showcase-track{
+    display:inline-flex;
+    width:max-content;               /* عرض بر اساس محتوا → با هر تعداد کاور کار می‌کند */
+    gap:16px;
+    will-change:transform;
+  }
+  /* دو ردیف در جهت مخالف؛ آهسته و آرام (یک دور کامل ~۷۲/۸۴ ثانیه) */
+  .showcase-track-a{animation:showcase-scroll 72s linear infinite}
+  .showcase-track-b{animation:showcase-scroll 84s linear infinite reverse}
+  /* هاور روی هرجای نوار → توقف هر دو ردیف */
+  .showcase-marquee:hover .showcase-track{animation-play-state:paused}
+
+  @keyframes showcase-scroll{
+    from{transform:translateX(0)}
+    to{transform:translateX(-50%)}   /* محتوا دوبل شده → -۵۰٪ دقیقاً روی درز می‌نشیند (بدون پرش) */
+  }
+
+  .showcase-item{
+    position:relative;
+    display:block;
+    flex:0 0 auto;
+    border-radius:6px;
+    text-decoration:none;
+    /* حالت پیش‌فرض: سیاه‌وسفید و کمی محو برای ظاهری یکدست و ظریف */
+    filter:grayscale(100%) contrast(1.05) brightness(0.95);
+    opacity:.8;
+    transition:transform .4s ease, filter .4s ease, opacity .4s ease, box-shadow .4s ease;
+  }
+  .showcase-item img{
+    display:block;
+    height:150px;                    /* ردیف فیلم (بالا) — بزرگ‌تر */
+    width:auto;
+    aspect-ratio:2/3;                /* نسبت پوستر؛ ابعاد ثابت → بدون layout shift */
+    object-fit:cover;
+    border-radius:6px;
+    background:#161618;
+  }
+  .showcase-row-book .showcase-item img{height:110px}   /* ردیف کتاب (پایین) — کوچک‌تر */
+  /* هاور روی یک کاور → تمام‌رنگ، بزرگ‌نمایی و سایه‌ی نرم */
+  .showcase-item:hover{
+    filter:none;
+    opacity:1;
+    transform:scale(1.04) translateY(-2px);
+    box-shadow:0 10px 26px rgba(0,0,0,0.55);
+    z-index:2;
+  }
+
+  @media(max-width:640px){
+    .showcase-marquee{padding:18px 0}
+    .showcase-track{gap:12px}
+    .showcase-row + .showcase-row{margin-top:12px}
+    .showcase-item img{height:110px}                    /* فیلم روی موبایل */
+    .showcase-row-book .showcase-item img{height:80px}  /* کتاب روی موبایل */
+  }
+
+  /* احترام به prefers-reduced-motion → ردیف‌ها ثابت می‌مانند */
+  @media(prefers-reduced-motion:reduce){
+    .showcase-track{animation:none}
+  }
 </style>
 </head>
 <body>
@@ -51,6 +126,51 @@
   <a href="{{ route('home') }}#subscribe" class="home-nav-link">تماس</a>
 </div>
 </nav>
+
+{{-- ── ویترین کاورها: نوار متحرک تمام‌عرض (دو ردیف در جهت مخالف). چیزی رندر نمی‌شود اگر هر دو خالی باشند ── --}}
+@php
+  $showcaseFilms = $showcaseFilms ?? collect();
+  $showcaseBooks = $showcaseBooks ?? collect();
+@endphp
+@if($showcaseFilms->isNotEmpty() || $showcaseBooks->isNotEmpty())
+<section class="showcase-marquee">
+  @if($showcaseFilms->isNotEmpty())
+  <div class="showcase-row showcase-row-film">
+    <div class="showcase-track showcase-track-a">
+      {{-- ست کاورها دوبار رندر می‌شود تا حلقه‌ی بی‌درز شکل بگیرد --}}
+      @foreach($showcaseFilms->concat($showcaseFilms) as $c)
+        @if($c->imdb_url)
+          <a href="{{ $c->imdb_url }}" target="_blank" rel="noopener noreferrer" class="showcase-item" aria-label="مشاهده در IMDB">
+            <img src="{{ asset('storage/'.$c->image) }}" alt="" width="100" height="150" loading="lazy" decoding="async">
+          </a>
+        @else
+          <div class="showcase-item">
+            <img src="{{ asset('storage/'.$c->image) }}" alt="" width="100" height="150" loading="lazy" decoding="async">
+          </div>
+        @endif
+      @endforeach
+    </div>
+  </div>
+  @endif
+  @if($showcaseBooks->isNotEmpty())
+  <div class="showcase-row showcase-row-book">
+    <div class="showcase-track showcase-track-b">
+      @foreach($showcaseBooks->concat($showcaseBooks) as $c)
+        @if($c->imdb_url)
+          <a href="{{ $c->imdb_url }}" target="_blank" rel="noopener noreferrer" class="showcase-item" aria-label="مشاهده لینک">
+            <img src="{{ asset('storage/'.$c->image) }}" alt="" width="74" height="110" loading="lazy" decoding="async">
+          </a>
+        @else
+          <div class="showcase-item">
+            <img src="{{ asset('storage/'.$c->image) }}" alt="" width="74" height="110" loading="lazy" decoding="async">
+          </div>
+        @endif
+      @endforeach
+    </div>
+  </div>
+  @endif
+</section>
+@endif
 
 <main class="home-main">
   <div class="home-header">
