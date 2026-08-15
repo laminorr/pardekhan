@@ -20,7 +20,15 @@
   .home-more{text-align:left;padding:0 2px 8px;margin-top:-14px}
   .home-more-link{display:inline-flex;align-items:center;gap:4px;font-size:0.82rem;font-weight:700;color:#0d9488;text-decoration:none;transition:opacity .2s}
   .home-more-link:hover{opacity:.65}
-  .home-theater{margin-top:12px;border-top:0.5px solid rgba(0,0,0,0.06);padding-top:8px}
+  .home-theater{margin-top:12px;border-top:0.5px solid rgba(0,0,0,0.06);padding-top:28px}
+  /* دسکتاپ: تیتر راست، زیرعنوان ته چپ همان خط — کم‌ارتفاع. موبایل دست‌نخورده */
+  @media(min-width:641px){
+    .home-header{text-align:right;display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between}
+    .home-header-icon{flex:0 0 100%;justify-content:flex-start;font-size:0.72rem;margin-bottom:4px}
+    .home-title{font-size:1.15rem;font-weight:800;text-align:right;margin:0}
+    .home-subtitle{font-size:0.82rem;text-align:left;margin:0;color:#94a3b8}
+    .home-grid{padding-top:12px}
+  }
 </style>
 </head>
 <body>
