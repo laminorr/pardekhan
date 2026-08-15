@@ -34,21 +34,19 @@
   /* استایل کاملاً محدود به .showcase-marquee است و روی سایر صفحات اثری ندارد */
   .showcase-marquee{
     width:100%;
-    background:#0b0b0c;
+    background:#e8e9e7;
     padding:30px 0;
     overflow:hidden;                 /* پنهان‌کردن سرریز افقی نوار بلند */
     border-top:1px solid rgba(255,255,255,0.05);
     border-bottom:1px solid rgba(255,255,255,0.05);
     /* محو نرم لبه‌های چپ و راست برای حس «پرمیوم» */
-    -webkit-mask-image:linear-gradient(to right,transparent 0,#000 7%,#000 93%,transparent 100%);
-    mask-image:linear-gradient(to right,transparent 0,#000 7%,#000 93%,transparent 100%);
   }
   .showcase-row{overflow:visible}   /* اجازه‌ی بالا‌آمدن کاور هنگام هاور داخل paddingِ نوار */
   .showcase-row + .showcase-row{margin-top:18px}
   .showcase-track{
     display:inline-flex;
     width:max-content;               /* عرض بر اساس محتوا → با هر تعداد کاور کار می‌کند */
-    gap:16px;
+    gap:0;
     will-change:transform;
   }
   /* دو ردیف در جهت مخالف؛ آهسته و آرام (یک دور کامل ~۷۲/۸۴ ثانیه) */
@@ -66,6 +64,7 @@
     position:relative;
     display:block;
     flex:0 0 auto;
+    margin-left:16px;
     border-radius:6px;
     text-decoration:none;
     /* حالت پیش‌فرض: سیاه‌وسفید و کمی محو برای ظاهری یکدست و ظریف */
@@ -94,7 +93,7 @@
 
   @media(max-width:640px){
     .showcase-marquee{padding:18px 0}
-    .showcase-track{gap:12px}
+    .showcase-track{gap:0}
     .showcase-row + .showcase-row{margin-top:12px}
     .showcase-item img{height:110px}                    /* فیلم روی موبایل */
     .showcase-row-book .showcase-item img{height:80px}  /* کتاب روی موبایل */
