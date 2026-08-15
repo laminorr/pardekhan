@@ -49,6 +49,12 @@
     gap:0;
     will-change:transform;
   }
+  /* هر ریل دقیقاً دو «گروه» یکسان دارد؛ چون هر دو گروه هم‌عرض‌اند، -۵۰٪ همیشه دقیقاً روی درز می‌نشیند */
+  .showcase-group{
+    display:flex;
+    flex:0 0 auto;
+    gap:0;                           /* فاصله‌ی بین کاورها فقط با margin-left خودشان است → عرض دو گروه دقیقاً برابر */
+  }
   /* دو ردیف در جهت مخالف؛ آهسته و آرام (یک دور کامل ~۷۲/۸۴ ثانیه) */
   .showcase-track-a{animation:showcase-scroll 72s linear infinite}
   .showcase-track-b{animation:showcase-scroll 84s linear infinite reverse}
@@ -57,14 +63,14 @@
 
   @keyframes showcase-scroll{
     from{transform:translateX(0)}
-    to{transform:translateX(-50%)}   /* محتوا دوبل شده → -۵۰٪ دقیقاً روی درز می‌نشیند (بدون پرش) */
+    to{transform:translateX(-50%)}   /* دو گروهِ هم‌عرض → -۵۰٪ دقیقاً به اندازه‌ی یک گروه جابه‌جا می‌شود و بی‌درز حلقه می‌زند */
   }
 
   .showcase-item{
     position:relative;
     display:block;
     flex:0 0 auto;
-    margin-left:16px;
+    margin-left:16px;                /* فاصله فقط از یک سمت + gap:0 → عرض هر گروه = N×(عرض کاور+۱۶) و درز = فاصله‌ی داخلی */
     border-radius:6px;
     text-decoration:none;
     /* حالت پیش‌فرض: سیاه‌وسفید و کمی محو برای ظاهری یکدست و ظریف */
@@ -136,41 +142,63 @@
 @php
   $showcaseFilms = $showcaseFilms ?? collect();
   $showcaseBooks = $showcaseBooks ?? collect();
+
+  // هر «گروه» به‌قدر کافی تکرار می‌شود تا حتی با چند کاورِ اندک هم از عرض هر نمایشگر پهن بزرگ‌تر شود.
+  // سپس همین گروهِ یکسان دقیقاً دوبار داخل ریل رندر می‌شود؛ چون دو نیمه کاملاً هم‌عرض‌اند،
+  // انیمیشن -۵۰٪ همیشه دقیقاً به‌اندازه‌ی یک گروه جابه‌جا می‌شود و حلقه بدون پرش/ریست می‌بندد.
+  $filmGroup = collect();
+  if ($showcaseFilms->isNotEmpty()) {
+    $rep = max(2, (int) ceil(26 / $showcaseFilms->count()));   // ≥۲۶ کاور در هر گروه (~۳۰۰۰px) → پُرکردن نمایشگرهای پهن
+    for ($i = 0; $i < $rep; $i++) { $filmGroup = $filmGroup->concat($showcaseFilms); }
+  }
+  $bookGroup = collect();
+  if ($showcaseBooks->isNotEmpty()) {
+    $rep = max(2, (int) ceil(32 / $showcaseBooks->count()));   // کاورِ کتاب کوچک‌تر است → تکرار بیشتر برای همان عرض
+    for ($i = 0; $i < $rep; $i++) { $bookGroup = $bookGroup->concat($showcaseBooks); }
+  }
 @endphp
 @if($showcaseFilms->isNotEmpty() || $showcaseBooks->isNotEmpty())
 <section class="showcase-marquee">
   @if($showcaseFilms->isNotEmpty())
   <div class="showcase-row showcase-row-film">
     <div class="showcase-track showcase-track-a">
-      {{-- ست کاورها دوبار رندر می‌شود تا حلقه‌ی بی‌درز شکل بگیرد --}}
-      @foreach($showcaseFilms->concat($showcaseFilms) as $c)
-        @if($c->imdb_url)
-          <a href="{{ $c->imdb_url }}" target="_blank" rel="noopener noreferrer" class="showcase-item" aria-label="مشاهده در IMDB">
-            <img src="{{ asset('storage/'.$c->image) }}" alt="" width="100" height="150" loading="lazy" decoding="async">
-          </a>
-        @else
-          <div class="showcase-item">
-            <img src="{{ asset('storage/'.$c->image) }}" alt="" width="100" height="150" loading="lazy" decoding="async">
-          </div>
-        @endif
-      @endforeach
+      {{-- گروهِ کاملاً یکسان دقیقاً دوبار رندر می‌شود → دو نیمه‌ی هم‌عرض → -۵۰٪ دقیقاً روی درز --}}
+      @for($g = 0; $g < 2; $g++)
+      <div class="showcase-group" @if($g === 1) aria-hidden="true" @endif>
+        @foreach($filmGroup as $c)
+          @if($c->imdb_url)
+            <a href="{{ $c->imdb_url }}" target="_blank" rel="noopener noreferrer" class="showcase-item" aria-label="مشاهده در IMDB">
+              <img src="{{ asset('storage/'.$c->image) }}" alt="" width="100" height="150" loading="lazy" decoding="async">
+            </a>
+          @else
+            <div class="showcase-item">
+              <img src="{{ asset('storage/'.$c->image) }}" alt="" width="100" height="150" loading="lazy" decoding="async">
+            </div>
+          @endif
+        @endforeach
+      </div>
+      @endfor
     </div>
   </div>
   @endif
   @if($showcaseBooks->isNotEmpty())
   <div class="showcase-row showcase-row-book">
     <div class="showcase-track showcase-track-b">
-      @foreach($showcaseBooks->concat($showcaseBooks) as $c)
-        @if($c->imdb_url)
-          <a href="{{ $c->imdb_url }}" target="_blank" rel="noopener noreferrer" class="showcase-item" aria-label="مشاهده لینک">
-            <img src="{{ asset('storage/'.$c->image) }}" alt="" width="74" height="110" loading="lazy" decoding="async">
-          </a>
-        @else
-          <div class="showcase-item">
-            <img src="{{ asset('storage/'.$c->image) }}" alt="" width="74" height="110" loading="lazy" decoding="async">
-          </div>
-        @endif
-      @endforeach
+      @for($g = 0; $g < 2; $g++)
+      <div class="showcase-group" @if($g === 1) aria-hidden="true" @endif>
+        @foreach($bookGroup as $c)
+          @if($c->imdb_url)
+            <a href="{{ $c->imdb_url }}" target="_blank" rel="noopener noreferrer" class="showcase-item" aria-label="مشاهده لینک">
+              <img src="{{ asset('storage/'.$c->image) }}" alt="" width="74" height="110" loading="lazy" decoding="async">
+            </a>
+          @else
+            <div class="showcase-item">
+              <img src="{{ asset('storage/'.$c->image) }}" alt="" width="74" height="110" loading="lazy" decoding="async">
+            </div>
+          @endif
+        @endforeach
+      </div>
+      @endfor
     </div>
   </div>
   @endif
