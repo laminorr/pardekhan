@@ -30,84 +30,93 @@
     .home-grid{padding-top:12px}
   }
 
-  /* ── ویترین کاورها: نوار تزئینی تمام‌عرض با دو ردیف بی‌نهایت ── */
-  /* استایل کاملاً محدود به .showcase-marquee است و روی سایر صفحات اثری ندارد */
+  /* ── ویترین کاورها: نوار تزئینی تمام‌عرض با دو ردیف حلقه‌ی بی‌نهایت ── */
+  /* کاملاً محدود به .showcase-marquee — بدون نشت به سایر بخش‌ها و بدون کتابخانه‌ی JS */
   .showcase-marquee{
     width:100%;
-    background:#e8e9e7;
+    background:#e8e9e7;                 /* نوار خاکستری تخت — بدون ماسک محوکننده‌ی لبه */
     padding:30px 0;
-    overflow:hidden;                 /* پنهان‌کردن سرریز افقی نوار بلند */
-    border-top:1px solid rgba(255,255,255,0.05);
-    border-bottom:1px solid rgba(255,255,255,0.05);
-    /* محو نرم لبه‌های چپ و راست برای حس «پرمیوم» */
+    overflow:hidden;                   /* پنهان‌کردن سرریز افقی ریل بلند */
+    border-top:1px solid rgba(0,0,0,0.04);
+    border-bottom:1px solid rgba(0,0,0,0.04);
   }
-  .showcase-row{overflow:visible}   /* اجازه‌ی بالا‌آمدن کاور هنگام هاور داخل paddingِ نوار */
+  .showcase-row{overflow:visible}      /* اجازه‌ی بالا‌آمدن کاور هنگام هاور بیرون از نوار */
   .showcase-row + .showcase-row{margin-top:18px}
+
+  /* هر ریل = دو گروهِ کاملاً یکسان. ریل از ۰ تا -۵۰٪ حرکت می‌کند (دقیقاً به اندازه‌ی یک گروه) → حلقه بدون پرش/ریست */
   .showcase-track{
-    display:inline-flex;
-    width:max-content;               /* عرض بر اساس محتوا → با هر تعداد کاور کار می‌کند */
-    gap:0;
+    display:flex;
+    width:max-content;                 /* عرض بر اساس محتوا → با هر تعداد کاور کار می‌کند */
     will-change:transform;
   }
-  /* هر ریل دقیقاً دو «گروه» یکسان دارد؛ چون هر دو گروه هم‌عرض‌اند، -۵۰٪ همیشه دقیقاً روی درز می‌نشیند */
-  .showcase-group{
-    display:flex;
-    flex:0 0 auto;
-    gap:0;                           /* فاصله‌ی بین کاورها فقط با margin-left خودشان است → عرض دو گروه دقیقاً برابر */
-  }
-  /* دو ردیف در جهت مخالف؛ آهسته و آرام (یک دور کامل ~۷۲/۸۴ ثانیه) */
-  .showcase-track-a{animation:showcase-scroll 72s linear infinite}
-  .showcase-track-b{animation:showcase-scroll 84s linear infinite reverse}
+  .showcase-track-a{animation:showcase-fwd 60s linear infinite}   /* فیلم — رو به جلو، آهسته */
+  .showcase-track-b{animation:showcase-rev 72s linear infinite}   /* کتاب — جهت مخالف، آهسته‌تر */
+
   /* هاور روی هرجای نوار → توقف هر دو ردیف */
   .showcase-marquee:hover .showcase-track{animation-play-state:paused}
 
-  @keyframes showcase-scroll{
+  @keyframes showcase-fwd{
     from{transform:translateX(0)}
-    to{transform:translateX(-50%)}   /* دو گروهِ هم‌عرض → -۵۰٪ دقیقاً به اندازه‌ی یک گروه جابه‌جا می‌شود و بی‌درز حلقه می‌زند */
+    to{transform:translateX(-50%)}     /* دو گروهِ هم‌عرض → -۵۰٪ دقیقاً یک گروه جابه‌جا می‌شود و بی‌درز حلقه می‌زند */
   }
+  @keyframes showcase-rev{
+    from{transform:translateX(-50%)}
+    to{transform:translateX(0)}
+  }
+
+  /* فاصله فقط روی «گروه» است: gap بین کاورها + padding-right برابر با همان gap → درزِ بین دو گروه = فاصله‌ی داخلی */
+  .showcase-group{
+    display:flex;
+    flex-shrink:0;
+    gap:16px;
+    padding-right:16px;
+  }
+  .showcase-row-book .showcase-group{gap:14px;padding-right:14px}
 
   .showcase-item{
     position:relative;
     display:block;
-    flex:0 0 auto;
-    margin-left:16px;                /* فاصله فقط از یک سمت + gap:0 → عرض هر گروه = N×(عرض کاور+۱۶) و درز = فاصله‌ی داخلی */
+    flex-shrink:0;
     border-radius:6px;
+    overflow:hidden;
     text-decoration:none;
     /* حالت پیش‌فرض: سیاه‌وسفید و کمی محو برای ظاهری یکدست و ظریف */
     filter:grayscale(100%) contrast(1.05) brightness(0.95);
-    opacity:.8;
+    opacity:.82;
     transition:transform .4s ease, filter .4s ease, opacity .4s ease, box-shadow .4s ease;
   }
   .showcase-item img{
     display:block;
-    height:150px;                    /* ردیف فیلم (بالا) — بزرگ‌تر */
+    height:150px;                      /* ردیف فیلم (بالا) — بزرگ‌تر */
     width:auto;
-    aspect-ratio:2/3;                /* نسبت پوستر؛ ابعاد ثابت → بدون layout shift */
+    aspect-ratio:2/3;                  /* نسبت پوستر؛ ابعاد ثابت → بدون layout shift */
     object-fit:cover;
-    border-radius:6px;
     background:#161618;
+    user-select:none;
   }
   .showcase-row-book .showcase-item img{height:110px}   /* ردیف کتاب (پایین) — کوچک‌تر */
-  /* هاور روی یک کاور → تمام‌رنگ، بزرگ‌نمایی و سایه‌ی نرم */
+
+  /* هاور روی یک کاور → تمام‌رنگ، بالاآمدن و سایه‌ی نرم */
   .showcase-item:hover{
     filter:none;
     opacity:1;
-    transform:scale(1.04) translateY(-2px);
-    box-shadow:0 10px 26px rgba(0,0,0,0.55);
+    transform:translateY(-8px);
+    box-shadow:0 14px 30px rgba(0,0,0,0.28);
     z-index:2;
   }
 
   @media(max-width:640px){
     .showcase-marquee{padding:18px 0}
-    .showcase-track{gap:0}
     .showcase-row + .showcase-row{margin-top:12px}
+    .showcase-group{gap:12px;padding-right:12px}
+    .showcase-row-book .showcase-group{gap:10px;padding-right:10px}
     .showcase-item img{height:110px}                    /* فیلم روی موبایل */
     .showcase-row-book .showcase-item img{height:80px}  /* کتاب روی موبایل */
   }
 
   /* احترام به prefers-reduced-motion → ردیف‌ها ثابت می‌مانند */
   @media(prefers-reduced-motion:reduce){
-    .showcase-track{animation:none}
+    .showcase-track{animation-play-state:paused !important}
   }
 </style>
 </head>
