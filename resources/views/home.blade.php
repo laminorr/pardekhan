@@ -30,93 +30,86 @@
     .home-grid{padding-top:12px}
   }
 
-  /* ── ویترین کاورها: نوار تزئینی تمام‌عرض با دو ردیف حلقه‌ی بی‌نهایت ── */
-  /* کاملاً محدود به .showcase-marquee — بدون نشت به سایر بخش‌ها و بدون کتابخانه‌ی JS */
+  /* ── ویترین کاورها: نوار تزئینی تمام‌عرض با دو ردیف بی‌نهایت ── */
+  /* استایل کاملاً محدود به .showcase-marquee است و روی سایر صفحات اثری ندارد */
   .showcase-marquee{
     width:100%;
-    background:#e8e9e7;                 /* نوار خاکستری تخت — بدون ماسک محوکننده‌ی لبه */
+    background:#e8e9e7;
     padding:30px 0;
-    overflow:hidden;                   /* پنهان‌کردن سرریز افقی ریل بلند */
-    border-top:1px solid rgba(0,0,0,0.04);
-    border-bottom:1px solid rgba(0,0,0,0.04);
+    overflow:hidden;                 /* پنهان‌کردن سرریز افقی ریل بلند */
+    border-top:1px solid rgba(255,255,255,0.05);
+    border-bottom:1px solid rgba(255,255,255,0.05);
+    /* ریل‌ها LTR رندر می‌شوند تا مبدأ ریل روی لبه‌ی چپ بنشیند و محاسبات translateX
+       مستقل از جهتِ RTLِ صفحه، قطعی و «پُر از فریمِ صفر» باشد */
+    direction:ltr;
   }
-  .showcase-row{overflow:visible}      /* اجازه‌ی بالا‌آمدن کاور هنگام هاور بیرون از نوار */
+  .showcase-row{overflow:visible}   /* اجازه‌ی بالا‌آمدن کاور هنگام هاور داخل paddingِ نوار */
   .showcase-row + .showcase-row{margin-top:18px}
-
-  /* هر ریل = دو گروهِ کاملاً یکسان. ریل از ۰ تا -۵۰٪ حرکت می‌کند (دقیقاً به اندازه‌ی یک گروه) → حلقه بدون پرش/ریست */
   .showcase-track{
     display:flex;
-    width:max-content;                 /* عرض بر اساس محتوا → با هر تعداد کاور کار می‌کند */
+    width:max-content;               /* عرض بر اساس محتوا → مبدأ روی x=0 و عرض = مجموع گروه‌ها */
     will-change:transform;
   }
-  .showcase-track-a{animation:showcase-fwd 60s linear infinite}   /* فیلم — رو به جلو، آهسته */
-  .showcase-track-b{animation:showcase-rev 72s linear infinite}   /* کتاب — جهت مخالف، آهسته‌تر */
-
+  /* هر ریل دقیقاً دو «گروه» یکسانِ هم‌عرض دارد؛ پس -۵۰٪ همیشه دقیقاً یک گروه جابه‌جا می‌شود
+     و چون هر گروه خودش از عرضِ هر نمایشگر بزرگ‌تر است، viewport همیشه (حتی در t=0) پُر است */
+  .showcase-group{
+    display:flex;
+    flex:0 0 auto;                   /* فاصله فقط با margin-left کاورها → عرض دو گروه دقیقاً برابر */
+  }
+  /* دو ردیف در جهت مخالف؛ آهسته و آرام (یک دور کامل ~۷۲/۸۴ ثانیه).
+     هر دو کی‌فریم از حالتِ «پُر» شروع می‌شوند: track-a از ۰ و track-b از -۵۰٪ (هر دو viewport را کامل می‌پوشانند) */
+  .showcase-track-a{animation:showcase-scroll 72s linear infinite}
+  .showcase-track-b{animation:showcase-scroll 84s linear infinite reverse}
   /* هاور روی هرجای نوار → توقف هر دو ردیف */
   .showcase-marquee:hover .showcase-track{animation-play-state:paused}
 
-  @keyframes showcase-fwd{
+  @keyframes showcase-scroll{
     from{transform:translateX(0)}
-    to{transform:translateX(-50%)}     /* دو گروهِ هم‌عرض → -۵۰٪ دقیقاً یک گروه جابه‌جا می‌شود و بی‌درز حلقه می‌زند */
+    to{transform:translateX(-50%)}   /* دو گروهِ هم‌عرض → -۵۰٪ دقیقاً یک گروه جابه‌جا می‌شود و بی‌درز حلقه می‌زند */
   }
-  @keyframes showcase-rev{
-    from{transform:translateX(-50%)}
-    to{transform:translateX(0)}
-  }
-
-  /* فاصله فقط روی «گروه» است: gap بین کاورها + padding-right برابر با همان gap → درزِ بین دو گروه = فاصله‌ی داخلی */
-  .showcase-group{
-    display:flex;
-    flex-shrink:0;
-    gap:16px;
-    padding-right:16px;
-  }
-  .showcase-row-book .showcase-group{gap:14px;padding-right:14px}
 
   .showcase-item{
     position:relative;
     display:block;
-    flex-shrink:0;
+    flex:0 0 auto;
+    margin-left:16px;                /* فاصله فقط از یک سمت → عرض هر گروه = N×(عرض کاور+۱۶) و درزِ گروه‌ها = همان فاصله‌ی داخلی */
     border-radius:6px;
-    overflow:hidden;
     text-decoration:none;
     /* حالت پیش‌فرض: سیاه‌وسفید و کمی محو برای ظاهری یکدست و ظریف */
     filter:grayscale(100%) contrast(1.05) brightness(0.95);
-    opacity:.82;
+    opacity:.8;
     transition:transform .4s ease, filter .4s ease, opacity .4s ease, box-shadow .4s ease;
   }
+  /* ابعاد کاملاً ثابت (width+height صریح، بدون width:auto/aspect-ratio) →
+     هیچ‌گاه عرضِ صفر نمی‌گیرند و عرضِ گروه از فریمِ صفر واقعی است */
   .showcase-item img{
     display:block;
-    height:150px;                      /* ردیف فیلم (بالا) — بزرگ‌تر */
-    width:auto;
-    aspect-ratio:2/3;                  /* نسبت پوستر؛ ابعاد ثابت → بدون layout shift */
+    width:100px;                     /* ردیف فیلم (بالا) — بزرگ‌تر، نسبت ~۲:۳ */
+    height:150px;
     object-fit:cover;
+    border-radius:6px;
     background:#161618;
-    user-select:none;
   }
-  .showcase-row-book .showcase-item img{height:110px}   /* ردیف کتاب (پایین) — کوچک‌تر */
-
-  /* هاور روی یک کاور → تمام‌رنگ، بالاآمدن و سایه‌ی نرم */
+  .showcase-row-book .showcase-item img{width:74px;height:110px}   /* ردیف کتاب (پایین) — کوچک‌تر */
+  /* هاور روی یک کاور → تمام‌رنگ، بزرگ‌نمایی و سایه‌ی نرم */
   .showcase-item:hover{
     filter:none;
     opacity:1;
-    transform:translateY(-8px);
-    box-shadow:0 14px 30px rgba(0,0,0,0.28);
+    transform:scale(1.04) translateY(-2px);
+    box-shadow:0 10px 26px rgba(0,0,0,0.55);
     z-index:2;
   }
 
   @media(max-width:640px){
     .showcase-marquee{padding:18px 0}
     .showcase-row + .showcase-row{margin-top:12px}
-    .showcase-group{gap:12px;padding-right:12px}
-    .showcase-row-book .showcase-group{gap:10px;padding-right:10px}
-    .showcase-item img{height:110px}                    /* فیلم روی موبایل */
-    .showcase-row-book .showcase-item img{height:80px}  /* کتاب روی موبایل */
+    .showcase-item img{width:73px;height:110px}                          /* فیلم روی موبایل */
+    .showcase-row-book .showcase-item img{width:53px;height:80px}        /* کتاب روی موبایل */
   }
 
-  /* احترام به prefers-reduced-motion → ردیف‌ها ثابت می‌مانند */
+  /* احترام به prefers-reduced-motion → ردیف‌ها ثابت و پُر می‌مانند */
   @media(prefers-reduced-motion:reduce){
-    .showcase-track{animation-play-state:paused !important}
+    .showcase-track{animation:none}
   }
 </style>
 </head>
@@ -152,17 +145,25 @@
   $showcaseFilms = $showcaseFilms ?? collect();
   $showcaseBooks = $showcaseBooks ?? collect();
 
-  // هر «گروه» به‌قدر کافی تکرار می‌شود تا حتی با چند کاورِ اندک هم از عرض هر نمایشگر پهن بزرگ‌تر شود.
-  // سپس همین گروهِ یکسان دقیقاً دوبار داخل ریل رندر می‌شود؛ چون دو نیمه کاملاً هم‌عرض‌اند،
-  // انیمیشن -۵۰٪ همیشه دقیقاً به‌اندازه‌ی یک گروه جابه‌جا می‌شود و حلقه بدون پرش/ریست می‌بندد.
+  // هدف: عرضِ «یک گروه» باید از پهن‌ترین نمایشگر (تا ~۳۸۴۰px 4K) بزرگ‌تر باشد.
+  // چون هر ریل = دقیقاً دو گروهِ یکسان است و انیمیشن -۵۰٪ (= یک عرضِ گروه) جابه‌جا می‌شود،
+  //   • در t=0 نیمه‌ی سمت‌چپِ ریل (یک گروه، >۳۸۴۰px) کلِ viewport را می‌پوشاند → هرگز خالی.
+  //   • در طول حلقه لبه‌ی راستِ محتوا هیچ‌گاه از یک عرضِ گروه کمتر نمی‌شود → همیشه پُر.
+  //   • جابه‌جایی دقیقِ یک گروه → گروهِ دوم روی جای گروهِ اول می‌نشیند → بی‌درز و بدون پرش.
+  $targetWidth = 3900;                        // حداقل عرضِ هر گروه (px) — پوشش کاملِ ۴K
+  $filmUnit    = 100 + 16;                    // عرضِ هر کاور فیلم + margin-left
+  $bookUnit    = 74 + 16;                     // عرضِ هر کاور کتاب + margin-left
+
   $filmGroup = collect();
   if ($showcaseFilms->isNotEmpty()) {
-    $rep = max(2, (int) ceil(26 / $showcaseFilms->count()));   // ≥۲۶ کاور در هر گروه (~۳۰۰۰px) → پُرکردن نمایشگرهای پهن
+    $need = (int) ceil($targetWidth / $filmUnit);                     // تعداد کاورِ لازم برای عبور از هدف
+    $rep  = max(2, (int) ceil($need / $showcaseFilms->count()));      // تکرارِ مجموعه تا رسیدن به آن تعداد
     for ($i = 0; $i < $rep; $i++) { $filmGroup = $filmGroup->concat($showcaseFilms); }
   }
   $bookGroup = collect();
   if ($showcaseBooks->isNotEmpty()) {
-    $rep = max(2, (int) ceil(32 / $showcaseBooks->count()));   // کاورِ کتاب کوچک‌تر است → تکرار بیشتر برای همان عرض
+    $need = (int) ceil($targetWidth / $bookUnit);
+    $rep  = max(2, (int) ceil($need / $showcaseBooks->count()));
     for ($i = 0; $i < $rep; $i++) { $bookGroup = $bookGroup->concat($showcaseBooks); }
   }
 @endphp
