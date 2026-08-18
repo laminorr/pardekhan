@@ -269,12 +269,12 @@
         display: flex;
         align-items: center;
         gap: 0.6rem;
-        background: #fff;
-        border: 1px solid var(--border);
+        background: var(--bg-mute);
+
         border-radius: 14px;
         padding: 0.7rem 0.8rem;
         margin: 0 0 1.1rem;
-        box-shadow: 0 3px 16px rgba(40,60,50,0.05);
+
     }
     .pk-plant-card__chip {
         width: 30px; height: 30px; flex-shrink: 0;
@@ -296,7 +296,7 @@
 
 {{-- نوار آمار زنده --}}
 <div style="display:flex;gap:0.6rem;margin-bottom:1.1rem;">
-    <div style="flex:1;display:flex;align-items:center;gap:0.55rem;background:#fff;border:1px solid var(--border);border-radius:14px;padding:0.6rem 0.7rem;">
+    <div style="flex:1;display:flex;align-items:center;gap:0.55rem;background:var(--bg-mute);border-radius:14px;padding:0.6rem 0.7rem;">
         <span style="position:relative;display:flex;width:8px;height:8px;flex-shrink:0;">
             <span style="position:absolute;width:100%;height:100%;border-radius:50%;background:#3fb27f;opacity:0.6;animation:pulse-ring 2s infinite;"></span>
             <span style="position:relative;width:8px;height:8px;border-radius:50%;background:#3fb27f;"></span>
@@ -306,7 +306,7 @@
             <div style="font-size:0.63rem;color:var(--ink-faint);">نفر آنلاین‌اند</div>
         </div>
     </div>
-    <div style="flex:1;display:flex;align-items:center;gap:0.55rem;background:#fff;border:1px solid var(--border);border-radius:14px;padding:0.6rem 0.7rem;">
+    <div style="flex:1;display:flex;align-items:center;gap:0.55rem;background:var(--bg-mute);border-radius:14px;padding:0.6rem 0.7rem;">
         <div style="width:26px;height:26px;border-radius:8px;background:var(--green-tint);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--pine)" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
         </div>
@@ -503,7 +503,7 @@
 </a>
 
 {{-- بنر دعوت به ارتباط --}}
-<a href="{{ route('panel.messages.index') }}" style="display:block;text-decoration:none;margin-bottom:1.1rem;position:relative;overflow:hidden;border-radius:18px;background:linear-gradient(145deg,var(--pine-bright),var(--pine-deep));box-shadow:0 10px 26px -10px rgba(47,93,80,0.5);">
+<a href="{{ route('panel.messages.index') }}" style="display:block;text-decoration:none;margin-top:1.1rem;margin-bottom:1.1rem;position:relative;overflow:hidden;border-radius:18px;background:linear-gradient(145deg,var(--pine-bright),var(--pine-deep));box-shadow:0 10px 26px -10px rgba(47,93,80,0.5);">
     {{-- بافت تزئینی --}}
     <div style="position:absolute;top:-40px;left:-20px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,0.06);"></div>
     <div style="position:absolute;bottom:-50px;left:60px;width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,0.04);"></div>
