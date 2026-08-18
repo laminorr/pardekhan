@@ -24,7 +24,30 @@ class Member extends Authenticatable
             'birth_date'       => 'date',
             'avatar_approved'  => 'boolean',
             'profile_completed'=> 'boolean',
+            'last_seen_at'     => 'datetime',
         ];
+    }
+
+    // ── گیاه عضویت (day / absence) ─────────────────────
+    /** تعداد روزهای سپری‌شده از تاریخ عضویت (کف). */
+    public function daysSinceJoin(): int
+    {
+        if (! $this->created_at) {
+            return 0;
+        }
+
+        return (int) floor($this->created_at->diffInDays(now()));
+    }
+
+    /** تعداد روزهای سپری‌شده از آخرین بازدید (یا تاریخ عضویت اگر ثبت نشده) (کف). */
+    public function daysSinceSeen(): int
+    {
+        $from = $this->last_seen_at ?? $this->created_at;
+        if (! $from) {
+            return 0;
+        }
+
+        return (int) floor($from->diffInDays(now()));
     }
 
     // ── Relations ──────────────────────────────────────

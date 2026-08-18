@@ -30,10 +30,37 @@
 
     // ایندکس لایه فعلی برای نردبان (بر اساس امتیاز)
     $currentIndex = $layer ? $allLayers->search(fn($l) => $l->id === $layer->id) : -1;
+
+    // ── گیاه عضویت: محاسبات سمت سرور (day / absence → state → پیام پایدارِ روز) ──
+    $plantDay     = $member->daysSinceJoin();
+    $plantAbsence = $member->daysSinceSeen();
+    $plantCycle   = intdiv($plantDay, 180) + 1;
+
+    if ($plantAbsence >= 8) {
+        $plantState = 'parched';   // خشکیده و دلتنگ
+    } elseif ($plantAbsence >= 3) {
+        $plantState = 'wilting';   // کمی پژمرده
+    } else {                       // حاضر (غیبت < ۳): بر اساس فصل
+        $plantT = $plantDay % 180;
+        if ($plantT >= 58 && $plantT < 90) {
+            $plantState = 'bloom';    // فصل شکوفه
+        } elseif ($plantT >= 90) {
+            $plantState = 'winter';   // پاییز/زمستان
+        } else {
+            $plantState = 'fresh';    // شاداب و در حال رشد
+        }
+    }
+
+    $plantMessages = \App\Support\PlantMessages::STATES[$plantState];
+    $plantMsg      = $plantMessages[$plantDay % 40];
 @endphp
 <div class="pk-hero">
     <span class="pk-hero__deco pk-hero__deco--a" aria-hidden="true"></span>
     <span class="pk-hero__deco pk-hero__deco--b" aria-hidden="true"></span>
+
+    {{-- گیاه عضویت: لایهٔ زمینه‌ای پشتِ محتوای هدر (فقط تزئینی) --}}
+    <canvas id="pk-plant-cv" aria-hidden="true"
+        style="position:absolute;inset:0;width:100%;height:100%;z-index:1;opacity:.5;pointer-events:none;"></canvas>
 
     {{-- خوش‌آمد + زنگوله --}}
     <div class="pk-hero__top">
@@ -101,6 +128,11 @@
         @endforeach
     </div>
     @endif
+</div>
+
+{{-- کارت وضعیت گیاه عضویت (سفید، زیرِ هدر) --}}
+<div class="pk-plant-card">
+    گیاه تو در روز {{ fa($plantDay) }} و دورهٔ {{ fa($plantCycle) }} قرار دارد. باهم مراقبش هستیم. {{ $plantMsg }}
 </div>
 
 @push('styles')
@@ -214,6 +246,33 @@
     .pk-hero__steplabel { font-size: 0.62rem; color: rgba(255,255,255,0.6); }
     .pk-hero__steplabel--current { color: #fff; font-weight: 800; }
     .pk-hero__line { height: 2px; flex: 1; margin-bottom: 17px; border-radius: 2px; }
+
+    /* ── گیاه عضویت: محتوای هدر باید بالای بوم (canvas) بماند و خوانا باشد ── */
+    .pk-hero__top,
+    .pk-hero__ringwrap,
+    .pk-hero__next,
+    .pk-hero__ladder { z-index: 3; }
+    .pk-hero__name,
+    .pk-hero__tier { text-shadow: 0 1px 10px rgba(20,40,32,0.28); }
+    .pk-hero__hi,
+    .pk-hero__ringlabel,
+    .pk-hero__score,
+    .pk-hero__next,
+    .pk-hero__steplabel { text-shadow: 0 1px 6px rgba(20,40,32,0.22); }
+
+    /* کارت وضعیت گیاه — سفید، هم‌سبک با کارت‌های پنل */
+    .pk-plant-card {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 1rem 1.2rem;
+        margin: 0 0 1.1rem;
+        box-shadow: 0 3px 16px rgba(40,60,50,0.05);
+        font-size: 0.86rem;
+        line-height: 1.9;
+        color: var(--ink-mid);
+        text-align: justify;
+    }
 </style>
 @endpush
 
@@ -521,6 +580,210 @@
 
     setInterval(function () { step(online, onlineFloor); }, 3500);
     setInterval(function () { step(watching, watchingFloor); }, 5200);
+})();
+</script>
+@endpush
+
+@push('scripts')
+{{-- مقادیر سمت سرورِ گیاه عضویت --}}
+<script>
+  window.__plant = {
+    seed: {{ (int) $member->id }},
+    day: {{ (int) $plantDay }},
+    absence: {{ (int) $plantAbsence }}
+  };
+</script>
+
+{{--
+  گیاه عضویت — Space Colonization + چرخهٔ فصلیِ ۱۸۰ روزه + پژمردگی.
+  نسخهٔ production: بدون حلقهٔ rAF. درخت یک‌بار ساخته و یک‌بار (و روی resizeِ debounce) کشیده می‌شود.
+--}}
+<script>
+(function () {
+  var cv = document.getElementById('pk-plant-cv');
+  if (!cv || !cv.getContext) return;
+  var ctx = cv.getContext('2d');
+
+  // ───────────── ابزار پایه ─────────────
+  function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+
+  const VW=700, VH=520;
+  const ROOT={x:70, y:VH-24};   // بذر: گوشهٔ پایین-چپ
+
+  // ───── الگوریتم Space Colonization ─────
+  function growTree(seed){
+    const rng=mulberry32(seed);
+    const attractors=[];
+    const N=2600;
+    for(let i=0;i<N;i++){
+      const ry=Math.pow(rng(),0.72);
+      const y=VH*0.06 + ry*(VH*0.86);
+      const x=20 + Math.pow(rng(),0.9)*(VW-40);
+      attractors.push({x,y,dead:false});
+    }
+    const INF=88, KILL=9, STEP=7;
+    const nodes=[{x:ROOT.x,y:ROOT.y,parent:-1}];
+    const maxIter=760;
+    for(let it=0;it<maxIter;it++){
+      const pull=new Map(); let live=0;
+      for(const a of attractors){
+        if(a.dead) continue; live++;
+        let best=-1,bd=INF*INF;
+        for(let n=0;n<nodes.length;n++){
+          const dx=a.x-nodes[n].x, dy=a.y-nodes[n].y, d=dx*dx+dy*dy;
+          if(d<bd){bd=d;best=n;}
+        }
+        if(best>=0){
+          const dx=a.x-nodes[best].x, dy=a.y-nodes[best].y, L=Math.hypot(dx,dy)||1;
+          const e=pull.get(best)||{x:0,y:0,c:0};
+          e.x+=dx/L; e.y+=dy/L; e.c++; pull.set(best,e);
+        }
+      }
+      if(live===0||pull.size===0) break;
+      let grew=false;
+      for(const [ni,e] of pull){
+        let dx=e.x/e.c, dy=e.y/e.c;
+        dy-=0.14; dx+=(rng()-0.5)*0.28; dy+=(rng()-0.5)*0.28;
+        const L=Math.hypot(dx,dy)||1;
+        const nx=nodes[ni].x+dx/L*STEP, ny=nodes[ni].y+dy/L*STEP;
+        nodes.push({x:nx,y:ny,parent:ni}); grew=true;
+      }
+      if(!grew) break;
+      for(const a of attractors){
+        if(a.dead) continue;
+        for(let n=0;n<nodes.length;n++){
+          const dx=a.x-nodes[n].x, dy=a.y-nodes[n].y;
+          if(dx*dx+dy*dy < KILL*KILL){a.dead=true;break;}
+        }
+      }
+    }
+    const nn=nodes.length;
+    const sub=new Array(nn).fill(1);
+    for(let i=nn-1;i>=0;i--){ if(nodes[i].parent>=0) sub[nodes[i].parent]+=sub[i]; }
+    const dist=new Array(nn).fill(0), depth=new Array(nn).fill(0);
+    for(let i=1;i<nn;i++){
+      const p=nodes[i].parent;
+      dist[i]=dist[p]+Math.hypot(nodes[i].x-nodes[p].x, nodes[i].y-nodes[p].y);
+      depth[i]=depth[p]+1;
+    }
+    const maxDist=Math.max(...dist,1);
+    const segs=[];
+    for(let i=1;i<nn;i++){
+      const p=nodes[i].parent;
+      segs.push({x1:nodes[p].x,y1:nodes[p].y,x2:nodes[i].x,y2:nodes[i].y,
+        order:dist[i]/maxDist, sub:sub[i], depth:depth[i]});
+    }
+    const tips=[];
+    for(let i=1;i<nn;i++){
+      if(sub[i]<=4 && depth[i]>3){
+        tips.push({x:nodes[i].x,y:nodes[i].y,order:dist[i]/maxDist,
+          dirx:nodes[i].x-nodes[nodes[i].parent].x, diry:nodes[i].y-nodes[nodes[i].parent].y});
+      }
+    }
+    const maxSub=Math.max(...segs.map(s=>s.sub),1);
+    return {segs,tips,maxSub};
+  }
+
+  // ───── مدل فصلی (چرخهٔ بی‌پایان ۱۸۰ روزه) ─────
+  const CYCLE=180;
+  function seasonModel(day){
+    const cycle=Math.floor(day/CYCLE);
+    const t=day%CYCLE;
+    let leafFill,bloom,phase;
+    if(t<90){ leafFill=Math.min(1,t/60); bloom=Math.max(0,(t-58)/32); phase=t<28?'رویش':(t<58?'پرشدن':'شکوفه'); }
+    else{ const w=(t-90)/90; leafFill=Math.max(0.08,1-w*0.94); bloom=Math.max(0,(1-w)*0.3); phase=w<0.5?'پاییز':'زمستان'; }
+    const structure=Math.min(1,(1-Math.exp(-day/70))*1.06);
+    const lush=Math.min(1.35, 0.85+cycle*0.18);
+    return {cycle,t,leafFill,bloom,phase,structure,lush};
+  }
+
+  // ───── رندر ─────
+  // seedVal = member id ; day = daysSinceJoin ; absence = daysSinceSeen  (از سرور)
+  // نسخهٔ production: بدونِ حلقهٔ rAF. dispStruct/dispLeaf مستقیم = هدف. draw() یک‌بار.
+  let TREE=null;
+  var P = window.__plant || {};
+  let seedVal = (P.seed|0) || 1;
+  let day     = (P.day|0)  || 0;
+  let absence = (P.absence|0) || 0;
+
+  function build(){ TREE=growTree(seedVal); }
+  function fit(){
+    const r=cv.getBoundingClientRect(); const dpr=Math.min(2,window.devicePixelRatio||1);
+    cv.width=Math.max(1,r.width*dpr); cv.height=Math.max(1,r.height*dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0); return {w:r.width,h:r.height};
+  }
+  function draw(){
+    const {w,h}=fit();
+    ctx.clearRect(0,0,w,h);
+    const sx=w/VW, sy=h/VH;
+    const S=seasonModel(day);
+    const health=Math.max(0,Math.min(1,1-Math.max(0,absence-2)/14));
+    const struct=S.structure, leafFill=S.leafFill;   // production: بدون تویین
+
+    const droop=(1-health);
+    ctx.save();
+    ctx.translate(ROOT.x*sx,ROOT.y*sy);
+    ctx.rotate(droop*0.14);
+    ctx.translate(-ROOT.x*sx,-ROOT.y*sy);
+
+    const gA=`rgba(${190-30*(1-health)},${205-24*(1-health)},${190-40*(1-health)},`;
+    const dry=`rgba(150,140,120,`;
+    const branchRGBA = absence>5 ? dry : gA;
+
+    for(const s of TREE.segs){
+      if(s.order>struct) continue;
+      const isFine = s.sub<=3 && s.depth>5;
+      if(isFine){ if(leafFill<0.35 && s.order>0.55) continue; }
+      const local=Math.min(1,(struct-s.order)/0.05);
+      const x1=s.x1*sx, y1=s.y1*sy;
+      const x2=(s.x1+(s.x2-s.x1)*local)*sx, y2=(s.y1+(s.y2-s.y1)*local)*sy;
+      const wdt=0.35 + 2.0*Math.pow(s.sub/TREE.maxSub,0.5);
+      let alpha = 0.28 + 0.5*Math.min(1,s.sub/40);
+      if(isFine) alpha*= (0.4+0.6*leafFill);
+      ctx.strokeStyle=branchRGBA+alpha.toFixed(3)+')';
+      ctx.lineWidth=wdt; ctx.lineCap='round';
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+    }
+
+    const leafRng=mulberry32(seedVal*7+13);
+    const lush=S.lush;
+    for(const tp of TREE.tips){
+      if(tp.order>struct) continue;
+      const cnt=Math.round((3+9*leafFill)*lush);
+      for(let k=0;k<cnt;k++){
+        const rr=leafRng();
+        if(rr>leafFill*0.98) continue;
+        const spread=7+9*leafFill;
+        const ox=(leafRng()-0.5)*spread + tp.dirx*0.5, oy=(leafRng()-0.5)*spread + tp.diry*0.5;
+        const x=(tp.x+ox)*sx, y=(tp.y+oy)*sy;
+        const r=(0.5+leafRng()*1.2);
+        let col;
+        if(absence>5){ col=`rgba(${175-leafRng()*35},${152-leafRng()*30},${92+leafRng()*32},`; }
+        else { const g=198+leafRng()*40; col=`rgba(${g-22},${g},${g-26},`; }
+        ctx.fillStyle=col+((0.42*leafFill)*(0.45+0.55*leafRng())).toFixed(3)+')';
+        ctx.beginPath(); ctx.ellipse(x,y,r*1.25,r*0.78,leafRng()*3.14,0,6.283); ctx.fill();
+      }
+    }
+
+    const bRng=mulberry32(seedVal*11+29);
+    const bloomHealth=S.bloom*health;
+    const pal=[[242,170,188],[240,158,132],[248,214,222],[238,180,158],[244,175,196]];
+    if(bloomHealth>0.02){
+      for(const tp of TREE.tips){
+        if(tp.order>struct) continue;
+        if(bRng() > bloomHealth*0.28) continue;
+        const c=pal[(bRng()*pal.length)|0];
+        const x=tp.x*sx, y=tp.y*sy, r=(1.1+1.5*S.bloom);
+        ctx.fillStyle=`rgba(${c[0]},${c[1]},${c[2]},${(0.5+0.35*bloomHealth).toFixed(3)})`;
+        ctx.beginPath(); ctx.arc(x,y,r,0,6.283); ctx.fill();
+      }
+    }
+    ctx.restore();
+  }
+
+  build();
+  draw();
+  let _t; window.addEventListener('resize',function(){ clearTimeout(_t); _t=setTimeout(draw,150); });
 })();
 </script>
 @endpush
