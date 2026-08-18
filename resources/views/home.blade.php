@@ -111,6 +111,15 @@
   @media(prefers-reduced-motion:reduce){
     .showcase-track{animation:none}
   }
+  /* بنر معرفی: نازک‌تر؛ متن دسکتاپ کامل، موبایل کوتاه‌تر و ظریف‌تر */
+  .intro-banner{background:linear-gradient(135deg,#0f766e,#115e59);color:#fff}
+  .intro-banner-inner{max-width:1200px;margin:0 auto;padding:11px 32px;font-size:0.9rem;line-height:1.8;text-align:center;font-weight:500}
+  .intro-mobile{display:none}
+  @media(max-width:640px){
+    .intro-banner-inner{padding:9px 18px;font-size:0.8rem;line-height:1.7}
+    .intro-desktop{display:none}
+    .intro-mobile{display:inline}
+  }
 </style>
 </head>
 <body>
@@ -135,9 +144,10 @@
 </nav>
 
 {{-- بنر معرفی سراسری --}}
-<div style="background:linear-gradient(135deg,#0f766e,#115e59);color:#fff;">
-  <div style="max-width:1200px;margin:0 auto;padding:18px 32px;font-size:0.95rem;line-height:1.9;text-align:center;font-weight:500;">
-    نقد و خوانش فیلم و تئاتر با رویکرد روان‌شناختی؛ از ساختار شخصیت و پویایی روابط تا تعارض‌های درون‌روانی، الگوهای دلبستگی و جهان ذهنی انسان.
+<div class="intro-banner">
+  <div class="intro-banner-inner">
+    <span class="intro-desktop">نقد و خوانش فیلم و تئاتر با رویکرد روان‌شناختی؛ از ساختار شخصیت و پویایی روابط تا تعارض‌های درون‌روانی، الگوهای دلبستگی و جهان ذهنی انسان.</span>
+    <span class="intro-mobile">نقد با رویکرد روان‌شناختی از ساختار شخصیت و روابط تا تعارض‌های درون‌روانی.</span>
   </div>
 </div>
 {{-- ── ویترین کاورها: نوار متحرک تمام‌عرض (دو ردیف در جهت مخالف). چیزی رندر نمی‌شود اگر هر دو خالی باشند ── --}}
