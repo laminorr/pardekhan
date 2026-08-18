@@ -33,7 +33,8 @@
 
     // ── گیاه عضویت: محاسبات سمت سرور (day / absence → state → پیام پایدارِ روز) ──
     $plantDay     = $member->daysSinceJoin();
-    $plantAbsence = $member->daysSinceSeen();
+    $__prevSeen = request()->attributes->get('member_previous_seen');
+    $plantAbsence = $__prevSeen ? (int) floor($__prevSeen->diffInDays(now())) : 0;
     $plantCycle   = intdiv($plantDay, 180) + 1;
 
     if ($plantAbsence >= 8) {
@@ -132,7 +133,7 @@
 
 {{-- کارت وضعیت گیاه عضویت (سفید، زیرِ هدر) --}}
 <div class="pk-plant-card">
-    گیاه تو در روز {{ fa($plantDay) }} و دورهٔ {{ fa($plantCycle) }} قرار دارد. باهم مراقبش هستیم. {{ $plantMsg }}
+    درخت تو {{ fa($plantDay) }} روزه که پیش ماست. باهم مراقبش هستیم. {{ $plantMsg }}
 </div>
 
 @push('styles')
@@ -690,9 +691,9 @@
     const cycle=Math.floor(day/CYCLE);
     const t=day%CYCLE;
     let leafFill,bloom,phase;
-    if(t<90){ leafFill=Math.min(1,t/60); bloom=Math.max(0,(t-58)/32); phase=t<28?'رویش':(t<58?'پرشدن':'شکوفه'); }
+    if(t<90){ leafFill=Math.min(1,t/60); bloom=Math.max(0,Math.min(1,(t-40)/38)); phase=t<28?'رویش':(t<58?'پرشدن':'شکوفه'); }
     else{ const w=(t-90)/90; leafFill=Math.max(0.08,1-w*0.94); bloom=Math.max(0,(1-w)*0.3); phase=w<0.5?'پاییز':'زمستان'; }
-    const structure=Math.min(1,(1-Math.exp(-day/70))*1.06);
+    const structure=Math.min(1,(1-Math.exp(-day/220))*1.06);
     const lush=Math.min(1.35, 0.85+cycle*0.18);
     return {cycle,t,leafFill,bloom,phase,structure,lush};
   }
