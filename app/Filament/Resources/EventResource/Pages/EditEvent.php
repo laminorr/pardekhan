@@ -11,7 +11,24 @@ use Filament\Resources\Pages\EditRecord;
 
 class EditEvent extends EditRecord
 {
+    use InteractsWithLayerPrices;
+
     protected static string $resource = EventResource::class;
+
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        return $this->fillLayerPrices($data);
+    }
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        return $this->extractLayerPrices($data);
+    }
+
+    protected function afterSave(): void
+    {
+        $this->syncLayerPrices();
+    }
 
     protected function getHeaderActions(): array
     {

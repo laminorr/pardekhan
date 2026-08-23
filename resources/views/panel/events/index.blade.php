@@ -49,6 +49,20 @@
                         {{ fa(\Morilog\Jalali\Jalalian::fromDateTime($event->starts_at)->format('l j F')) }} · {{ fa($event->starts_at->format('H:i')) }}
                     </span>
                 </div>
+                {{-- قیمت --}}
+                <div style="display:flex;align-items:baseline;gap:0.5rem;margin-top:0.6rem;">
+                    @if($price === 0)
+                        @if($event->base_price > 0)
+                            <span style="font-size:0.7rem;color:var(--ink-faint);text-decoration:line-through;">{{ fa(number_format($event->base_price)) }}</span>
+                        @endif
+                        <span style="font-size:0.82rem;font-weight:800;color:var(--pine);">برای شما رایگان شد</span>
+                    @elseif($price < $event->base_price)
+                        <span style="font-size:0.7rem;color:var(--ink-faint);text-decoration:line-through;">{{ fa(number_format($event->base_price)) }}</span>
+                        <span style="font-size:0.86rem;font-weight:800;color:var(--pine);">{{ fa(number_format($price)) }} <span style="font-size:0.68rem;font-weight:600;color:var(--ink-dim);">تومان</span></span>
+                    @else
+                        <span style="font-size:0.86rem;font-weight:800;color:var(--ink);">{{ fa(number_format($price)) }} <span style="font-size:0.68rem;font-weight:600;color:var(--ink-dim);">تومان</span></span>
+                    @endif
+                </div>
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-top:0.75rem;">
                     @if($regOpen)
                         @if($remaining <= 5)

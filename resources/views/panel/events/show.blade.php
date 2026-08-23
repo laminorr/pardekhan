@@ -37,8 +37,14 @@
 
 {{-- محتوا --}}
 <div class="ev-body">
-    @if($discount > 0)
-        <span style="display:inline-block;background:var(--green-soft);color:var(--pine);font-size:0.7rem;font-weight:700;padding:6px 13px;border-radius:20px;">ویژهٔ لایهٔ شما · {{ fa($discount) }}٪ تخفیف</span>
+    @if($price === 0)
+        <span style="display:inline-block;background:var(--green-soft);color:var(--pine);font-size:0.7rem;font-weight:700;padding:6px 13px;border-radius:20px;">ویژهٔ لایهٔ شما · رایگان</span>
+    @elseif($price < $event->base_price)
+        @if($discount > 0)
+            <span style="display:inline-block;background:var(--green-soft);color:var(--pine);font-size:0.7rem;font-weight:700;padding:6px 13px;border-radius:20px;">ویژهٔ لایهٔ شما · {{ fa($discount) }}٪ تخفیف</span>
+        @else
+            <span style="display:inline-block;background:var(--green-soft);color:var(--pine);font-size:0.7rem;font-weight:700;padding:6px 13px;border-radius:20px;">قیمت ویژهٔ لایهٔ شما</span>
+        @endif
     @endif
 
     <div style="font-size:1.6rem;font-weight:800;line-height:1.25;margin-top:0.8rem;letter-spacing:-0.5px;">{{ $event->title }}</div>
@@ -123,12 +129,16 @@
 {{-- نوار قیمت ثابت پایین --}}
 <div class="ev-paybar">
     <div>
-        @if($discount > 0)
+        @if($price < $event->base_price)
             <div style="font-size:0.68rem;color:var(--ink-faint);text-decoration:line-through;">{{ fa(number_format($event->base_price)) }}</div>
         @endif
         <div>
-            <span style="font-size:1.4rem;font-weight:800;letter-spacing:-0.5px;color:var(--pine);">{{ fa(number_format($price)) }}</span>
-            <span style="font-size:0.7rem;color:var(--ink-dim);margin-right:4px;">تومان</span>
+            @if($price === 0)
+                <span style="font-size:1.2rem;font-weight:800;letter-spacing:-0.3px;color:var(--pine);">برای شما رایگان شد</span>
+            @else
+                <span style="font-size:1.4rem;font-weight:800;letter-spacing:-0.5px;color:var(--pine);">{{ fa(number_format($price)) }}</span>
+                <span style="font-size:0.7rem;color:var(--ink-dim);margin-right:4px;">تومان</span>
+            @endif
         </div>
     </div>
 

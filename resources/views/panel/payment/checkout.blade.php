@@ -52,10 +52,27 @@
     <div style="height:1px;background:var(--bg-mute);margin:0.8rem 0;"></div>
     <div style="display:flex;justify-content:space-between;align-items:baseline;">
         <span style="font-size:0.9rem;font-weight:800;">مبلغ قابل پرداخت</span>
-        <span style="font-size:1.3rem;font-weight:800;color:var(--pine);letter-spacing:-0.5px;">{{ fa(number_format($price)) }}</span>
+        @if($price === 0)
+            <span style="font-size:1.15rem;font-weight:800;color:var(--pine);letter-spacing:-0.3px;">رایگان</span>
+        @else
+            <span style="font-size:1.3rem;font-weight:800;color:var(--pine);letter-spacing:-0.5px;">{{ fa(number_format($price)) }}</span>
+        @endif
     </div>
 </div>
 
+@if($price === 0)
+{{-- ثبت‌نام رایگان — بدون نیاز به پرداخت --}}
+<div style="margin-top:1.5rem;text-align:center;">
+    <div style="display:flex;align-items:center;gap:8px;justify-content:center;padding:0.85rem 1rem;background:var(--green-tint);border-radius:14px;font-size:0.86rem;color:var(--pine-deep);font-weight:700;line-height:1.7;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--pine)" stroke-width="1.8" style="flex-shrink:0;"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        این دورهمی برای شما رایگان است — نیازی به پرداخت نیست
+    </div>
+    <form method="POST" action="{{ route('panel.payment.free', $event) }}" style="margin-top:1rem;">
+        @csrf
+        <button type="submit" class="btn btn-primary">ثبت‌نام رایگان</button>
+    </form>
+</div>
+@else
 <div style="font-size:0.95rem;font-weight:800;margin-top:1.5rem;">روش پرداخت</div>
 
 {{-- ۱. کیف پول --}}
@@ -151,6 +168,7 @@
         </form>
     </div>
 </div>
+@endif
 @endif
 
 <div style="height:1.5rem;"></div>

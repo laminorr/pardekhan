@@ -45,6 +45,26 @@ class PaymentController extends Controller
         ));
     }
 
+    // ثبت‌نام رایگان (قیمت ۰ برای این عضو)
+    public function registerFree(Event $event)
+    {
+        $member = auth('member')->user();
+
+        // فقط وقتی واقعاً برای این عضو رایگان است
+        if (! $event->isFreeForMember($member)) {
+            return redirect()->route('panel.events.show', $event)
+                ->with('error', 'این دورهمی برای شما رایگان نیست');
+        }
+
+        $result = $this->registration->registerFree($member, $event);
+
+        if (! $result['ok']) {
+            return redirect()->route('panel.events.show', $event)->with('error', $result['message']);
+        }
+
+        return redirect()->route('panel.events.show', $event)->with('success', $result['message']);
+    }
+
     // پرداخت با کیف پول
     public function payWithWallet(Event $event)
     {

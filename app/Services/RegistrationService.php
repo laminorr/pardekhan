@@ -77,6 +77,44 @@ class RegistrationService
     }
 
     /**
+     * ثبت‌نام رایگان — وقتی قیمت برای این عضو ۰ باشد.
+     * بدون نیاز به پرداخت؛ مستقیماً قطعی و تاییدشده ثبت می‌شود.
+     */
+    public function registerFree(Member $member, Event $event): array
+    {
+        return DB::transaction(function () use ($member, $event) {
+            $event = Event::lockForUpdate()->find($event->id);
+
+            $check = $this->canRegister($member, $event);
+            if (! $check['ok']) {
+                return $check;
+            }
+
+            // اطمینان از رایگان‌بودن واقعی برای این عضو
+            if ($event->priceForMember($member) !== 0) {
+                return ['ok' => false, 'message' => 'این دورهمی برای شما رایگان نیست'];
+            }
+
+            // بدون پرداخت — final_price = 0 و مستقیماً تاییدشده
+            $registration = Registration::updateOrCreate(
+                ['event_id' => $event->id, 'member_id' => $member->id],
+                [
+                    'final_price'       => 0,
+                    'attendance_status' => 'registered',
+                    'payment_status'    => 'verified',
+                ]
+            );
+
+            // صدور بلیت فعال (نیازی به پرداخت نیست)
+            app(TicketService::class)->issue($registration);
+
+            $this->updateEventCapacityStatus($event);
+
+            return ['ok' => true, 'registration' => $registration, 'message' => 'ثبت‌نام رایگان شما با موفقیت انجام شد'];
+        });
+    }
+
+    /**
      * ثبت‌نام با کارت به کارت — بر اساس اعتماد، قطعی میشه ولی پرداخت pending
      */
     public function registerWithCardToCard(Member $member, Event $event, string $trackingNumber): array

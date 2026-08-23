@@ -62,7 +62,7 @@ class EventController extends Controller
         return Event::query()
             ->whereIn('status', ['active', 'full', 'closed'])
             ->visibleTo($member)
-            ->with('venue')
+            ->with('venue', 'layers')
             ->orderBy('starts_at')
             ->get();
     }

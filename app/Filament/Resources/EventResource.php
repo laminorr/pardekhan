@@ -100,10 +100,33 @@ class EventResource extends Resource
                 \Filament\Schemas\Components\Tabs\Tab::make('دسترسی و تخفیف')
                     ->icon('heroicon-o-rectangle-stack')
                     ->schema([
-                        Forms\Components\CheckboxList::make('layers')
-                            ->label('لایه‌های مجاز')
-                            ->relationship('layers', 'name')
-                            ->helperText('کدام لایه‌ها این دورهمی را می‌بینند'),
+                        Forms\Components\Repeater::make('layer_prices')
+                            ->label('لایه‌های مجاز و قیمت‌گذاری')
+                            ->helperText('کدام لایه‌ها این دورهمی را می‌بینند و قیمت هر لایه چقدر است')
+                            ->schema([
+                                Forms\Components\Select::make('layer_id')
+                                    ->label('لایه')
+                                    ->options(fn () => Layer::active()->pluck('name', 'id'))
+                                    ->required()
+                                    ->distinct()
+                                    ->native(false)
+                                    ->searchable(),
+                                Forms\Components\TextInput::make('discount_percent')
+                                    ->label('تخفیف (٪)')
+                                    ->numeric()
+                                    ->minValue(0)
+                                    ->maxValue(100)
+                                    ->helperText('خالی: تخفیف پایهٔ لایه'),
+                                Forms\Components\TextInput::make('price_override')
+                                    ->label('قیمت ویژه (تومان)')
+                                    ->numeric()
+                                    ->minValue(0)
+                                    ->helperText('خالی: تخفیف لایه · ۰: رایگان'),
+                            ])
+                            ->columns(3)
+                            ->addActionLabel('افزودن لایه')
+                            ->defaultItems(0)
+                            ->reorderable(false),
                         Forms\Components\Select::make('invitedMembers')
                             ->label('دعوت اختصاصی (افراد خاص)')
                             ->relationship('invitedMembers', 'first_name')

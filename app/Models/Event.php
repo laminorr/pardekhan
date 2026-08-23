@@ -33,7 +33,7 @@ class Event extends Model
     public function layers(): BelongsToMany
     {
         return $this->belongsToMany(Layer::class, 'event_layer')
-            ->withPivot('discount_percent');
+            ->withPivot('discount_percent', 'price_override');
     }
 
     public function invitedMembers(): BelongsToMany
@@ -98,10 +98,43 @@ class Event extends Model
         return $pivot->discount_percent ?? $layer->discount_percent;
     }
 
+    /**
+     * قیمت نهایی یک لایه برای این رویداد.
+     * اولویت: قیمت مطلق (price_override، شامل ۰ = رایگان) > تخفیف درصدی > قیمت پایه
+     */
+    public function priceForLayer(?Layer $layer): int
+    {
+        if (! $layer) {
+            return (int) $this->base_price;
+        }
+
+        $pivot = $this->layers()->where('layers.id', $layer->id)->first()?->pivot;
+
+        // قیمت مطلق تعریف شده (حتی اگر ۰ باشد = رایگان) → مقدم بر همه‌چیز
+        if ($pivot && $pivot->price_override !== null) {
+            return (int) $pivot->price_override;
+        }
+
+        // در غیر این صورت: تخفیف درصدی روی قیمت پایه (رفتار قبلی)
+        $discount = $this->discountForLayer($layer);
+        return (int) round($this->base_price * (100 - $discount) / 100);
+    }
+
     public function priceForMember(Member $member): int
     {
-        $discount = $this->discountForLayer($member->layer);
-        return (int) round($this->base_price * (100 - $discount) / 100);
+        return $this->priceForLayer($member->layer);
+    }
+
+    // رایگان‌بودن این رویداد برای عضو؟
+    public function isFreeForMember(Member $member): bool
+    {
+        return $this->priceForMember($member) === 0;
+    }
+
+    // آیا برای عضو تخفیف/قیمت ویژه دارد (برای نمایش خط‌خورده)؟
+    public function hasDiscountForMember(Member $member): bool
+    {
+        return $this->priceForMember($member) < (int) $this->base_price;
     }
 
     /**
