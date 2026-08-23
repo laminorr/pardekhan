@@ -155,7 +155,7 @@
         var hidden = document.getElementById('birth_date_value');
 
         // مقدار اولیه (اگر تاریخ میلادی ذخیره شده)
-        var initial = hidden.value ? new persianDate(new Date(hidden.value)).valueOf() : null;
+        var initial = false;
 
         $display.persianDatepicker({
             format: 'YYYY/MM/DD',
