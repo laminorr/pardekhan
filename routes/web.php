@@ -337,6 +337,15 @@ Route::prefix('admin/reports')->name('admin.reports.')->middleware(['web', 'auth
 
 /*
 |--------------------------------------------------------------------------
+| Admin Member Dossiers (Excel) — فقط مدیر اصلی
+|--------------------------------------------------------------------------
+*/
+Route::prefix('admin/dossiers')->name('admin.dossiers.')->middleware(['web', 'auth'])->group(function () {
+    Route::get('/{member}/export', [\App\Http\Controllers\Admin\MemberDossierController::class, 'export'])->name('export');
+});
+
+/*
+|--------------------------------------------------------------------------
 | Panel Routes - پنل مخاطب
 |--------------------------------------------------------------------------
 | این routes باید قبل از wildcard episode باشند
