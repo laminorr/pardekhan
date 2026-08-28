@@ -21,6 +21,7 @@ class DashboardController extends Controller
                 'member' => $member,
                 'unreadMessages' => \App\Models\BroadcastRecipient::where('member_id', $member->id)->where('is_read', false)->count()
                     + \App\Models\Conversation::where('member_id', $member->id)->where('member_unread', true)->count(),
+                'todayMood' => $member->todayMood(),
             ]),
             default                 => view('panel.status.pending'),
         };

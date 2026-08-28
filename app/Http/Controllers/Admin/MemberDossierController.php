@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Conversation;
+use App\Models\DailyMood;
 use App\Models\Feedback;
 use App\Models\Member;
 use App\Models\Payment;
@@ -60,6 +61,7 @@ class MemberDossierController extends Controller
         $this->sheetScoreLogs($writer, $member);
         $this->sheetWallet($writer, $member);
         $this->sheetPayments($writer, $member);
+        $this->sheetDailyMoods($writer, $member);
 
         $writer->close();
 
@@ -306,6 +308,46 @@ class MemberDossierController extends Controller
                 (string) ($p->tracking_number ?? '—'),
                 $p->event?->title ?? '—',
             ], $i);
+        }
+    }
+
+    private function sheetDailyMoods(Writer $writer, Member $member): void
+    {
+        $sheet = $writer->addNewSheetAndMakeItCurrent();
+        $sheet->setName('حال روزانه');
+        $this->styleSheet($sheet, [22, 24]);
+
+        $moods = $member->dailyMoods()->orderByDesc('mood_date')->get();
+
+        // ── خلاصه: چند روز در هر حال بوده (تا امروز) ──
+        $this->addHeaderRow($writer, ['حال', 'تعداد روز']);
+
+        $counts = $moods->countBy('mood'); // [mood => count]
+        $i = 0;
+        foreach (DailyMood::LABELS as $value => $label) {
+            $days = (int) ($counts[$value] ?? 0);
+            $this->addDataRow($writer, [$label, fa($days).' روز'], $i);
+        }
+
+        // فاصله بین خلاصه و ریز روزها
+        $writer->addRow(Row::fromValues(['', '']));
+
+        // ── ریز روزها (جدیدترین بالا) ──
+        $this->addHeaderRow($writer, ['تاریخ', 'حال']);
+
+        if ($moods->isEmpty()) {
+            $j = 0;
+            $this->addDataRow($writer, ['—', 'حالی ثبت نشده است'], $j);
+
+            return;
+        }
+
+        $j = 0;
+        foreach ($moods as $m) {
+            $this->addDataRow($writer, [
+                pdate($m->mood_date, 'Y/m/d'),
+                DailyMood::label($m->mood),
+            ], $j);
         }
     }
 

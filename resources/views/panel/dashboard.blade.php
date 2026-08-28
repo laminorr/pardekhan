@@ -518,11 +518,212 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M15 18l-6-6 6-6"/></svg>
     </div>
 </a>
+
+{{-- کارت حال امروز — نارنجیِ گرم و ظریف (آخرین کارت داشبورد) --}}
+@php
+    $moodLabels = \App\Models\DailyMood::LABELS; // [5=>..., 1=>...]
+    $currentMood = $todayMood?->mood;
+@endphp
+<div class="pk-mood @if($currentMood) is-done-avail @endif" id="pk-mood-card" data-done="{{ $currentMood ? '1' : '0' }}">
+    @if($currentMood)
+    {{-- حالت تشکر (وقتی حالِ امروز قبلاً ثبت شده) — قابل تغییر با زدن دوباره --}}
+    <div class="pk-mood__thanks" id="pk-mood-thanks">
+        <span class="pk-mood__thanks-chip" aria-hidden="true">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+        </span>
+        <p class="pk-mood__thanks-text">مرسی که از حالت هممونو باخبر کردی. به امید دیدارت.</p>
+        <button type="button" class="pk-mood__change" id="pk-mood-change">تغییر حال امروز</button>
+    </div>
+    @endif
+
+    <form method="POST" action="{{ route('panel.mood.store') }}" class="pk-mood__form @if($currentMood) is-hidden @endif" id="pk-mood-form">
+        @csrf
+        <input type="hidden" name="mood" id="pk-mood-value" value="{{ $currentMood ?? '' }}">
+        <div class="pk-mood__head">
+            <span class="pk-mood__icon" aria-hidden="true">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 14.5s1.3 1.5 3.5 1.5 3.5-1.5 3.5-1.5"/><path d="M9 9.5h.01M15 9.5h.01"/></svg>
+            </span>
+            <div class="pk-mood__titles">
+                <div class="pk-mood__title">وضعیت حال الانت چیه؟</div>
+                <div class="pk-mood__sub">ما همه حواسمون به هم هست. پس هر چی بگی یه جایی دیده میشه، مطمئن باش.</div>
+            </div>
+        </div>
+        <div class="pk-mood__row" role="radiogroup" aria-label="حال امروز">
+            @php
+                $faces = [
+                    5 => '<circle cx="12" cy="12" r="9.2"/><path d="M8 14.2s1.5 2.2 4 2.2 4-2.2 4-2.2" stroke-linecap="round"/><path d="M8.6 9.2s.5-.7 1.2-.7 1.2.7 1.2.7M13 9.2s.5-.7 1.2-.7 1.2.7 1.2.7" stroke-linecap="round"/>',
+                    4 => '<circle cx="12" cy="12" r="9.2"/><path d="M8.5 14s1.4 1.7 3.5 1.7 3.5-1.7 3.5-1.7" stroke-linecap="round"/><path d="M9.2 9.5h.01M14.8 9.5h.01" stroke-linecap="round"/>',
+                    3 => '<circle cx="12" cy="12" r="9.2"/><path d="M9 14.6h6" stroke-linecap="round"/><path d="M9.2 9.5h.01M14.8 9.5h.01" stroke-linecap="round"/>',
+                    2 => '<circle cx="12" cy="12" r="9.2"/><path d="M8.7 15.4s1.3-1.6 3.3-1.6 3.3 1.6 3.3 1.6" stroke-linecap="round"/><path d="M9.2 9.7h.01M14.8 9.7h.01" stroke-linecap="round"/>',
+                    1 => '<circle cx="12" cy="12" r="9.2"/><path d="M8 16s1.5-2.4 4-2.4 4 2.4 4 2.4" stroke-linecap="round"/><path d="M9 10.4l1-1M10 10.4l-1-1M14 10.4l1-1M15 10.4l-1-1" stroke-linecap="round"/>',
+                ];
+            @endphp
+            @foreach($moodLabels as $val => $label)
+            <button type="submit" name="mood" value="{{ $val }}"
+                class="pk-mood__opt @if($currentMood === $val) is-selected @endif"
+                data-mood="{{ $val }}"
+                role="radio" aria-checked="{{ $currentMood === $val ? 'true' : 'false' }}"
+                aria-label="{{ $label }}">
+                <span class="pk-mood__face" aria-hidden="true">
+                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">{!! $faces[$val] !!}</svg>
+                </span>
+                <span class="pk-mood__label">{{ $label }}</span>
+            </button>
+            @endforeach
+        </div>
+    </form>
+</div>
 @endsection
 
 @section('nav')
     @include('panel.partials.bottom-nav', ['active' => 'home'])
 @endsection
+
+{{-- ── استایل کارت حال امروز (نارنجیِ گرم و ظریف) ── --}}
+@push('styles')
+<style>
+    .pk-mood {
+        --warm-orange: #c2552f;      /* هم‌رنگ با آیکن نارنجیِ فیلم هفته */
+        --warm-orange-deep: #a8431f;
+        --warm-tint: #fbeee7;        /* پس‌زمینهٔ خیلی روشنِ نارنجی */
+        position: relative;
+        overflow: hidden;
+        background: var(--warm-tint);
+        border: 1px solid #f2d9cb;
+        border-radius: 18px;
+        padding: 0.85rem 0.95rem;
+        margin-top: 1.1rem;
+        margin-bottom: 1.1rem;
+    }
+    .pk-mood__head { display: flex; align-items: flex-start; gap: 0.55rem; }
+    .pk-mood__icon {
+        width: 26px; height: 26px; flex-shrink: 0;
+        border-radius: 8px;
+        background: rgba(194,85,47,0.10);
+        color: var(--warm-orange);
+        display: flex; align-items: center; justify-content: center;
+    }
+    .pk-mood__titles { min-width: 0; }
+    .pk-mood__title { font-size: 0.86rem; font-weight: 800; color: var(--ink); letter-spacing: -0.2px; line-height: 1.4; }
+    .pk-mood__sub { font-size: 0.66rem; color: var(--ink-faint); line-height: 1.6; margin-top: 2px; }
+
+    .pk-mood__row {
+        display: flex; gap: 0.3rem; margin-top: 0.7rem;
+    }
+    .pk-mood__opt {
+        flex: 1; min-width: 0;
+        display: flex; flex-direction: column; align-items: center; gap: 3px;
+        background: transparent; border: 1px solid transparent;
+        border-radius: 12px; padding: 0.4rem 0.15rem;
+        cursor: pointer; font-family: inherit;
+        color: var(--ink-faint);
+        transition: transform 0.15s, background 0.2s, border-color 0.2s, color 0.2s;
+        -webkit-tap-highlight-color: transparent;
+    }
+    .pk-mood__opt:active { transform: scale(0.92); }
+    .pk-mood__face { display: flex; align-items: center; justify-content: center; }
+    .pk-mood__label { font-size: 0.6rem; font-weight: 600; line-height: 1.3; text-align: center; color: var(--ink-mid); }
+    .pk-mood__opt.is-selected {
+        background: #fff;
+        border-color: var(--warm-orange);
+        color: var(--warm-orange);
+        box-shadow: 0 3px 12px -4px rgba(194,85,47,0.4);
+    }
+    .pk-mood__opt.is-selected .pk-mood__label { color: var(--warm-orange-deep); font-weight: 800; }
+
+    /* حالت تشکر */
+    .pk-mood__thanks { display: flex; align-items: center; gap: 0.55rem; flex-wrap: wrap; }
+    .pk-mood__thanks-chip {
+        width: 26px; height: 26px; flex-shrink: 0;
+        border-radius: 50%;
+        background: var(--warm-orange); color: #fff;
+        display: flex; align-items: center; justify-content: center;
+    }
+    .pk-mood__thanks-text {
+        margin: 0; flex: 1; min-width: 120px;
+        font-size: 0.8rem; font-weight: 700; line-height: 1.7; color: var(--warm-orange-deep);
+    }
+    .pk-mood__change {
+        background: transparent; border: none; cursor: pointer; font-family: inherit;
+        font-size: 0.68rem; font-weight: 700; color: var(--ink-faint);
+        text-decoration: underline; padding: 2px 4px;
+    }
+    .pk-mood .is-hidden { display: none; }
+</style>
+@endpush
+
+{{-- ── منطق ثبت حال امروز (AJAX با fallback به ارسال عادی) ── --}}
+@push('scripts')
+<script>
+(function () {
+    var card = document.getElementById('pk-mood-card');
+    if (!card) return;
+    var form = document.getElementById('pk-mood-form');
+    var thanks = document.getElementById('pk-mood-thanks');
+    var changeBtn = document.getElementById('pk-mood-change');
+    var valueInput = document.getElementById('pk-mood-value');
+    var opts = form ? form.querySelectorAll('.pk-mood__opt') : [];
+
+    function showThanks() {
+        if (thanks) thanks.classList.remove('is-hidden');
+        if (form) form.classList.add('is-hidden');
+    }
+    function showForm() {
+        if (thanks) thanks.classList.add('is-hidden');
+        if (form) form.classList.remove('is-hidden');
+    }
+
+    // دکمهٔ «تغییر حال امروز» → نمایش دوبارهٔ گزینه‌ها
+    if (changeBtn) {
+        changeBtn.addEventListener('click', function () { showForm(); });
+    }
+
+    opts.forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            var mood = btn.getAttribute('data-mood');
+
+            // انتخابِ ظاهری
+            opts.forEach(function (o) {
+                var on = o === btn;
+                o.classList.toggle('is-selected', on);
+                o.setAttribute('aria-checked', on ? 'true' : 'false');
+            });
+            if (valueInput) valueInput.value = mood;
+
+            var token = form.querySelector('input[name="_token"]');
+            var csrf = token ? token.value : '';
+            var body = new URLSearchParams();
+            body.append('mood', mood);
+            body.append('_token', csrf);
+
+            fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: body.toString(),
+                credentials: 'same-origin'
+            }).then(function (r) {
+                if (!r.ok) throw new Error('bad status');
+                return r.json();
+            }).then(function (data) {
+                if (data && data.ok) {
+                    showThanks();
+                } else {
+                    throw new Error('not ok');
+                }
+            }).catch(function () {
+                // در صورت خطای شبکه/AJAX → ارسال عادی فرم (POST + redirect)
+                form.submit();
+            });
+        });
+    });
+})();
+</script>
+@endpush
 
 @push('scripts')
 <script>

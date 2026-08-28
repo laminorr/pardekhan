@@ -407,6 +407,9 @@ Route::prefix('panel')->name('panel.')->middleware([AuthenticateMember::class])-
         Route::get('/books', [\App\Http\Controllers\Panel\BookController::class, 'index'])->name('books.index');
         Route::get('/tickets/{ticket}', [TicketController::class, 'show'])->name('tickets.show');
 
+        // حال امروز
+        Route::post('/mood', [\App\Http\Controllers\Panel\MoodController::class, 'store'])->name('mood.store');
+
         // پیام‌ها
         Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
         Route::get('/messages/new', [MessageController::class, 'newConversation'])->name('messages.new');

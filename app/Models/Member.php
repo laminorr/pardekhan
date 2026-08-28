@@ -71,6 +71,19 @@ class Member extends Authenticatable
         return $this->hasMany(Registration::class);
     }
 
+    public function dailyMoods(): HasMany
+    {
+        return $this->hasMany(DailyMood::class);
+    }
+
+    /** حالِ ثبت‌شدهٔ امروز (به وقت تهران) یا null اگر هنوز ثبت نشده. */
+    public function todayMood(): ?DailyMood
+    {
+        $today = \Carbon\Carbon::now('Asia/Tehran')->toDateString();
+
+        return $this->dailyMoods()->whereDate('mood_date', $today)->first();
+    }
+
     public function hasWalletDebt(): bool
     {
         return $this->wallet_balance < 0;
