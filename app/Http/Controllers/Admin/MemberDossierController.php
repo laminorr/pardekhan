@@ -326,7 +326,7 @@ class MemberDossierController extends Controller
         $i = 0;
         foreach (DailyMood::LABELS as $value => $label) {
             $days = (int) ($counts[$value] ?? 0);
-            $this->addDataRow($writer, [$label, fa($days).' روز'], $i);
+            $this->addDataRow($writer, [$label, fa($days)], $i);
         }
 
         // فاصله بین خلاصه و ریز روزها
