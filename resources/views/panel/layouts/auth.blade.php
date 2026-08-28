@@ -31,7 +31,7 @@
         .auth-wrap { width: 100%; max-width: 410px; position: relative; z-index: 1; }
         .auth-logo { text-align: center; margin-bottom: 1.75rem; }
         .auth-logo .name { font-size: 1.9rem; font-weight: 800; letter-spacing: -0.5px; color: var(--pine); }
-        .auth-logo .sub { font-size: 0.68rem; color: var(--ink-faint); letter-spacing: 3px; margin-top: 3px; font-weight: 600; }
+        .auth-logo .sub { font-size: 0.68rem; color: var(--ink-faint); letter-spacing: 0; margin-top: 3px; font-weight: 600; }
 
         .auth-card {
             background: linear-gradient(180deg, #ffffff, #fbfcfb);

@@ -232,7 +232,7 @@
     .pk-hero__ringwrap { position: relative; width: 152px; height: 152px; margin: 1.1rem auto 0; }
     .pk-hero__ring { display: block; }
     .pk-hero__ringtext { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-    .pk-hero__ringlabel { font-size: 0.6rem; letter-spacing: 3px; color: rgba(255,255,255,0.6); font-weight: 700; }
+    .pk-hero__ringlabel { font-size: 0.6rem; letter-spacing: 0; color: rgba(255,255,255,0.6); font-weight: 700; }
     .pk-hero__tier { font-size: 1.7rem; font-weight: 800; color: #fff; line-height: 1.05; margin-top: 3px; letter-spacing: -0.5px; }
     .pk-hero__score { display: flex; align-items: baseline; gap: 4px; margin-top: 4px; color: #fff; }
     .pk-hero__score b { font-size: 1.05rem; }
