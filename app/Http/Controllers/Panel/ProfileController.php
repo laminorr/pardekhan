@@ -20,13 +20,18 @@ class ProfileController extends Controller
         $member = auth('member')->user();
 
         $request->validate([
-            'birth_date' => ['nullable', 'date'],
+            // تاریخ تولد باید میلادی و در بازهٔ منطقی باشد؛ این از ذخیرهٔ اشتباهِ
+            // سالِ شمسی به‌جای میلادی (مثلاً ۱۳۶۴ به‌جای ۱۹۸۵) جلوگیری می‌کند.
+            'birth_date' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:1900-01-01', 'before_or_equal:today'],
             'city'       => ['nullable', 'string', 'max:50'],
             'job'        => ['nullable', 'string', 'max:100'],
             'education'  => ['nullable', 'string', 'max:100'],
             'bio'        => ['nullable', 'string', 'max:500'],
             'avatar'     => ['nullable', 'image', 'max:2048', 'mimes:jpg,jpeg,png'],
         ], [
+            'birth_date.date_format'     => 'تاریخ تولد نامعتبر است',
+            'birth_date.after_or_equal'  => 'تاریخ تولد نامعتبر است',
+            'birth_date.before_or_equal' => 'تاریخ تولد نمی‌تواند در آینده باشد',
             'avatar.image' => 'فایل باید تصویر باشد',
             'avatar.max'   => 'حجم تصویر نباید بیشتر از ۲ مگابایت باشد',
             'avatar.mimes' => 'فرمت تصویر باید jpg یا png باشد',

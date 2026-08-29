@@ -2,7 +2,7 @@
 @section('title', 'پروفایل')
 
 @push('styles')
-<link rel="stylesheet" href="https://unpkg.com/persian-datepicker@1.2.0/dist/css/persian-datepicker.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@majidh1/jalalidatepicker@1.0.0/dist/jalalidatepicker.min.css">
 <style>
     .menu-row { display:flex; align-items:center; gap:0.85rem; padding:0.95rem 1rem; cursor:pointer; background:none; border:none; width:100%; font-family:inherit; text-align:right; text-decoration:none; color:inherit; }
     .menu-row:not(:last-child) { border-bottom:1px solid #f3f4f3; }
@@ -10,12 +10,9 @@
     .menu-row .label { flex:1; font-size:0.9rem; font-weight:700; }
     .collapse { max-height:0; opacity:0; overflow:hidden; transition:max-height 0.4s ease, opacity 0.3s; }
     .collapse.open { max-height:1200px; opacity:1; }
-    /* هماهنگ‌سازی رنگ تقویم با تم سبز */
-    .datepicker-plot-area { font-family:'Vazirmatn',sans-serif !important; }
-    .datepicker-day-view .table-days td.selected,
-    .datepicker-month-view .month.selected,
-    .datepicker-year-view .year.selected { background:var(--pine) !important; }
-    .datepicker-day-view .table-days td span:hover { background:var(--green-soft) !important; color:var(--pine) !important; }
+    /* هماهنگ‌سازی تقویم شمسی (JalaliDatePicker) با تم سبز */
+    jdp-container { --jdp-primary: var(--pine); font-family:'Vazirmatn',sans-serif !important; direction:rtl; }
+    jdp-container .jdp-day:not(.disabled-day):hover { background:var(--green-soft) !important; color:var(--pine) !important; }
 </style>
 @endpush
 
@@ -82,7 +79,7 @@
         <div class="field"><label>شغل</label><input type="text" name="job" value="{{ old('job', $member->job) }}" placeholder="شغل یا حوزه فعالیت"></div>
         <div class="field"><label>تحصیلات</label><input type="text" name="education" value="{{ old('education', $member->education) }}" placeholder="میزان تحصیلات"></div>
         <div class="field"><label>تاریخ تولد</label>
-            <input type="text" id="birth_date_display" readonly placeholder="انتخاب تاریخ تولد" autocomplete="off"
+            <input type="text" id="birth_date_display" data-jdp data-jdp-max-date="today" readonly placeholder="انتخاب تاریخ تولد" autocomplete="off"
                 value="{{ $member->birth_date ? \Morilog\Jalali\Jalalian::fromDateTime($member->birth_date)->format('Y/m/d') : '' }}"
                 style="direction:rtl;text-align:right;cursor:pointer;background:var(--surface);">
             <input type="hidden" name="birth_date" id="birth_date_value" value="{{ old('birth_date', $member->birth_date?->format('Y-m-d')) }}">
@@ -137,9 +134,7 @@
 @endsection
 
 @push('scripts')
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://unpkg.com/persian-date@1.1.0/dist/persian-date.min.js"></script>
-<script src="https://unpkg.com/persian-datepicker@1.2.0/dist/js/persian-datepicker.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@majidh1/jalalidatepicker@1.0.0/dist/jalalidatepicker.min.js"></script>
 <script>
     function toggleSection(id) {
         var el = document.getElementById('section-' + id);
@@ -150,26 +145,91 @@
     }
 
     // راه‌اندازی تقویم شمسی برای تاریخ تولد
-    $(function () {
-        var $display = $('#birth_date_display');
-        var hidden = document.getElementById('birth_date_value');
-
-        // مقدار اولیه (اگر تاریخ میلادی ذخیره شده)
-        var initial = false;
-
-        $display.persianDatepicker({
-            format: 'YYYY/MM/DD',
-            initialValue: !!initial,
-            initialValueType: 'gregorian',
-            observer: true,
-            calendar: { persian: { locale: 'fa' } },
-            toolbox: { calendarSwitch: { enabled: false } },
-            onSelect: function (unix) {
-                // تبدیل به میلادی برای ذخیره در دیتابیس
-                var g = new persianDate(unix).toCalendar('gregorian').toLocale('en');
-                hidden.value = g.format('YYYY-MM-DD');
+    (function () {
+        // --- تبدیل تاریخ جلالی به میلادی (jalaali-js، مجوز MIT) ---
+        function div(a, b) { return ~~(a / b); }
+        function mod(a, b) { return a - ~~(a / b) * b; }
+        var BREAKS = [-61, 9, 38, 199, 426, 686, 756, 818, 1111, 1181, 1210, 1635, 2060, 2097, 2192, 2262, 2324, 2394, 2456, 3178];
+        function jalCal(jy) {
+            var bl = BREAKS.length, gy = jy + 621, leapJ = -14, jp = BREAKS[0],
+                jm, jump, leapG, march, n, i;
+            if (jy < jp || jy >= BREAKS[bl - 1]) throw new Error('Invalid Jalaali year ' + jy);
+            for (i = 1; i < bl; i += 1) {
+                jm = BREAKS[i];
+                jump = jm - jp;
+                if (jy < jm) break;
+                leapJ = leapJ + div(jump, 33) * 8 + div(mod(jump, 33), 4);
+                jp = jm;
             }
-        });
-    });
+            n = jy - jp;
+            leapJ = leapJ + div(n, 33) * 8 + div(mod(n, 33) + 3, 4);
+            if (mod(jump, 33) === 4 && jump - n === 4) leapJ += 1;
+            leapG = div(gy, 4) - div((div(gy, 100) + 1) * 3, 4) - 150;
+            march = 20 + leapJ - leapG;
+            return { gy: gy, march: march };
+        }
+        function g2d(gy, gm, gd) {
+            var d = div((gy + div(gm - 8, 6) + 100100) * 1461, 4)
+                  + div(153 * mod(gm + 9, 12) + 2, 5)
+                  + gd - 34840408;
+            d = d - div(div(gy + 100100 + div(gm - 8, 6), 100) * 3, 4) + 752;
+            return d;
+        }
+        function d2g(jdn) {
+            var j = 4 * jdn + 139361631;
+            j = j + div(div(4 * jdn + 183187720, 146097) * 3, 4) * 4 - 3908;
+            var i = div(mod(j, 1461), 4) * 5 + 308;
+            var gd = div(mod(i, 153), 5) + 1;
+            var gm = mod(div(i, 153), 12) + 1;
+            var gy = div(j, 1461) - 100100 + div(8 - gm, 6);
+            return { gy: gy, gm: gm, gd: gd };
+        }
+        function j2d(jy, jm, jd) {
+            var r = jalCal(jy);
+            return g2d(r.gy, 3, r.march) + (jm - 1) * 31 - div(jm, 7) * (jm - 7) + jd - 1;
+        }
+        function jalaliToGregorian(jy, jm, jd) { return d2g(j2d(jy, jm, jd)); }
+
+        function normalizeDigits(s) {
+            // ارقام فارسی و عربی را به لاتین تبدیل کن
+            return String(s)
+                .replace(/[۰-۹]/g, function (c) { return c.charCodeAt(0) - 0x06F0; })
+                .replace(/[٠-٩]/g, function (c) { return c.charCodeAt(0) - 0x0660; });
+        }
+        function pad2(n) { return (n < 10 ? '0' : '') + n; }
+
+        var display = document.getElementById('birth_date_display');
+        var hidden  = document.getElementById('birth_date_value');
+
+        // راه‌اندازی تقویم؛ تاریخ آینده قابل انتخاب نیست
+        if (window.jalaliDatepicker) {
+            jalaliDatepicker.startWatch({
+                time: false,
+                persianDigits: false,
+                autoShow: true,
+                autoHide: true,
+                hideAfterChange: true,
+                maxDate: 'today',
+                minDate: { year: 1300, month: 1, day: 1 },
+                separatorChars: { date: '/' }
+            });
+        }
+
+        // با هر انتخاب/پاک‌کردن، مقدار میلادی معتبر را در فیلد مخفی بنویس
+        if (display && hidden) {
+            display.addEventListener('change', function () {
+                var raw = normalizeDigits((display.value || '').trim());
+                var m = raw.match(/^(\d{4})\/(\d{1,2})\/(\d{1,2})$/);
+                if (!m) { hidden.value = ''; return; }
+                var jy = +m[1], jm = +m[2], jd = +m[3];
+                try {
+                    var g = jalaliToGregorian(jy, jm, jd);
+                    hidden.value = g.gy + '-' + pad2(g.gm) + '-' + pad2(g.gd);
+                } catch (e) {
+                    hidden.value = '';
+                }
+            });
+        }
+    })();
 </script>
 @endpush
