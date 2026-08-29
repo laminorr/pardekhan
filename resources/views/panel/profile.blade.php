@@ -2,7 +2,6 @@
 @section('title', 'پروفایل')
 
 @push('styles')
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@majidh1/jalalidatepicker@1.0.0/dist/jalalidatepicker.min.css">
 <style>
     .menu-row { display:flex; align-items:center; gap:0.85rem; padding:0.95rem 1rem; cursor:pointer; background:none; border:none; width:100%; font-family:inherit; text-align:right; text-decoration:none; color:inherit; }
     .menu-row:not(:last-child) { border-bottom:1px solid #f3f4f3; }
@@ -10,9 +9,10 @@
     .menu-row .label { flex:1; font-size:0.9rem; font-weight:700; }
     .collapse { max-height:0; opacity:0; overflow:hidden; transition:max-height 0.4s ease, opacity 0.3s; }
     .collapse.open { max-height:1200px; opacity:1; }
-    /* هماهنگ‌سازی تقویم شمسی (JalaliDatePicker) با تم سبز */
-    jdp-container { --jdp-primary: var(--pine); font-family:'Vazirmatn',sans-serif !important; direction:rtl; }
-    jdp-container .jdp-day:not(.disabled-day):hover { background:var(--green-soft) !important; color:var(--pine) !important; }
+    /* سه منوی کشویی تاریخ تولد (سال/ماه/روز) — بدون کتابخانهٔ خارجی */
+    .birth-selects { display:flex; gap:0.6rem; direction:rtl; }
+    .birth-selects select { flex:1; min-width:0; text-align:right; background:var(--surface); font-family:inherit; }
+    @media (max-width:360px) { .birth-selects { flex-direction:column; } }
 </style>
 @endpush
 
@@ -79,22 +79,46 @@
         <div class="field"><label>شغل</label><input type="text" name="job" value="{{ old('job', $member->job) }}" placeholder="شغل یا حوزه فعالیت"></div>
         <div class="field"><label>تحصیلات</label><input type="text" name="education" value="{{ old('education', $member->education) }}" placeholder="میزان تحصیلات"></div>
         @php
-            // مقدار اولیهٔ نمایش باید همیشه YYYY/MM/DD با ماه و روزِ دو رقمی باشد؛
-            // نسخهٔ Morilog با format('Y/m/d') گاهی تک‌رقمی می‌دهد (مثلاً 1364/4/12)
-            // و JalaliDatePicker در get initDate روی این حالت کرش می‌کند و باز نمی‌شود.
-            $birthJalali = '';
-            if ($member->birth_date) {
+            // تاریخ تولد به‌صورت سه منوی کشویی جلالی (سال/ماه/روز) گرفته می‌شود و
+            // در کنترلر به میلادی تبدیل و ذخیره می‌شود. مقدار فعلیِ عضو (میلادی) را
+            // به جلالی تبدیل می‌کنیم تا گزینهٔ متناظر از پیش انتخاب شود.
+            $persianMonths = ['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
+            $currentJalaliYear = \Morilog\Jalali\Jalalian::now()->getYear();
+
+            $selYear = old('birth_year');
+            $selMonth = old('birth_month');
+            $selDay = old('birth_day');
+            if ($selYear === null && $selMonth === null && $selDay === null && $member->birth_date) {
                 $j = \Morilog\Jalali\Jalalian::fromDateTime($member->birth_date);
-                $birthJalali = $j->getYear()
-                    . '/' . str_pad((string) $j->getMonth(), 2, '0', STR_PAD_LEFT)
-                    . '/' . str_pad((string) $j->getDay(), 2, '0', STR_PAD_LEFT);
+                $selYear = $j->getYear();
+                $selMonth = $j->getMonth();
+                $selDay = $j->getDay();
             }
+            $selYear = $selYear !== null && $selYear !== '' ? (int) $selYear : null;
+            $selMonth = $selMonth !== null && $selMonth !== '' ? (int) $selMonth : null;
+            $selDay = $selDay !== null && $selDay !== '' ? (int) $selDay : null;
         @endphp
         <div class="field"><label>تاریخ تولد</label>
-            <input type="text" id="birth_date_display" data-jdp data-jdp-max-date="today" readonly placeholder="انتخاب تاریخ تولد" autocomplete="off"
-                value="{{ $birthJalali }}"
-                style="direction:rtl;text-align:right;cursor:pointer;background:var(--surface);">
-            <input type="hidden" name="birth_date" id="birth_date_value" value="{{ old('birth_date', $member->birth_date?->format('Y-m-d')) }}">
+            <div class="birth-selects">
+                <select name="birth_year" aria-label="سال تولد">
+                    <option value="">سال</option>
+                    @for ($y = $currentJalaliYear; $y >= 1300; $y--)
+                        <option value="{{ $y }}" @selected($selYear === $y)>{{ fa($y) }}</option>
+                    @endfor
+                </select>
+                <select name="birth_month" aria-label="ماه تولد">
+                    <option value="">ماه</option>
+                    @foreach ($persianMonths as $i => $name)
+                        <option value="{{ $i + 1 }}" @selected($selMonth === $i + 1)>{{ $name }}</option>
+                    @endforeach
+                </select>
+                <select name="birth_day" aria-label="روز تولد">
+                    <option value="">روز</option>
+                    @for ($d = 1; $d <= 31; $d++)
+                        <option value="{{ $d }}" @selected($selDay === $d)>{{ fa($d) }}</option>
+                    @endfor
+                </select>
+            </div>
         </div>
         <div class="field"><label>معرفی کوتاه</label><textarea name="bio" rows="3" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:0.9rem 1rem;color:var(--ink);font-family:inherit;resize:vertical;" placeholder="چند جمله درباره خودتان...">{{ old('bio', $member->bio) }}</textarea></div>
         @if(!$member->profile_completed)
@@ -146,7 +170,6 @@
 @endsection
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/@majidh1/jalalidatepicker@1.0.0/dist/jalalidatepicker.min.js"></script>
 <script>
     function toggleSection(id) {
         var el = document.getElementById('section-' + id);
@@ -155,103 +178,5 @@
             setTimeout(function(){ el.scrollIntoView({behavior:'smooth', block:'nearest'}); }, 100);
         }
     }
-
-    // راه‌اندازی تقویم شمسی برای تاریخ تولد
-    (function () {
-        // --- تبدیل تاریخ جلالی به میلادی (jalaali-js، مجوز MIT) ---
-        function div(a, b) { return ~~(a / b); }
-        function mod(a, b) { return a - ~~(a / b) * b; }
-        var BREAKS = [-61, 9, 38, 199, 426, 686, 756, 818, 1111, 1181, 1210, 1635, 2060, 2097, 2192, 2262, 2324, 2394, 2456, 3178];
-        function jalCal(jy) {
-            var bl = BREAKS.length, gy = jy + 621, leapJ = -14, jp = BREAKS[0],
-                jm, jump, leapG, march, n, i;
-            if (jy < jp || jy >= BREAKS[bl - 1]) throw new Error('Invalid Jalaali year ' + jy);
-            for (i = 1; i < bl; i += 1) {
-                jm = BREAKS[i];
-                jump = jm - jp;
-                if (jy < jm) break;
-                leapJ = leapJ + div(jump, 33) * 8 + div(mod(jump, 33), 4);
-                jp = jm;
-            }
-            n = jy - jp;
-            leapJ = leapJ + div(n, 33) * 8 + div(mod(n, 33) + 3, 4);
-            if (mod(jump, 33) === 4 && jump - n === 4) leapJ += 1;
-            leapG = div(gy, 4) - div((div(gy, 100) + 1) * 3, 4) - 150;
-            march = 20 + leapJ - leapG;
-            return { gy: gy, march: march };
-        }
-        function g2d(gy, gm, gd) {
-            var d = div((gy + div(gm - 8, 6) + 100100) * 1461, 4)
-                  + div(153 * mod(gm + 9, 12) + 2, 5)
-                  + gd - 34840408;
-            d = d - div(div(gy + 100100 + div(gm - 8, 6), 100) * 3, 4) + 752;
-            return d;
-        }
-        function d2g(jdn) {
-            var j = 4 * jdn + 139361631;
-            j = j + div(div(4 * jdn + 183187720, 146097) * 3, 4) * 4 - 3908;
-            var i = div(mod(j, 1461), 4) * 5 + 308;
-            var gd = div(mod(i, 153), 5) + 1;
-            var gm = mod(div(i, 153), 12) + 1;
-            var gy = div(j, 1461) - 100100 + div(8 - gm, 6);
-            return { gy: gy, gm: gm, gd: gd };
-        }
-        function j2d(jy, jm, jd) {
-            var r = jalCal(jy);
-            return g2d(r.gy, 3, r.march) + (jm - 1) * 31 - div(jm, 7) * (jm - 7) + jd - 1;
-        }
-        function jalaliToGregorian(jy, jm, jd) { return d2g(j2d(jy, jm, jd)); }
-
-        function normalizeDigits(s) {
-            // ارقام فارسی و عربی را به لاتین تبدیل کن
-            return String(s)
-                .replace(/[۰-۹]/g, function (c) { return c.charCodeAt(0) - 0x06F0; })
-                .replace(/[٠-٩]/g, function (c) { return c.charCodeAt(0) - 0x0660; });
-        }
-        function pad2(n) { return (n < 10 ? '0' : '') + n; }
-
-        var display = document.getElementById('birth_date_display');
-        var hidden  = document.getElementById('birth_date_value');
-
-        // ایمنی: مقدار اولیه را همیشه به YYYY/MM/DD دو رقمی نرمال کن تا
-        // get initDate در کتابخانه روی مقدار تک‌رقمی کرش نکند و تقویم باز شود.
-        if (display && display.value) {
-            var nv = normalizeDigits(display.value.trim())
-                .match(/^(\d{4})\/(\d{1,2})\/(\d{1,2})$/);
-            if (nv) {
-                display.value = nv[1] + '/' + pad2(+nv[2]) + '/' + pad2(+nv[3]);
-            }
-        }
-
-        // راه‌اندازی تقویم؛ تاریخ آینده قابل انتخاب نیست
-        if (window.jalaliDatepicker) {
-            jalaliDatepicker.startWatch({
-                time: false,
-                persianDigits: false,
-                autoShow: true,
-                autoHide: true,
-                hideAfterChange: true,
-                maxDate: 'today',
-                minDate: { year: 1300, month: 1, day: 1 },
-                separatorChars: { date: '/' }
-            });
-        }
-
-        // با هر انتخاب/پاک‌کردن، مقدار میلادی معتبر را در فیلد مخفی بنویس
-        if (display && hidden) {
-            display.addEventListener('change', function () {
-                var raw = normalizeDigits((display.value || '').trim());
-                var m = raw.match(/^(\d{4})\/(\d{1,2})\/(\d{1,2})$/);
-                if (!m) { hidden.value = ''; return; }
-                var jy = +m[1], jm = +m[2], jd = +m[3];
-                try {
-                    var g = jalaliToGregorian(jy, jm, jd);
-                    hidden.value = g.gy + '-' + pad2(g.gm) + '-' + pad2(g.gd);
-                } catch (e) {
-                    hidden.value = '';
-                }
-            });
-        }
-    })();
 </script>
 @endpush

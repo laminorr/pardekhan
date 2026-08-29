@@ -19,25 +19,52 @@ class ProfileController extends Controller
     {
         $member = auth('member')->user();
 
+        // تاریخ تولد به‌صورت سه فیلد جلالی (سال/ماه/روز) گرفته می‌شود و در ادامه
+        // به میلادی تبدیل و ذخیره می‌شود. سقفِ سال، سالِ جاریِ جلالی است.
+        $currentJalaliYear = \Morilog\Jalali\Jalalian::now()->getYear();
+
         $request->validate([
-            // تاریخ تولد باید میلادی و در بازهٔ منطقی باشد؛ این از ذخیرهٔ اشتباهِ
-            // سالِ شمسی به‌جای میلادی (مثلاً ۱۳۶۴ به‌جای ۱۹۸۵) جلوگیری می‌کند.
-            'birth_date' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:1900-01-01', 'before_or_equal:today'],
-            'city'       => ['nullable', 'string', 'max:50'],
-            'job'        => ['nullable', 'string', 'max:100'],
-            'education'  => ['nullable', 'string', 'max:100'],
-            'bio'        => ['nullable', 'string', 'max:500'],
-            'avatar'     => ['nullable', 'image', 'max:2048', 'mimes:jpg,jpeg,png'],
+            'birth_year'  => ['nullable', 'integer', 'between:1300,' . $currentJalaliYear],
+            'birth_month' => ['nullable', 'integer', 'between:1,12'],
+            'birth_day'   => ['nullable', 'integer', 'between:1,31'],
+            'city'        => ['nullable', 'string', 'max:50'],
+            'job'         => ['nullable', 'string', 'max:100'],
+            'education'   => ['nullable', 'string', 'max:100'],
+            'bio'         => ['nullable', 'string', 'max:500'],
+            'avatar'      => ['nullable', 'image', 'max:2048', 'mimes:jpg,jpeg,png'],
         ], [
-            'birth_date.date_format'     => 'تاریخ تولد نامعتبر است',
-            'birth_date.after_or_equal'  => 'تاریخ تولد نامعتبر است',
-            'birth_date.before_or_equal' => 'تاریخ تولد نمی‌تواند در آینده باشد',
+            'birth_year.integer'  => 'تاریخ تولد نامعتبر است',
+            'birth_year.between'  => 'تاریخ تولد نامعتبر است',
+            'birth_month.integer' => 'تاریخ تولد نامعتبر است',
+            'birth_month.between' => 'تاریخ تولد نامعتبر است',
+            'birth_day.integer'   => 'تاریخ تولد نامعتبر است',
+            'birth_day.between'   => 'تاریخ تولد نامعتبر است',
             'avatar.image' => 'فایل باید تصویر باشد',
             'avatar.max'   => 'حجم تصویر نباید بیشتر از ۲ مگابایت باشد',
             'avatar.mimes' => 'فرمت تصویر باید jpg یا png باشد',
         ]);
 
-        $data = $request->only(['birth_date', 'city', 'job', 'education', 'bio']);
+        $data = $request->only(['city', 'job', 'education', 'bio']);
+
+        // ساخت تاریخ میلادی از سه فیلد جلالی. یا هر سه پر هستند یا هر سه خالی.
+        $jy = $request->filled('birth_year') ? (int) $request->input('birth_year') : null;
+        $jm = $request->filled('birth_month') ? (int) $request->input('birth_month') : null;
+        $jd = $request->filled('birth_day') ? (int) $request->input('birth_day') : null;
+
+        if ($jy !== null || $jm !== null || $jd !== null) {
+            // اگر بخشی پر و بخشی خالی باشد، یا تاریخ جلالی واقعی نباشد، خطا بده.
+            if ($jy === null || $jm === null || $jd === null
+                || ! \Morilog\Jalali\CalendarUtils::checkDate($jy, $jm, $jd, true)) {
+                return back()
+                    ->withErrors(['birth_year' => 'تاریخ تولد نامعتبر است'])
+                    ->withInput();
+            }
+
+            [$gy, $gm, $gd] = \Morilog\Jalali\CalendarUtils::toGregorian($jy, $jm, $jd);
+            $data['birth_date'] = sprintf('%04d-%02d-%02d', $gy, $gm, $gd);
+        } else {
+            $data['birth_date'] = null;
+        }
 
         // آپلود عکس
         if ($request->hasFile('avatar')) {
