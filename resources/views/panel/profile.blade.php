@@ -78,9 +78,21 @@
         <div class="field"><label>شهر</label><input type="text" name="city" value="{{ old('city', $member->city) }}" placeholder="مثلاً تهران"></div>
         <div class="field"><label>شغل</label><input type="text" name="job" value="{{ old('job', $member->job) }}" placeholder="شغل یا حوزه فعالیت"></div>
         <div class="field"><label>تحصیلات</label><input type="text" name="education" value="{{ old('education', $member->education) }}" placeholder="میزان تحصیلات"></div>
+        @php
+            // مقدار اولیهٔ نمایش باید همیشه YYYY/MM/DD با ماه و روزِ دو رقمی باشد؛
+            // نسخهٔ Morilog با format('Y/m/d') گاهی تک‌رقمی می‌دهد (مثلاً 1364/4/12)
+            // و JalaliDatePicker در get initDate روی این حالت کرش می‌کند و باز نمی‌شود.
+            $birthJalali = '';
+            if ($member->birth_date) {
+                $j = \Morilog\Jalali\Jalalian::fromDateTime($member->birth_date);
+                $birthJalali = $j->getYear()
+                    . '/' . str_pad((string) $j->getMonth(), 2, '0', STR_PAD_LEFT)
+                    . '/' . str_pad((string) $j->getDay(), 2, '0', STR_PAD_LEFT);
+            }
+        @endphp
         <div class="field"><label>تاریخ تولد</label>
             <input type="text" id="birth_date_display" data-jdp data-jdp-max-date="today" readonly placeholder="انتخاب تاریخ تولد" autocomplete="off"
-                value="{{ $member->birth_date ? \Morilog\Jalali\Jalalian::fromDateTime($member->birth_date)->format('Y/m/d') : '' }}"
+                value="{{ $birthJalali }}"
                 style="direction:rtl;text-align:right;cursor:pointer;background:var(--surface);">
             <input type="hidden" name="birth_date" id="birth_date_value" value="{{ old('birth_date', $member->birth_date?->format('Y-m-d')) }}">
         </div>
@@ -200,6 +212,16 @@
 
         var display = document.getElementById('birth_date_display');
         var hidden  = document.getElementById('birth_date_value');
+
+        // ایمنی: مقدار اولیه را همیشه به YYYY/MM/DD دو رقمی نرمال کن تا
+        // get initDate در کتابخانه روی مقدار تک‌رقمی کرش نکند و تقویم باز شود.
+        if (display && display.value) {
+            var nv = normalizeDigits(display.value.trim())
+                .match(/^(\d{4})\/(\d{1,2})\/(\d{1,2})$/);
+            if (nv) {
+                display.value = nv[1] + '/' + pad2(+nv[2]) + '/' + pad2(+nv[3]);
+            }
+        }
 
         // راه‌اندازی تقویم؛ تاریخ آینده قابل انتخاب نیست
         if (window.jalaliDatepicker) {
