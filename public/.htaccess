@@ -30,3 +30,15 @@ RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+# ── PWA: نوع محتوای مانیفست + به‌روزرسانی سریع service worker ──
+<IfModule mod_mime.c>
+    AddType application/manifest+json .webmanifest
+</IfModule>
+
+<IfModule mod_headers.c>
+    # service worker همیشه تازه بارگیری شود تا نسخهٔ جدید سریع اعمال گردد
+    <Files "sw.js">
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+    </Files>
+</IfModule>
