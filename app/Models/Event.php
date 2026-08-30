@@ -53,6 +53,12 @@ class Event extends Model
     }
 
     // ── Helpers ────────────────────────────────────────
+    // آیا این دورهمی شرح صوتی (قسمت پادکست) دارد؟
+    public function hasVoice(): bool
+    {
+        return ! empty($this->voice_url);
+    }
+
     public function confirmedCount(): int
     {
         return $this->registrations()

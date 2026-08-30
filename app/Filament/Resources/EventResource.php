@@ -6,6 +6,7 @@ use App\Filament\Resources\EventResource\Pages;
 use App\Models\Event;
 use App\Models\Layer;
 use App\Models\Venue;
+use App\Services\PodcastService;
 use BackedEnum;
 use Filament\Forms;
 use Filament\Resources\Resource;
@@ -49,6 +50,58 @@ class EventResource extends Resource
                             ->fileAttachmentsDisk('public')
                             ->fileAttachmentsDirectory('events/inline')
                             ->columnSpanFull(),
+
+                        // شرح صوتی: قسمتی از پادکست «باهم کتاب» (اختیاری)
+                        // مقدار = آدرس فایل صوتی (enclosure)؛ عنوان و guid در فیلدهای مخفی ذخیره می‌شوند
+                        // تا صفحهٔ عضو نیازی به خواندن فید نداشته باشد. جست‌وجو سمت سرور روی لیست کش‌شده انجام می‌شود.
+                        Forms\Components\Select::make('voice_url')
+                            ->label('شرح صوتی دورهمی (اختیاری)')
+                            ->placeholder('انتخاب قسمت از پادکست باهم کتاب')
+                            ->native(false)
+                            ->searchable()
+                            ->live()
+                            ->helperText('یک قسمت از پادکست «باهم کتاب» را انتخاب کنید تا زیر توضیحات دورهمی پخش شود.')
+                            ->getSearchResultsUsing(function (string $search): array {
+                                $search = trim($search);
+                                $out = [];
+                                foreach (PodcastService::flatEpisodes('bahamketab', 1000) as $ep) {
+                                    if ($search !== '' && mb_stripos($ep['title'], $search) === false) {
+                                        continue;
+                                    }
+                                    $out[$ep['url']] = $ep['title'] . ($ep['duration'] ? ' · ' . $ep['duration'] : '');
+                                    if (count($out) >= 50) {
+                                        break;
+                                    }
+                                }
+                                return $out;
+                            })
+                            ->getOptionLabelUsing(function ($value, $record) {
+                                foreach (PodcastService::flatEpisodes('bahamketab', 1000) as $ep) {
+                                    if ($ep['url'] === $value) {
+                                        return $ep['title'] . ($ep['duration'] ? ' · ' . $ep['duration'] : '');
+                                    }
+                                }
+                                // اگر فید تغییر کرده، از عنوان ذخیره‌شده استفاده کن
+                                return $record?->voice_title ?: $value;
+                            })
+                            ->afterStateUpdated(function ($state, callable $set): void {
+                                if (! $state) {
+                                    $set('voice_title', null);
+                                    $set('voice_guid', null);
+                                    return;
+                                }
+                                foreach (PodcastService::flatEpisodes('bahamketab', 1000) as $ep) {
+                                    if ($ep['url'] === $state) {
+                                        $set('voice_title', $ep['title']);
+                                        $set('voice_guid', $ep['id']);
+                                        return;
+                                    }
+                                }
+                            })
+                            ->columnSpanFull(),
+                        Forms\Components\Hidden::make('voice_title'),
+                        Forms\Components\Hidden::make('voice_guid'),
+
                         Forms\Components\FileUpload::make('image')
                             ->label('تصویر دورهمی')
                             ->image()

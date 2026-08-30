@@ -19,6 +19,10 @@ class PodcastService
             'setting_key'   => 'podcast_rss_url_hegemony',
             'default_title' => 'هژمونی',
         ],
+        'bahamketab' => [
+            'setting_key'   => 'podcast_rss_url_bahamketab',
+            'default_title' => 'باهم کتاب',
+        ],
     ];
 
     /**
@@ -74,7 +78,31 @@ class PodcastService
     }
 
     /**
-     * پاک کردن کش هر دو پادکست (برای دکمه «به‌روزرسانی» در ادمین)
+     * فهرست تخت قسمت‌ها برای انتخاب در ادمین/پخش:
+     * فقط قسمت‌هایی که فایل صوتی (enclosure) دارند.
+     * خروجی هر آیتم: ['id'=>guid, 'title'=>..., 'url'=>enclosure, 'duration'=>humanDuration, 'episode'=>شماره]
+     */
+    public static function flatEpisodes(string $slug = 'bahamketab', int $limit = 1000): array
+    {
+        $data = self::episodes($slug, $limit);
+        $out = [];
+        foreach ($data['episodes'] as $ep) {
+            if (empty($ep['audio'])) {
+                continue;
+            }
+            $out[] = [
+                'id'       => $ep['guid'] ?? '',
+                'title'    => $ep['title'],
+                'url'      => $ep['audio'],
+                'duration' => self::humanDuration($ep['duration'] ?? ''),
+                'episode'  => $ep['episode'] ?? '',
+            ];
+        }
+        return $out;
+    }
+
+    /**
+     * پاک کردن کش هر سه پادکست (برای دکمه «به‌روزرسانی» در ادمین)
      */
     public static function clearCache(): void
     {
@@ -206,6 +234,8 @@ class PodcastService
                     'link'        => (string) $item->link,
                     'duration'    => (string) ($itItunes->duration ?? ''),
                     'pubDate'     => (string) $item->pubDate,
+                    'guid'        => trim((string) $item->guid),
+                    'episode'     => (string) ($itItunes->episode ?? ''),
                 ];
                 $count++;
             }

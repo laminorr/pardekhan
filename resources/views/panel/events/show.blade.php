@@ -15,6 +15,32 @@
     .ev-map { margin-top:1.3rem; height:120px; border-radius:18px; background:var(--green-line); position:relative; overflow:hidden; border:1px solid var(--border-2); }
     .ev-map-grid { position:absolute; inset:0; background-image:linear-gradient(#dde2df 1px,transparent 1px),linear-gradient(90deg,#dde2df 1px,transparent 1px); background-size:26px 26px; }
     .ev-paybar { position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:100%; max-width:430px; background:rgba(252,252,251,0.96); backdrop-filter:blur(10px); border-top:1px solid var(--border); padding:1rem 1.2rem calc(1rem + env(safe-area-inset-bottom)); display:flex; align-items:center; justify-content:space-between; gap:1rem; z-index:60; }
+
+    /* پخش‌کنندهٔ شرح صوتی (بدون کاور) — هم‌سبک با پلیر پادکست */
+    .voice-box { margin-top:1.1rem; background:var(--green-tint); border:1px solid var(--green-soft); border-radius:16px; padding:0.85rem 0.9rem; transition:background 0.3s, border-color 0.3s; }
+    .voice-box.playing { background:#e3efe9; border-color:var(--pine); box-shadow:0 8px 26px -10px rgba(47,93,80,0.28); }
+    .voice-head { display:flex; align-items:center; gap:0.6rem; }
+    .voice-ico { width:38px; height:38px; border-radius:12px; background:var(--green-soft); display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:box-shadow 0.3s; }
+    .voice-box.playing .voice-ico { box-shadow:0 0 0 3px rgba(47,93,80,0.18); }
+    .voice-meta { flex:1; min-width:0; }
+    .voice-label { font-size:0.66rem; font-weight:800; color:var(--pine); letter-spacing:0.2px; }
+    .voice-title { font-size:0.82rem; font-weight:700; color:var(--ink); margin-top:2px; line-height:1.5; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .voice-nowplaying { display:none; align-items:center; gap:5px; margin-top:4px; }
+    .voice-box.playing .voice-nowplaying { display:inline-flex; }
+    .voice-eq { display:inline-flex; align-items:flex-end; gap:2px; height:11px; }
+    .voice-eq span { width:2.5px; background:var(--pine); border-radius:2px; animation:voiceEq 0.9s ease-in-out infinite; }
+    .voice-eq span:nth-child(1){ height:40%; animation-delay:0s; }
+    .voice-eq span:nth-child(2){ height:100%; animation-delay:0.2s; }
+    .voice-eq span:nth-child(3){ height:60%; animation-delay:0.4s; }
+    .voice-eq span:nth-child(4){ height:85%; animation-delay:0.1s; }
+    @keyframes voiceEq { 0%,100%{ transform:scaleY(0.4); } 50%{ transform:scaleY(1); } }
+    .voice-player { margin-top:0.7rem; display:flex; align-items:center; gap:0.65rem; }
+    .voice-play-btn { width:38px; height:38px; border-radius:50%; background:var(--pine); border:none; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; transition:transform 0.15s; box-shadow:0 4px 12px rgba(47,93,80,0.3); }
+    .voice-play-btn:active { transform:scale(0.92); }
+    .voice-player-mid { flex:1; min-width:0; }
+    .voice-progress-wrap { height:5px; background:rgba(47,93,80,0.15); border-radius:99px; cursor:pointer; overflow:hidden; }
+    .voice-progress-bar { height:100%; width:0%; background:var(--pine); border-radius:99px; transition:width 0.1s linear; }
+    .voice-time { display:flex; justify-content:space-between; font-size:0.6rem; color:var(--pine-deep); margin-top:4px; font-variant-numeric:tabular-nums; }
 </style>
 @endpush
 
@@ -54,6 +80,35 @@
     @endif
     @if($event->description)
         <div class="ev-desc">{!! $event->description !!}</div>
+    @endif
+
+    {{-- شرح صوتی (قسمت پادکست باهم کتاب) — بدون کاور --}}
+    @if($event->hasVoice())
+    <div class="voice-box">
+        <div class="voice-head">
+            <div class="voice-ico">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--pine)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/></svg>
+            </div>
+            <div class="voice-meta">
+                <div class="voice-label">شرح صوتی این دورهمی</div>
+                <div class="voice-title">{{ $event->voice_title ?: 'قسمتی از پادکست باهم کتاب' }}</div>
+                <div class="voice-nowplaying">
+                    <span class="voice-eq"><span></span><span></span><span></span><span></span></span>
+                    <span style="font-size:0.62rem;font-weight:800;color:var(--pine);">در حال پخش</span>
+                </div>
+            </div>
+        </div>
+        <div class="voice-player" data-src="{{ $event->voice_url }}">
+            <button type="button" class="voice-play-btn" aria-label="پخش">
+                <svg class="ic-play" width="17" height="17" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>
+                <svg class="ic-pause" width="17" height="17" viewBox="0 0 24 24" fill="#fff" style="display:none;"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>
+            </button>
+            <div class="voice-player-mid">
+                <div class="voice-progress-wrap"><div class="voice-progress-bar"></div></div>
+                <div class="voice-time"><span class="t-cur">۰:۰۰</span><span class="t-dur">--:--</span></div>
+            </div>
+        </div>
+    </div>
     @endif
 
     {{-- اطلاعات --}}
@@ -175,3 +230,65 @@
 </div>
 
 @endsection
+
+@push('scripts')
+<script>
+(function () {
+    var player = document.querySelector('.voice-player');
+    if (!player) return;
+
+    var faD = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
+    function fa(s){ return String(s).replace(/\d/g,function(d){return faD[d];}); }
+    function fmt(sec){ if(isNaN(sec)||!isFinite(sec))return '--:--'; var m=Math.floor(sec/60), s=Math.floor(sec%60); return fa(m+':'+(s<10?'0'+s:s)); }
+
+    var box = player.closest('.voice-box');
+    var btn = player.querySelector('.voice-play-btn');
+    var icPlay = player.querySelector('.ic-play');
+    var icPause = player.querySelector('.ic-pause');
+    var bar = player.querySelector('.voice-progress-bar');
+    var wrap = player.querySelector('.voice-progress-wrap');
+    var tCur = player.querySelector('.t-cur');
+    var tDur = player.querySelector('.t-dur');
+    var audio = null;
+
+    function ensureAudio() {
+        if (audio) return audio;
+        audio = new Audio(player.dataset.src);
+        audio.preload = 'metadata';
+        audio.addEventListener('loadedmetadata', function () { tDur.textContent = fmt(audio.duration); });
+        audio.addEventListener('timeupdate', function () {
+            var p = (audio.currentTime / audio.duration) * 100;
+            bar.style.width = (p || 0) + '%';
+            tCur.textContent = fmt(audio.currentTime);
+        });
+        audio.addEventListener('ended', function () {
+            icPlay.style.display = ''; icPause.style.display = 'none';
+            bar.style.width = '0%'; tCur.textContent = fmt(0);
+            box.classList.remove('playing');
+        });
+        return audio;
+    }
+
+    btn.addEventListener('click', function () {
+        var a = ensureAudio();
+        if (a.paused) {
+            a.play();
+            icPlay.style.display = 'none'; icPause.style.display = '';
+            box.classList.add('playing');
+        } else {
+            a.pause();
+            icPlay.style.display = ''; icPause.style.display = 'none';
+            box.classList.remove('playing');
+        }
+    });
+
+    wrap.addEventListener('click', function (e) {
+        var a = ensureAudio();
+        var rect = wrap.getBoundingClientRect();
+        // RTL: از سمت راست حساب می‌کنیم
+        var ratio = (rect.right - e.clientX) / rect.width;
+        if (a.duration) a.currentTime = ratio * a.duration;
+    });
+})();
+</script>
+@endpush
