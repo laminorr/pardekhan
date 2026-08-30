@@ -9,6 +9,7 @@
     .ev-hero-btn { width:44px; height:44px; border-radius:14px; background:rgba(255,255,255,0.92); border:none; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(6px); cursor:pointer; text-decoration:none; }
     .ev-body { position:relative; margin:-26px -1.2rem 0; background:var(--bg); border-radius:28px 28px 0 0; padding:1.5rem 1.2rem 0; }
     .ev-desc { font-size:0.86rem; color:var(--ink-dim); margin-top:0.6rem; line-height:1.95; text-align:justify; }
+    .ev-desc strong, .ev-desc b { font-weight:800; color:var(--ink); }
     .ev-info-row { display:flex; align-items:center; gap:0.85rem; }
     .ev-info-ico { width:44px; height:44px; border-radius:14px; background:var(--bg-soft); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
     .ev-map { margin-top:1.3rem; height:120px; border-radius:18px; background:var(--green-line); position:relative; overflow:hidden; border:1px solid var(--border-2); }
@@ -52,7 +53,7 @@
         <div style="font-size:0.92rem;color:var(--pine);margin-top:4px;font-weight:600;">{{ $event->subtitle }}</div>
     @endif
     @if($event->description)
-        <div class="ev-desc">{{ $event->description }}</div>
+        <div class="ev-desc">{!! $event->description !!}</div>
     @endif
 
     {{-- اطلاعات --}}

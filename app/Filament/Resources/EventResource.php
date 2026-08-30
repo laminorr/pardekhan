@@ -44,9 +44,11 @@ class EventResource extends Resource
                             ->placeholder('مثلاً: دورهمی روانشناسی همدلی'),
                         Forms\Components\TextInput::make('subtitle')
                             ->label('زیرعنوان'),
-                        Forms\Components\Textarea::make('description')
+                        Forms\Components\RichEditor::make('description')
                             ->label('توضیحات کامل')
-                            ->rows(5),
+                            ->fileAttachmentsDisk('public')
+                            ->fileAttachmentsDirectory('events/inline')
+                            ->columnSpanFull(),
                         Forms\Components\FileUpload::make('image')
                             ->label('تصویر دورهمی')
                             ->image()
