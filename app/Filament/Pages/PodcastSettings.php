@@ -37,6 +37,7 @@ class PodcastSettings extends Page implements HasForms
         $this->form->fill([
             'podcast_rss_url'          => Setting::get('podcast_rss_url'),
             'podcast_rss_url_hegemony' => Setting::get('podcast_rss_url_hegemony'),
+            'podcast_rss_url_bahamketab' => Setting::get('podcast_rss_url_bahamketab'),
         ]);
     }
 
@@ -53,6 +54,10 @@ class PodcastSettings extends Page implements HasForms
                     Forms\Components\TextInput::make('podcast_rss_url_hegemony')
                         ->label('آدرس RSS — هژمونی')
                         ->placeholder('https://shenoto.net/feed/hegemony')
+                        ->url(),
+                    Forms\Components\TextInput::make('podcast_rss_url_bahamketab')
+                        ->label('آدرس RSS — باهم کتاب')
+                        ->placeholder('https://shenoto.net/feed/bahamketab')
                         ->url(),
                 ]),
         ])->statePath('data');
@@ -77,6 +82,7 @@ class PodcastSettings extends Page implements HasForms
         $data = $this->form->getState();
         Setting::set('podcast_rss_url', $data['podcast_rss_url'] ?? '');
         Setting::set('podcast_rss_url_hegemony', $data['podcast_rss_url_hegemony'] ?? '');
+        Setting::set('podcast_rss_url_bahamketab', $data['podcast_rss_url_bahamketab'] ?? '');
         PodcastService::clearCache();
 
         Notification::make()->success()->title('تنظیمات پادکست ذخیره شد')->send();
