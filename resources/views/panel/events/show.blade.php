@@ -3,11 +3,16 @@
 
 @push('styles')
 <style>
-    .ev-hero { position:relative; height:260px; margin:-1.4rem -1.2rem 0; background:linear-gradient(135deg,#dfe7e3,#cfdbd5); display:flex; align-items:center; justify-content:center; }
-    .ev-hero img { width:100%; height:100%; object-fit:cover; }
-    .ev-hero-actions { position:absolute; top:1rem; right:1.2rem; left:1.2rem; display:flex; justify-content:space-between; }
+    /* هدر جمع‌شونده هنگام اسکرول — تصویر از ۲۶۰ به ~۱۹۵ کوچک می‌شود و بالا می‌چسبد */
+    .ev-hero { position:fixed; top:0; left:50%; transform:translateX(-50%); width:100%; max-width:430px; height:260px; z-index:40; overflow:hidden; background:linear-gradient(135deg,#dfe7e3,#cfdbd5); display:flex; align-items:center; justify-content:center; will-change:height; }
+    .ev-hero-img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transform:scale(1.04); will-change:filter; }
+    .ev-hero-shade { position:absolute; inset:0; background:#0d1f1a; opacity:0; pointer-events:none; }
+    .ev-hero-curve { position:absolute; left:0; right:0; bottom:0; height:26px; background:var(--bg); border-radius:28px 28px 0 0; pointer-events:none; z-index:1; }
+    .ev-hero-empty { font-size:0.85rem; color:#7e948b; letter-spacing:1px; }
+    .ev-hero-spacer { height:260px; margin-top:-1.4rem; }
+    .ev-hero-actions { position:absolute; top:1rem; right:1.2rem; left:1.2rem; display:flex; justify-content:space-between; z-index:2; }
     .ev-hero-btn { width:44px; height:44px; border-radius:14px; background:rgba(255,255,255,0.92); border:none; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(6px); cursor:pointer; text-decoration:none; }
-    .ev-body { position:relative; margin:-26px -1.2rem 0; background:var(--bg); border-radius:28px 28px 0 0; padding:1.5rem 1.2rem 0; }
+    .ev-body { position:relative; z-index:1; margin:0 -1.2rem 0; background:var(--bg); border-radius:28px 28px 0 0; padding:1.5rem 1.2rem 0; }
     .ev-desc { font-size:0.86rem; color:var(--ink-dim); margin-top:0.6rem; line-height:1.95; text-align:justify; }
     .ev-desc strong, .ev-desc b { font-weight:800; color:var(--ink); }
     .ev-info-row { display:flex; align-items:center; gap:0.85rem; }
@@ -45,13 +50,15 @@
 @endpush
 
 @section('content')
-{{-- تصویر بزرگ --}}
-<div class="ev-hero">
+{{-- تصویر بزرگ (جمع‌شونده هنگام اسکرول) --}}
+<div class="ev-hero" id="evHero">
     @if($event->image)
-        <img src="{{ Storage::url($event->image) }}" alt="{{ $event->title }}">
+        <img class="ev-hero-img" src="{{ Storage::url($event->image) }}" alt="{{ $event->title }}">
+        <div class="ev-hero-shade"></div>
     @else
-        <span style="font-size:0.85rem;color:#7e948b;letter-spacing:1px;">تصویر دورهمی</span>
+        <span class="ev-hero-empty">تصویر دورهمی</span>
     @endif
+    <div class="ev-hero-curve"></div>
     <div class="ev-hero-actions">
         <a href="{{ route('panel.events.index') }}" class="ev-hero-btn">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16181a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
@@ -61,6 +68,8 @@
         </div>
     </div>
 </div>
+{{-- جای‌گیر ثابت: چون هدر fixed است، این فاصله را در چیدمان نگه می‌دارد تا بدنه بدون پرش اسکرول شود --}}
+<div class="ev-hero-spacer" aria-hidden="true"></div>
 
 {{-- محتوا --}}
 <div class="ev-body">
@@ -233,6 +242,35 @@
 
 @push('scripts')
 <script>
+/* جمع‌شدن نرم هدر هنگام اسکرول: ۲۶۰ → ~۱۹۵px + بلور ملایم، سپس چسبیدن به بالا */
+(function () {
+    var hero = document.getElementById('evHero');
+    if (!hero) return;
+
+    var img = hero.querySelector('.ev-hero-img');
+    var shade = hero.querySelector('.ev-hero-shade');
+    var MAX = 260, MIN = 195, RANGE = 120, DELTA = MAX - MIN; // بازهٔ اسکرولِ کوچک‌شدن
+    var ticking = false;
+
+    function update() {
+        ticking = false;
+        var y = window.pageYOffset || window.scrollY || 0;
+        var p = y / RANGE;
+        if (p < 0) p = 0; else if (p > 1) p = 1; // بین ۰ و ۱ محدود می‌شود
+        hero.style.height = (MAX - DELTA * p) + 'px';
+        if (img) img.style.filter = p > 0 ? 'blur(' + (2 * p).toFixed(2) + 'px)' : '';
+        if (shade) shade.style.opacity = (0.16 * p).toFixed(3);
+    }
+
+    function onScroll() {
+        if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+})();
+
 (function () {
     var player = document.querySelector('.voice-player');
     if (!player) return;
