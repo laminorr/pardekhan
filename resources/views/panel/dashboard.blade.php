@@ -382,6 +382,24 @@
 {{-- دورهمی پیشنهادی --}}
 @php
     $suggested = \App\Models\Event::where('status', 'active')->where('starts_at', '>', now())->visibleTo($member)->orderBy('starts_at')->first();
+
+    // آیا عضو در این دورهمی ثبت‌نام کرده؟ (هم‌منطق با EventController@show)
+    $suggestedIsRegistered = false;
+    $suggestedTicket = null;
+    if ($suggested) {
+        $suggestedIsRegistered = $suggested->registrations()
+            ->where('member_id', $member->id)
+            ->whereIn('attendance_status', ['registered', 'attended'])
+            ->exists();
+        if ($suggestedIsRegistered) {
+            // بلیت مخصوص همین دورهمی برای همین عضو
+            $suggestedTicket = \App\Models\Ticket::where('member_id', $member->id)
+                ->where('event_id', $suggested->id)
+                ->where('status', '!=', 'cancelled')
+                ->latest()
+                ->first();
+        }
+    }
 @endphp
 @if($suggested)
 <div class="section-head">
@@ -420,21 +438,31 @@
             </span>
             @endif
         </div>
-        @php $price = $suggested->priceForMember($member); $discount = $suggested->discountForLayer($layer); @endphp
-        <div style="height:1px;background:var(--border);margin:1rem 0;"></div>
-        <div style="display:flex;align-items:center;justify-content:space-between;">
-            <div>
-                @if($discount > 0)
-                    <span style="font-size:0.72rem;color:var(--ink-faint);text-decoration:line-through;">{{ fa(number_format($suggested->base_price)) }}</span>
-                @endif
-                <div style="font-size:1.3rem;font-weight:800;color:var(--ink);">{{ fa(number_format($price)) }} <span style="font-size:0.7rem;font-weight:400;color:var(--ink-dim);">تومان</span></div>
+        @unless($suggestedIsRegistered)
+            @php $price = $suggested->priceForMember($member); $discount = $suggested->discountForLayer($layer); @endphp
+            <div style="height:1px;background:var(--border);margin:1rem 0;"></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div>
+                    @if($discount > 0)
+                        <span style="font-size:0.72rem;color:var(--ink-faint);text-decoration:line-through;">{{ fa(number_format($suggested->base_price)) }}</span>
+                    @endif
+                    <div style="font-size:1.3rem;font-weight:800;color:var(--ink);">{{ fa(number_format($price)) }} <span style="font-size:0.7rem;font-weight:400;color:var(--ink-dim);">تومان</span></div>
+                </div>
+                <span class="btn btn-primary" style="width:auto;padding:0.7rem 1.5rem;">ثبت‌نام
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+                </span>
             </div>
-            <span class="btn btn-primary" style="width:auto;padding:0.7rem 1.5rem;">ثبت‌نام
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-            </span>
-        </div>
+        @endunless
     </div>
 </a>
+@if($suggestedIsRegistered)
+    {{-- عضو قبلاً ثبت‌نام کرده: بنر ظریفِ سبز به‌جای قیمت و دکمهٔ ثبت‌نام، لینک به بلیت همین دورهمی --}}
+    <a href="{{ $suggestedTicket ? route('panel.tickets.show', $suggestedTicket) : route('panel.tickets.index') }}"
+       style="display:flex;align-items:center;justify-content:center;gap:7px;margin-top:0.6rem;padding:0.6rem 1rem;background:var(--pine);color:#fff;font-size:0.86rem;font-weight:700;letter-spacing:-0.2px;text-decoration:none;border-radius:14px;box-shadow:0 6px 18px -9px rgba(47,93,80,0.5);">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+        در این دورهمی باهم خواهیم بود
+    </a>
+@endif
 @endif
 
 {{-- مجله / وبلاگ --}}
