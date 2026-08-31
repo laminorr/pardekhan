@@ -171,10 +171,49 @@
         }
         /* حالت راهنمای iOS: بدون دکمهٔ نصب، فقط متن */
         .pwa-install.ios .pwa-btn { display: none; }
+
+        /* ── لودر برند پرده‌خوان (پوشش تمام‌صفحه، جای فلش سفید) ── */
+        #pk-loader {
+            position: fixed; inset: 0; z-index: 9999;
+            background: #2e5d50;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 1; transition: opacity .35s ease;
+        }
+        #pk-loader.pk-hide { opacity: 0; pointer-events: none; }
+        #pk-loader .pk-logo {
+            display: flex; flex-direction: column; align-items: flex-end;
+            gap: 11px; width: 96px;
+        }
+        #pk-loader .pk-bar {
+            height: 15px; border-radius: 8px;
+            transform-origin: right center;
+            animation: pk-bar 1.4s ease-in-out infinite;
+        }
+        #pk-loader .pk-bar.b1 { width: 100%; background: #ffffff; animation-delay: 0s; }
+        #pk-loader .pk-bar.b2 { width: 78%;  background: #c2552f; animation-delay: .18s; }
+        #pk-loader .pk-bar.b3 { width: 56%;  background: #ffffff; animation-delay: .36s; }
+        @keyframes pk-bar {
+            0%   { opacity: .22; transform: scaleX(.9); }
+            18%  { opacity: 1;   transform: scaleX(1); }
+            50%  { opacity: 1;   transform: scaleX(1); }
+            70%  { opacity: .22; transform: scaleX(.9); }
+            100% { opacity: .22; transform: scaleX(.9); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            #pk-loader .pk-bar { animation: none; opacity: 1; transform: none; }
+        }
     </style>
     @stack('styles')
 </head>
 <body>
+    {{-- ── لودر برند (اولین چیز داخل body تا پیش از بقیه رنگ بگیرد) ── --}}
+    <div id="pk-loader" role="status" aria-label="در حال بارگذاری">
+        <div class="pk-logo" aria-hidden="true">
+            <div class="pk-bar b1"></div>
+            <div class="pk-bar b2"></div>
+            <div class="pk-bar b3"></div>
+        </div>
+    </div>
     <div class="phone">
         {{-- بنر نصب PWA (فقط مرورگر پشتیبان؛ در حالت standalone پنهان) --}}
         <div class="pwa-install" id="pwaInstall" role="dialog" aria-label="نصب پرده‌خوان">
@@ -267,6 +306,76 @@
             descEl.textContent = 'در Safari دکمهٔ اشتراک‌گذاری را بزنید و «افزودن به صفحهٔ اصلی» را انتخاب کنید.';
             banner.classList.add('show');
         }
+    })();
+    </script>
+
+    {{-- ── کنترل لودر برند: پنهان‌سازی هنگام آماده‌شدن، نمایش دوباره بین صفحات، ایمنی ── --}}
+    <script>
+    (function () {
+        var loader = document.getElementById('pk-loader');
+        if (!loader) return;
+
+        var MIN_MS = 300;      // حداقل زمان نمایش تا سوسو نزند
+        var SAFETY_MS = 5000;  // ایمنی: هرگز صفحه را قفل نکن
+        var shownAt = Date.now();
+
+        function hide() {
+            var wait = Math.max(0, MIN_MS - (Date.now() - shownAt));
+            setTimeout(function () { loader.classList.add('pk-hide'); }, wait);
+        }
+        function forceHide() { loader.classList.add('pk-hide'); }
+        function show() {
+            shownAt = Date.now();
+            loader.classList.remove('pk-hide');
+            // اگر ناوبری به هر دلیل انجام نشد، کاربر را گیر نینداز
+            setTimeout(forceHide, SAFETY_MS);
+        }
+
+        // پنهان‌سازی وقتی صفحه آماده است
+        if (document.readyState === 'complete') { hide(); }
+        else { window.addEventListener('load', hide); }
+
+        // ایمنی اولیه: در هر صورت پس از چند ثانیه پنهان شود
+        setTimeout(forceHide, SAFETY_MS);
+
+        // back/forward و بازیابی از bfcache → لودر نباید بماند
+        window.addEventListener('pageshow', function (e) {
+            if (e.persisted) forceHide();
+        });
+        window.addEventListener('pagehide', function () { /* ناوبری واقعی */ });
+
+        function isModified(e) {
+            return e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey;
+        }
+
+        // نمایش دوباره هنگام ناوبری داخل پنل (کلیک روی لینک)
+        document.addEventListener('click', function (e) {
+            if (e.defaultPrevented || isModified(e)) return;
+            var a = e.target && e.target.closest ? e.target.closest('a[href]') : null;
+            if (!a) return;
+            if (a.target && a.target !== '_self') return;      // _blank و…
+            if (a.hasAttribute('download')) return;
+            var raw = a.getAttribute('href') || '';
+            if (/^(javascript:|mailto:|tel:|sms:|#)/i.test(raw)) return;
+            var url;
+            try { url = new URL(a.href, location.href); } catch (err) { return; }
+            if (url.origin !== location.origin) return;         // لینک خارجی
+            // لنگر درون‌صفحه‌ای (همان مسیر، فقط #hash) → ناوبری نیست
+            if (url.pathname === location.pathname && url.search === location.search && url.hash) return;
+            show();
+        }, true);
+
+        // ارسال فرم هم ناوبری کامل است
+        document.addEventListener('submit', function (e) {
+            var f = e.target;
+            if (!f || f.tagName !== 'FORM') return;
+            if (f.target && f.target !== '_self') return;
+            var url;
+            try { url = new URL(f.getAttribute('action') || location.href, location.href); }
+            catch (err) { return; }
+            if (url.origin !== location.origin) return;
+            show();
+        }, true);
     })();
     </script>
 </body>
