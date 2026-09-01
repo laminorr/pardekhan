@@ -16,6 +16,49 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="پرده‌خوان">
+    {{-- ── iOS Splash Screens (apple-touch-startup-image) — نمایش اسپلش سبز به‌جای صفحهٔ سفید هنگام اجرا ── --}}
+    {{-- iPhone 14/15 Pro Max — 430×932 @3 --}}
+    <link rel="apple-touch-startup-image" href="/pwa/splash-iphone-14-15-pro-max.png"
+          media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+    {{-- iPhone 14/15 Pro — 393×852 @3 --}}
+    <link rel="apple-touch-startup-image" href="/pwa/splash-iphone-14-15-pro.png"
+          media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+    {{-- iPhone 12/13/14 Plus & Pro Max (older) — 428×926 @3 --}}
+    <link rel="apple-touch-startup-image" href="/pwa/splash-iphone-12-13-14-plus-max.png"
+          media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+    {{-- iPhone 12/13/14 — 390×844 @3 --}}
+    <link rel="apple-touch-startup-image" href="/pwa/splash-iphone-12-13-14.png"
+          media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+    {{-- iPhone X/XS/11 Pro — 375×812 @3 --}}
+    <link rel="apple-touch-startup-image" href="/pwa/splash-iphone-x-xs-11pro.png"
+          media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+    {{-- iPhone XS Max/11 Pro Max — 414×896 @3 --}}
+    <link rel="apple-touch-startup-image" href="/pwa/splash-iphone-xs-max-11promax.png"
+          media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+    {{-- iPhone XR/11 — 414×896 @2 --}}
+    <link rel="apple-touch-startup-image" href="/pwa/splash-iphone-xr-11.png"
+          media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+    {{-- iPhone 6+/7+/8+ Plus — 414×736 @3 --}}
+    <link rel="apple-touch-startup-image" href="/pwa/splash-iphone-plus.png"
+          media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+    {{-- iPhone 6/7/8/SE2/SE3 — 375×667 @2 --}}
+    <link rel="apple-touch-startup-image" href="/pwa/splash-iphone-8-se2.png"
+          media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+    {{-- iPhone 5/SE1 — 320×568 @2 --}}
+    <link rel="apple-touch-startup-image" href="/pwa/splash-iphone-se1.png"
+          media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+    {{-- iPad 10.2 — 810×1080 @2 --}}
+    <link rel="apple-touch-startup-image" href="/pwa/splash-ipad-10.2.png"
+          media="(device-width: 810px) and (device-height: 1080px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+    {{-- iPad 9.7 — 768×1024 @2 --}}
+    <link rel="apple-touch-startup-image" href="/pwa/splash-ipad-9.7.png"
+          media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+    {{-- iPad Pro 11 — 834×1194 @2 --}}
+    <link rel="apple-touch-startup-image" href="/pwa/splash-ipad-pro-11.png"
+          media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+    {{-- iPad Pro 12.9 — 1024×1366 @2 --}}
+    <link rel="apple-touch-startup-image" href="/pwa/splash-ipad-pro-12.9.png"
+          media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
     {{-- Favicon --}}
     <link rel="icon" type="image/png" sizes="32x32" href="/pwa/favicon-32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/pwa/favicon-16.png">
