@@ -453,16 +453,16 @@
                 </span>
             </div>
         @endunless
+        @if($suggestedIsRegistered)
+            <div style="height:1px;background:var(--border);margin:1rem 0;"></div>
+            <span onclick="event.preventDefault();event.stopPropagation();window.location='{{ $suggestedTicket ? route('panel.tickets.show', $suggestedTicket) : route('panel.tickets.index') }}';"
+               style="display:flex;align-items:center;justify-content:center;gap:7px;padding:0.6rem 1rem;background:var(--pine);color:#fff;font-size:0.86rem;font-weight:700;letter-spacing:-0.2px;border-radius:14px;box-shadow:0 6px 18px -9px rgba(47,93,80,0.5);cursor:pointer;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+                در این دورهمی باهم خواهیم بود
+            </span>
+        @endif
     </div>
 </a>
-@if($suggestedIsRegistered)
-    {{-- عضو قبلاً ثبت‌نام کرده: بنر ظریفِ سبز به‌جای قیمت و دکمهٔ ثبت‌نام، لینک به بلیت همین دورهمی --}}
-    <a href="{{ $suggestedTicket ? route('panel.tickets.show', $suggestedTicket) : route('panel.tickets.index') }}"
-       style="display:flex;align-items:center;justify-content:center;gap:7px;margin-top:0.6rem;padding:0.6rem 1rem;background:var(--pine);color:#fff;font-size:0.86rem;font-weight:700;letter-spacing:-0.2px;text-decoration:none;border-radius:14px;box-shadow:0 6px 18px -9px rgba(47,93,80,0.5);">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
-        در این دورهمی باهم خواهیم بود
-    </a>
-@endif
 @endif
 
 {{-- مجله / وبلاگ --}}

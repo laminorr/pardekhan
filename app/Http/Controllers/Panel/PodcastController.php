@@ -14,6 +14,7 @@ class PodcastController extends Controller
     {
         $podcasts = [];
         foreach (PodcastService::PODCASTS as $slug => $meta) {
+            if ($slug === 'bahamketab') continue; // فقط برای شرح صوتی دورهمی — در لیست عمومی نیاید
             $data = PodcastService::episodes($slug, 50);
             $podcasts[] = [
                 'slug'          => $slug,
