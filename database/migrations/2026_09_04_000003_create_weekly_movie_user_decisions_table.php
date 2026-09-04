@@ -25,9 +25,9 @@ return new class extends Migration
 
             $table->timestamps();
 
-            // یک رأی برای هر مخاطب در هر تخصیص
-            $table->unique(['member_id', 'weekly_assignment_id']);
-            $table->index(['weekly_assignment_id', 'decision']);
+            // نام‌های کوتاهِ صریح (سقف ۶۴ کاراکترِ MariaDB)
+            $table->unique(['member_id', 'weekly_assignment_id'], 'wm_dec_member_assignment_unq');
+            $table->index(['weekly_assignment_id', 'decision'], 'wm_dec_assignment_decision_idx');
         });
     }
 
