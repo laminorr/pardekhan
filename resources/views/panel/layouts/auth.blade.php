@@ -200,10 +200,32 @@
             font-family: inherit; font-size: 0.9rem; font-weight: 600;
             line-height: 1.9; text-align: center; letter-spacing: .2px;
         }
+
+        /* ── حالت ناوبری بین‌صفحه‌ای (.pk-nav): سبک و ظریف — فقط لوگوی کوچکِ متحرک، بدون متن و ساعت شنی ── */
+        #pk-loader.pk-nav .pk-extras { display: none; }            /* بی‌متن، بی‌ساعت‌شنی */
+        #pk-loader.pk-nav .pk-logo {                               /* کوچک‌تر از اسپلش (حدوداً نصف) */
+            width: min(13vmin, 84px);
+            gap: min(1.6vmin, 10px);
+        }
+        #pk-loader.pk-nav .pk-bar {
+            height: min(2.2vmin, 14px);
+            transform-origin: center;
+            opacity: .28;                                          /* حالت پایه؛ انیمیشن روشنش می‌کند */
+            animation: pk-nav-bar 1.4s ease-in-out infinite;
+        }
+        #pk-loader.pk-nav .pk-bar.b1 { animation-delay: 0s; }     /* یکی‌یکی، پلکانی و نرم */
+        #pk-loader.pk-nav .pk-bar.b2 { animation-delay: .16s; }
+        #pk-loader.pk-nav .pk-bar.b3 { animation-delay: .32s; }
+        @keyframes pk-nav-bar {
+            0%, 65%, 100% { opacity: .28; transform: scaleX(.94); }
+            30%           { opacity: 1;   transform: scaleX(1); }
+        }
+
         @media (prefers-reduced-motion: reduce) {
             #pk-loader .pk-extras { opacity: 1; animation: none; transform: translateX(-50%); }
             #pk-loader .pk-hg-rotor { animation: none; }
             #pk-loader .pk-hg-fall { animation: none; opacity: 1; }
+            #pk-loader.pk-nav .pk-bar { animation: none; opacity: 1; transform: none; }
         }
     </style>
     @stack('styles')
@@ -253,11 +275,18 @@
 
         function hide() {
             var wait = Math.max(0, MIN_MS - (Date.now() - shownAt));
-            setTimeout(function () { loader.classList.add('pk-hide'); }, wait);
+            setTimeout(function () {
+                loader.classList.add('pk-hide');
+                loader.classList.remove('pk-nav');   // آماده‌سازی حالت کاملِ تازه برای دفعهٔ بعد
+            }, wait);
         }
-        function forceHide() { loader.classList.add('pk-hide'); }
+        function forceHide() {
+            loader.classList.add('pk-hide');
+            loader.classList.remove('pk-nav');       // آماده‌سازی حالت کاملِ تازه برای دفعهٔ بعد
+        }
         function show() {
             shownAt = Date.now();
+            loader.classList.add('pk-nav');          // ناوبری بین‌صفحه‌ای → حالت سبک (فقط لوگوی کوچکِ متحرک)
             loader.classList.remove('pk-hide');
             // اگر ناوبری به هر دلیل انجام نشد، کاربر را گیر نینداز
             setTimeout(forceHide, SAFETY_MS);
