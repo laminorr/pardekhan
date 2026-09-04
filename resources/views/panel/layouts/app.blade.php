@@ -6,6 +6,12 @@
     <meta name="format-detection" content="telephone=no">
     <title>@yield('title', 'پرده‌خوان')</title>
 
+    {{-- ── تشخیصِ زودهنگامِ ناوبری بین‌صفحه‌ای (پیش از رنگ‌گیریِ body/لودر) ──
+         اگر پرچمِ ناوبری از صفحهٔ قبل ست شده باشد، همین‌جا در <head> کلاسِ pk-navmode روی <html> گذاشته می‌شود
+         تا لودر از همان فریمِ نخست در حالتِ سبک رنگ بگیرد (بدون فلاشِ لحظه‌ایِ حالتِ کامل در پایان ناوبری).
+         پرچم دقیقاً همین‌جا یک‌بار مصرف می‌شود. --}}
+    <script>try{if(sessionStorage.getItem('pk-nav-loading')==='1'){document.documentElement.classList.add('pk-navmode');sessionStorage.removeItem('pk-nav-loading');}}catch(e){}</script>
+
     {{-- ── PWA (فقط پنل مخاطب /panel) ── --}}
     <link rel="manifest" href="/pwa/manifest.webmanifest">
     <meta name="theme-color" content="#2e5d50">
@@ -283,20 +289,29 @@
             line-height: 1.9; text-align: center; letter-spacing: .2px;
         }
 
-        /* ── حالت ناوبری بین‌صفحه‌ای (.pk-nav): سبک و ظریف — فقط لوگوی کوچکِ متحرک، بدون متن و ساعت شنی ── */
+        /* ── حالت ناوبری بین‌صفحه‌ای: سبک و ظریف — فقط لوگوی کوچکِ متحرک، بدون متن و ساعت شنی ──
+           دو راهِ ورود به این حالت، با ظاهرِ کاملاً یکسان:
+             • html.pk-navmode #pk-loader → از <head> پیش از رنگ‌گیری (صفحهٔ ورودی، بدون فلاش)
+             • #pk-loader.pk-nav          → با JS هنگام ترکِ صفحه (صفحهٔ خروجی) */
+        html.pk-navmode #pk-loader .pk-extras,
         #pk-loader.pk-nav .pk-extras { display: none; }            /* بی‌متن، بی‌ساعت‌شنی */
+        html.pk-navmode #pk-loader .pk-logo,
         #pk-loader.pk-nav .pk-logo {                               /* کوچک‌تر از اسپلش (حدوداً نصف) */
             width: min(13vmin, 84px);
             gap: min(1.6vmin, 10px);
         }
+        html.pk-navmode #pk-loader .pk-bar,
         #pk-loader.pk-nav .pk-bar {
             height: min(2.2vmin, 14px);
             transform-origin: center;
             opacity: .28;                                          /* حالت پایه؛ انیمیشن روشنش می‌کند */
             animation: pk-nav-bar 1.4s ease-in-out infinite;
         }
+        html.pk-navmode #pk-loader .pk-bar.b1,
         #pk-loader.pk-nav .pk-bar.b1 { animation-delay: 0s; }     /* یکی‌یکی، پلکانی و نرم */
+        html.pk-navmode #pk-loader .pk-bar.b2,
         #pk-loader.pk-nav .pk-bar.b2 { animation-delay: .16s; }
+        html.pk-navmode #pk-loader .pk-bar.b3,
         #pk-loader.pk-nav .pk-bar.b3 { animation-delay: .32s; }
         @keyframes pk-nav-bar {
             0%, 65%, 100% { opacity: .28; transform: scaleX(.94); }
@@ -307,6 +322,7 @@
             #pk-loader .pk-extras { opacity: 1; animation: none; transform: translateX(-50%); }
             #pk-loader .pk-hg-rotor { animation: none; }
             #pk-loader .pk-hg-fall { animation: none; opacity: 1; }
+            html.pk-navmode #pk-loader .pk-bar,
             #pk-loader.pk-nav .pk-bar { animation: none; opacity: 1; transform: none; }
         }
     </style>
@@ -337,19 +353,8 @@
             <p class="pk-wait">لطفاً تا بارگذاری کامل صفحه منتظر بمانید</p>
         </div>
     </div>
-    {{-- ── تشخیصِ زودهنگامِ ناوبری بین‌صفحه‌ای: اگر پرچم از صفحهٔ قبل ست شده، لودر همین ابتدای رندر در حالت سبک شروع شود
-         (بدون فلاشِ حالت کامل در پایان ناوبری). این اسکریپت هنگام پارس، درست پس از دیوِ لودر اجرا می‌شود تا پیش از رنگ‌گیری اعمال شود. --}}
-    <script>
-    (function () {
-        try {
-            if (sessionStorage.getItem('pk-nav-loading') === '1') {
-                var l = document.getElementById('pk-loader');
-                if (l) l.classList.add('pk-nav');    // شروع در حالت سبک (نه کامل)
-                sessionStorage.removeItem('pk-nav-loading');   // مصرف شد؛ اجرای تازهٔ بعدی دوباره کامل خواهد بود
-            }
-        } catch (e) {}
-    })();
-    </script>
+    {{-- نکته: تشخیصِ ناوبریِ ورودی به <head> منتقل شده (کلاسِ html.pk-navmode) تا پیش از رنگ‌گیریِ لودر اعمال شود؛
+         این‌جا دیگر اسکریپتی لازم نیست و پرچم فقط یک‌بار در <head> مصرف می‌شود. --}}
     <div class="phone">
         {{-- بنر نصب PWA (فقط مرورگر پشتیبان؛ در حالت standalone پنهان) --}}
         <div class="pwa-install" id="pwaInstall" role="dialog" aria-label="نصب پرده‌خوان">
@@ -464,12 +469,14 @@
             setTimeout(function () {
                 loader.classList.add('pk-hide');
                 loader.classList.remove('pk-nav');   // آماده‌سازی حالت کاملِ تازه برای دفعهٔ بعد
+                document.documentElement.classList.remove('pk-navmode');  // تا اجرای واقعیِ تازه (بدون پرچم) کامل رنگ بگیرد
                 clearNavFlag();                      // پرچم پاک شود تا اجرای تازهٔ بعدی گیرِ حالت سبک نکند
             }, wait);
         }
         function forceHide() {
             loader.classList.add('pk-hide');
             loader.classList.remove('pk-nav');       // آماده‌سازی حالت کاملِ تازه برای دفعهٔ بعد
+            document.documentElement.classList.remove('pk-navmode');  // تا اجرای واقعیِ تازه (بدون پرچم) کامل رنگ بگیرد
             clearNavFlag();
         }
         function show() {
