@@ -76,6 +76,11 @@ class Member extends Authenticatable
         return $this->hasMany(DailyMood::class);
     }
 
+    public function weeklyMovieDecisions(): HasMany
+    {
+        return $this->hasMany(WeeklyMovieDecision::class, 'member_id');
+    }
+
     /** حالِ ثبت‌شدهٔ امروز (به وقت تهران) یا null اگر هنوز ثبت نشده. */
     public function todayMood(): ?DailyMood
     {

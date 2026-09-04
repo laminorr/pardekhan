@@ -317,7 +317,7 @@
     </div>
 </div>
 
-{{-- باکس‌های پادکست و فیلم امروز --}}
+{{-- باکس‌های پادکست و فیلم هفته --}}
 @php
     $todayFilm = \App\Models\DailyFilm::where('is_active', true)->latest('show_date')->first();
 @endphp
@@ -340,7 +340,7 @@
         </div>
     </a>
 
-    {{-- فیلم امروز --}}
+    {{-- فیلم هفته --}}
     <a href="{{ $todayFilm ? route('panel.film.today') : '#' }}" style="flex:1;position:relative;overflow:hidden;text-decoration:none;color:#fff;border-radius:20px;background:linear-gradient(145deg,#d06236,#a8431f);padding:1.1rem 1.05rem;min-height:128px;display:flex;flex-direction:column;box-shadow:0 10px 26px -12px rgba(168,67,31,0.5);{{ $todayFilm ? '' : 'opacity:0.92;' }}">
         <div style="position:absolute;top:-30px;right:-25px;width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,0.08);"></div>
         <div style="position:absolute;bottom:-35px;left:-15px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.05);"></div>
@@ -350,7 +350,7 @@
             </div>
         </div>
         <div style="position:relative;margin-top:auto;">
-            <div style="font-size:1rem;font-weight:800;">فیلم امروز</div>
+            <div style="font-size:1rem;font-weight:800;">فیلم هفته</div>
             <div style="font-size:0.72rem;color:rgba(255,255,255,0.85);margin-top:2px;">{{ $todayFilm ? \Illuminate\Support\Str::limit($todayFilm->title, 16) : 'به‌زودی' }}</div>
         </div>
     </a>
