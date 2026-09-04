@@ -337,6 +337,19 @@
             <p class="pk-wait">لطفاً تا بارگذاری کامل صفحه منتظر بمانید</p>
         </div>
     </div>
+    {{-- ── تشخیصِ زودهنگامِ ناوبری بین‌صفحه‌ای: اگر پرچم از صفحهٔ قبل ست شده، لودر همین ابتدای رندر در حالت سبک شروع شود
+         (بدون فلاشِ حالت کامل در پایان ناوبری). این اسکریپت هنگام پارس، درست پس از دیوِ لودر اجرا می‌شود تا پیش از رنگ‌گیری اعمال شود. --}}
+    <script>
+    (function () {
+        try {
+            if (sessionStorage.getItem('pk-nav-loading') === '1') {
+                var l = document.getElementById('pk-loader');
+                if (l) l.classList.add('pk-nav');    // شروع در حالت سبک (نه کامل)
+                sessionStorage.removeItem('pk-nav-loading');   // مصرف شد؛ اجرای تازهٔ بعدی دوباره کامل خواهد بود
+            }
+        } catch (e) {}
+    })();
+    </script>
     <div class="phone">
         {{-- بنر نصب PWA (فقط مرورگر پشتیبان؛ در حالت standalone پنهان) --}}
         <div class="pwa-install" id="pwaInstall" role="dialog" aria-label="نصب پرده‌خوان">
@@ -442,19 +455,27 @@
         var SAFETY_MS = 5000;  // ایمنی: هرگز صفحه را قفل نکن
         var shownAt = Date.now();
 
+        function clearNavFlag() {
+            try { sessionStorage.removeItem('pk-nav-loading'); } catch (e) {}
+        }
+
         function hide() {
             var wait = Math.max(0, MIN_MS - (Date.now() - shownAt));
             setTimeout(function () {
                 loader.classList.add('pk-hide');
                 loader.classList.remove('pk-nav');   // آماده‌سازی حالت کاملِ تازه برای دفعهٔ بعد
+                clearNavFlag();                      // پرچم پاک شود تا اجرای تازهٔ بعدی گیرِ حالت سبک نکند
             }, wait);
         }
         function forceHide() {
             loader.classList.add('pk-hide');
             loader.classList.remove('pk-nav');       // آماده‌سازی حالت کاملِ تازه برای دفعهٔ بعد
+            clearNavFlag();
         }
         function show() {
             shownAt = Date.now();
+            // پرچمِ انتقال به صفحهٔ بعد: تا لودرِ صفحهٔ تازه هم از همان ابتدا سبک شروع شود (بدون فلاشِ حالت کامل)
+            try { sessionStorage.setItem('pk-nav-loading', '1'); } catch (e) {}
             loader.classList.add('pk-nav');          // ناوبری بین‌صفحه‌ای → حالت سبک (فقط لوگوی کوچکِ متحرک)
             loader.classList.remove('pk-hide');
             // اگر ناوبری به هر دلیل انجام نشد، کاربر را گیر نینداز
