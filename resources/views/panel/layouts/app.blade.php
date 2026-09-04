@@ -215,7 +215,7 @@
         /* حالت راهنمای iOS: بدون دکمهٔ نصب، فقط متن */
         .pwa-install.ios .pwa-btn { display: none; }
 
-        /* ── لودر برند پرده‌خوان (پوشش تمام‌صفحه، جای فلش سفید) ── */
+        /* ── لودر برند پرده‌خوان (پوشش تمام‌صفحه، جای فلش سفید — منطبق بر اسپلش iOS) ── */
         #pk-loader {
             position: fixed; inset: 0; z-index: 9999;
             background: #2e5d50;
@@ -223,38 +223,96 @@
             opacity: 1; transition: opacity .35s ease;
         }
         #pk-loader.pk-hide { opacity: 0; pointer-events: none; }
+        /* لوگو: دقیقاً وسط صفحه و هم‌اندازهٔ لوگوی اسپلش تا هنگام گذارِ اسپلش→لودر جابه‌جا نشود */
         #pk-loader .pk-logo {
-            display: flex; flex-direction: column; align-items: flex-end;
-            gap: 11px; width: 96px;
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            direction: ltr;                       /* چینش میله‌ها مستقل از RTL، مطابق اسپلش */
+            display: flex; flex-direction: column; align-items: stretch;
+            width: min(25vmin, 160px);
+            gap: min(3vmin, 19px);
         }
-        #pk-loader .pk-bar {
-            height: 15px; border-radius: 8px;
-            transform-origin: right center;
-            animation: pk-bar 1.4s ease-in-out infinite;
+        #pk-loader .pk-bar { height: min(4vmin, 26px); border-radius: 8px; }
+        #pk-loader .pk-bar.b1 { width: 100%; background: #ffffff; }                        /* میلهٔ کامل */
+        #pk-loader .pk-bar.b2 { width: 78%;  background: #c2552f; align-self: flex-end;   } /* نارنجی، چسبیده به راست */
+        #pk-loader .pk-bar.b3 { width: 88%;  background: #ffffff; align-self: flex-start; } /* چسبیده به چپ */
+
+        /* متن انتظار + ساعت شنی: زیر لوگو، بی‌آنکه لوگو را از مرکز جابه‌جا کنند */
+        #pk-loader .pk-extras {
+            position: absolute; left: 50%; top: 50%;
+            transform: translateX(-50%);
+            margin-top: min(15vmin, 104px);
+            display: flex; flex-direction: column; align-items: center;
+            gap: 14px; width: 86%; max-width: 320px;
+            opacity: 0; animation: pk-extras-in .5s ease .25s forwards;
         }
-        #pk-loader .pk-bar.b1 { width: 100%; background: #ffffff; animation-delay: 0s; }
-        #pk-loader .pk-bar.b2 { width: 78%;  background: #c2552f; animation-delay: .18s; }
-        #pk-loader .pk-bar.b3 { width: 56%;  background: #ffffff; animation-delay: .36s; }
-        @keyframes pk-bar {
-            0%   { opacity: .22; transform: scaleX(.9); }
-            18%  { opacity: 1;   transform: scaleX(1); }
-            50%  { opacity: 1;   transform: scaleX(1); }
-            70%  { opacity: .22; transform: scaleX(.9); }
-            100% { opacity: .22; transform: scaleX(.9); }
+        @keyframes pk-extras-in {
+            from { opacity: 0; transform: translateX(-50%) translateY(8px); }
+            to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+        /* ساعت شنی (SVG درون‌خطی، انیمیشن خالص CSS) */
+        #pk-loader .pk-hourglass { width: 34px; height: 42px; overflow: visible; }
+        #pk-loader .pk-hg-rotor {
+            transform-box: fill-box; transform-origin: center;
+            animation: pk-hg-flip 2.6s ease-in-out infinite;
+        }
+        #pk-loader .pk-hg-fall {
+            transform-box: fill-box; transform-origin: center;
+            animation: pk-hg-fall 2.6s ease-in-out infinite;
+        }
+        @keyframes pk-hg-flip {
+            0%, 34%  { transform: rotate(0deg); }
+            50%, 84% { transform: rotate(180deg); }
+            100%     { transform: rotate(360deg); }
+        }
+        @keyframes pk-hg-fall {
+            0%   { opacity: 0; transform: translateY(-2px); }
+            10%  { opacity: 1; }
+            30%  { opacity: 1; transform: translateY(3px); }
+            34%  { opacity: 0; }
+            50%  { opacity: 0; transform: translateY(-2px); }
+            60%  { opacity: 1; }
+            80%  { opacity: 1; transform: translateY(3px); }
+            84%  { opacity: 0; }
+            100% { opacity: 0; transform: translateY(-2px); }
+        }
+        /* خط راهنمای فارسی */
+        #pk-loader .pk-wait {
+            margin: 0; color: rgba(255, 255, 255, 0.9);
+            font-family: inherit; font-size: 0.9rem; font-weight: 600;
+            line-height: 1.9; text-align: center; letter-spacing: .2px;
         }
         @media (prefers-reduced-motion: reduce) {
-            #pk-loader .pk-bar { animation: none; opacity: 1; transform: none; }
+            #pk-loader .pk-extras { opacity: 1; animation: none; transform: translateX(-50%); }
+            #pk-loader .pk-hg-rotor { animation: none; }
+            #pk-loader .pk-hg-fall { animation: none; opacity: 1; }
         }
     </style>
     @stack('styles')
 </head>
 <body>
     {{-- ── لودر برند (اولین چیز داخل body تا پیش از بقیه رنگ بگیرد) ── --}}
-    <div id="pk-loader" role="status" aria-label="در حال بارگذاری">
+    <div id="pk-loader" role="status" aria-label="در حال بارگذاری صفحه، لطفاً منتظر بمانید">
         <div class="pk-logo" aria-hidden="true">
             <div class="pk-bar b1"></div>
             <div class="pk-bar b2"></div>
             <div class="pk-bar b3"></div>
+        </div>
+        <div class="pk-extras">
+            <svg class="pk-hourglass" viewBox="0 0 24 30" fill="none" aria-hidden="true" focusable="false">
+                <g class="pk-hg-rotor">
+                    <rect x="4" y="1.6" width="16" height="2.6" rx="1.3" fill="#fff8ef"></rect>
+                    <rect x="4" y="25.8" width="16" height="2.6" rx="1.3" fill="#fff8ef"></rect>
+                    <path d="M6 4.6 C6 9.8 9.6 12.1 12 15 C14.4 12.1 18 9.8 18 4.6 Z"
+                          fill="rgba(255,255,255,.14)" stroke="#fff8ef" stroke-width="1.3" stroke-linejoin="round"></path>
+                    <path d="M6 25.4 C6 20.2 9.6 17.9 12 15 C14.4 17.9 18 20.2 18 25.4 Z"
+                          fill="rgba(255,255,255,.14)" stroke="#fff8ef" stroke-width="1.3" stroke-linejoin="round"></path>
+                    <path d="M8.4 6.4 C8.4 9.4 10.4 11 12 12.7 C13.6 11 15.6 9.4 15.6 6.4 Z" fill="#c2552f"></path>
+                    <path d="M9.4 23.6 C9.4 21 10.9 19.6 12 18.3 C13.1 19.6 14.6 21 14.6 23.6 Z" fill="#c2552f"></path>
+                </g>
+                <line class="pk-hg-fall" x1="12" y1="14" x2="12" y2="17.4" stroke="#c2552f" stroke-width="1.2" stroke-linecap="round"></line>
+            </svg>
+            <p class="pk-wait">لطفاً تا بارگذاری کامل صفحه منتظر بمانید</p>
         </div>
     </div>
     <div class="phone">
