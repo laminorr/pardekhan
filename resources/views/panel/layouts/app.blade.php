@@ -235,10 +235,10 @@
             transform: translate(-50%, -50%);
             direction: ltr;                       /* چینش میله‌ها مستقل از RTL، مطابق اسپلش */
             display: flex; flex-direction: column; align-items: stretch;
-            width: min(25vmin, 160px);
-            gap: min(3vmin, 19px);
+            width: min(15vmin, 96px);
+            gap: min(2.4vmin, 14px);
         }
-        #pk-loader .pk-bar { height: min(4vmin, 26px); border-radius: 8px; }
+        #pk-loader .pk-bar { height: min(2.4vmin, 15px); border-radius: 8px; }
         #pk-loader .pk-bar.b1 { width: 100%; background: #ffffff; }                        /* میلهٔ کامل */
         #pk-loader .pk-bar.b2 { width: 78%;  background: #c2552f; align-self: flex-end;   } /* نارنجی، چسبیده به راست */
         #pk-loader .pk-bar.b3 { width: 88%;  background: #ffffff; align-self: flex-start; } /* چسبیده به چپ */
@@ -468,15 +468,11 @@
             var wait = Math.max(0, MIN_MS - (Date.now() - shownAt));
             setTimeout(function () {
                 loader.classList.add('pk-hide');
-                loader.classList.remove('pk-nav');   // آماده‌سازی حالت کاملِ تازه برای دفعهٔ بعد
-                document.documentElement.classList.remove('pk-navmode');  // تا اجرای واقعیِ تازه (بدون پرچم) کامل رنگ بگیرد
                 clearNavFlag();                      // پرچم پاک شود تا اجرای تازهٔ بعدی گیرِ حالت سبک نکند
             }, wait);
         }
         function forceHide() {
             loader.classList.add('pk-hide');
-            loader.classList.remove('pk-nav');       // آماده‌سازی حالت کاملِ تازه برای دفعهٔ بعد
-            document.documentElement.classList.remove('pk-navmode');  // تا اجرای واقعیِ تازه (بدون پرچم) کامل رنگ بگیرد
             clearNavFlag();
         }
         function show() {
