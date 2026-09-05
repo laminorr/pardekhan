@@ -759,45 +759,24 @@
 <script>
 (function () {
     var faDigits = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
-    function toFa(n) {
-        return String(n).replace(/\d/g, function (d) { return faDigits[d]; })
-                        .replace(/\B(?=(\d{3})+(?!\d))/g, '٬'); // جداکننده هزارگان فارسی
-    }
     // جداکننده را هم فارسی کن
     function faNum(n) {
         var s = String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
         return s.replace(/\d/g, function (d) { return faDigits[d]; }).replace(/,/g, '٬');
     }
 
-    // ── الگوریتم پایه بر اساس ساعت روز (وقت تهران) ──
-    function baseFor(hour, peak, low) {
-        // منحنی نرم: کف ساعت ۵ صبح، اوج ساعت ۲۲
-        var t = (hour - 5 + 24) % 24;
-        var frac = Math.sin((t / 24) * Math.PI); // 0..1..0
-        var val = low + (peak - low) * frac;
-
-        // ساعت ۲ تا ۹ صبح به وقت ایران: همه خواب‌اند → آمار خیلی کم
-        if (hour >= 2 && hour < 9) {
-            // عمیق‌ترین کف حدود ۵-۶ صبح
-            var deep = 1 - Math.sin(((hour - 2) / 7) * Math.PI) * 0.7; // 1..0.3..1
-            val = val * 0.18 * deep + low * 0.12;
-        }
-        return Math.round(val);
-    }
-
-    var now = new Date();
-    var hour = {{ (int) \Carbon\Carbon::now('Asia/Tehran')->format('G') }}; // ساعت تهران از سرور
-
-    // اعداد پایه (فیک ولی معقول) — می‌توانی بعداً peak/low را تغییر دهی
+    // منبعِ حقیقت: موتورِ شبیه‌سازِ سمتِ سرور. کلاینت دیگر عدد نمی‌سازد؛
+    // فقط مقدارِ سرور را می‌گیرد و بینِ هر واکشی یک نوسانِ کاملاً ظاهریِ ±۱
+    // (گاهی ۰) دورِ همان مقدار نشان می‌دهد تا حسِ «زنده بودنِ» فعلی حفظ شود.
     var online = {
         el: document.getElementById('stat-online'),
-        value: baseFor(hour, 480, 320),
-        jitter: 5   // دامنه نوسان هر تیک
+        server: null,   // آخرین مقدارِ واقعیِ سرور
+        value: 0        // مقدارِ نمایش‌داده‌شده (server + آفستِ ظاهری در بازهٔ [-۱,+۱])
     };
     var watching = {
         el: document.getElementById('stat-watching'),
-        value: baseFor(hour, 65, 35),
-        jitter: 3
+        server: null,
+        value: 0
     };
 
     function render(s) {
@@ -810,25 +789,40 @@
         }, 200);
     }
 
-    // مقدار اولیه
-    online.el && (online.el.textContent = faNum(online.value));
-    watching.el && (watching.el.textContent = faNum(watching.value));
+    // واکشیِ مقدارِ سرور و لنگرگذاریِ مجددِ نمایش روی مقدارِ واقعی
+    var STATS_URL = '{{ route('panel.stats.live') }}';
+    function poll() {
+        return fetch(STATS_URL, { credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+                if (!d || d.ok !== true) return; // خطای داخلی → مقدارِ قبلی حفظ می‌شود
+                online.server = d.online;
+                online.value  = d.online;
+                watching.server = d.watching;
+                watching.value  = d.watching;
+                render(online);
+                render(watching);
+            })
+            .catch(function () { /* خطای شبکه → مقدارِ قبلی حفظ، تلاش در تیکِ بعد */ });
+    }
 
-    // ── تغییر زنده و آرام ──
-    function step(s, floor) {
-        // حرکت آرام: بیشتر اوقات +/- کم، گاهی صفر
-        var delta = Math.round((Math.random() - 0.45) * s.jitter);
-        s.value = Math.max(floor, s.value + delta);
+    // نوسانِ کاملاً ظاهری: آفست در {-۱, ۰, +۱} دورِ مقدارِ سرور، هرگز بیش از ±۱.
+    function cosmeticTick(s) {
+        if (s.server === null) return; // پیش از اولین واکشیِ موفق، همان placeholderِ ۰
+        var offsets = [-1, 0, 1];
+        var next = s.server + offsets[Math.floor(Math.random() * offsets.length)];
+        if (next < 0) next = 0;
+        s.value = next;
         render(s);
     }
 
-    // هر چند ثانیه یکی را به‌روز کن (نه هم‌زمان، تا طبیعی باشد)
-    // کف نوسان نسبت به مقدار اولیه تنظیم می‌شود (تا در ساعات خلوت هم منطقی بماند)
-    var onlineFloor = Math.max(20, Math.round(online.value * 0.85));
-    var watchingFloor = Math.max(5, Math.round(watching.value * 0.8));
-
-    setInterval(function () { step(online, onlineFloor); }, 3500);
-    setInterval(function () { step(watching, watchingFloor); }, 5200);
+    // واکشیِ اولیه، سپس نوسانِ ظاهری با همان کادنسِ فعلی (۳۵۰۰ / ۵۲۰۰ms)
+    // و لنگرگذاریِ مجدد با واکشیِ متناوب (آنلاین هر ~۱۵s، تماشا هر ~۲۰s).
+    poll();
+    setInterval(function () { cosmeticTick(online); }, 3500);
+    setInterval(function () { cosmeticTick(watching); }, 5200);
+    setInterval(poll, 15000);
+    setInterval(poll, 20000);
 })();
 </script>
 @endpush

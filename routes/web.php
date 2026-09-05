@@ -411,6 +411,9 @@ Route::prefix('panel')->name('panel.')->middleware([AuthenticateMember::class])-
         // حال امروز
         Route::post('/mood', [\App\Http\Controllers\Panel\MoodController::class, 'store'])->name('mood.store');
 
+        // آمارِ زندهٔ داشبورد (JSON) — منبعِ حقیقت: موتورِ شبیه‌سازِ سمتِ سرور
+        Route::get('/stats/live', [\App\Http\Controllers\Panel\StatsController::class, 'live'])->name('stats.live');
+
         // پیام‌ها
         Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
         Route::get('/messages/new', [MessageController::class, 'newConversation'])->name('messages.new');
