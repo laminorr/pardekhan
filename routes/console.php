@@ -12,3 +12,9 @@ Artisan::command('inspire', function () {
 Schedule::command('pardekhan:process-events')
     ->everyFifteenMinutes()
     ->withoutOverlapping();
+
+// انتخابِ خودکارِ فیلمِ هفته — هر شنبه ۰۰:۰۱ به وقتِ تهران (۶ = شنبه)
+Schedule::command('pardekhan:assign-weekly-movie')
+    ->weeklyOn(6, '00:01')
+    ->timezone('Asia/Tehran')
+    ->withoutOverlapping();

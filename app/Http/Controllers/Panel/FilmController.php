@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Panel;
 use App\Http\Controllers\Controller;
 use App\Models\WeeklyMovieAssignment;
 use App\Models\WeeklyMovieDecision;
+use App\Services\WeeklyMovie\WeeklyMovieAssigner;
 use App\Services\WeeklyMovie\WeeklyMovieWeekResolver;
 use Illuminate\Http\Request;
 
@@ -19,6 +20,26 @@ class FilmController extends Controller
             ->forWeek($week['start']->toDateString())
             ->with('film')
             ->first();
+
+        // Fallbackِ تنبل (ایمنی برای هاستِ اشتراکی): اگر کرانِ سیستم اجرا نشده
+        // باشد و هنوز تخصیصِ فعالی برای این هفته نباشد، همین‌جا خودکار بساز و
+        // دوباره resolve کن. این مسیر فقط وقتی اجرا می‌شود که هفته خالی باشد و
+        // هرگز نباید صفحه را بشکند — هر خطا بلعیده می‌شود و به حالتِ خالیِ
+        // دوستانه fall through می‌کنیم.
+        if (! $assignment && config('weekly_movie.auto_enabled')) {
+            try {
+                app(WeeklyMovieAssigner::class)->ensureAssignedFor($week['start']);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning(
+                    'فیلم هفته: fallbackِ خودکار شکست خورد: '.$e->getMessage()
+                );
+            }
+
+            $assignment = WeeklyMovieAssignment::active()
+                ->forWeek($week['start']->toDateString())
+                ->with('film')
+                ->first();
+        }
 
         // بدون تخصیص → 404 نده؛ همان ویو با حالتِ خالیِ دوستانه رندر شود.
         $film = $assignment?->film;
