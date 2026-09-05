@@ -3,13 +3,19 @@
 namespace App\Filament\Pages;
 
 use App\Models\Setting;
+use App\Services\ActivitySimulation\ActivitySimulationManager;
+use App\Services\ActivitySimulation\OnlineActivityEngine;
+use App\Services\ActivitySimulation\WeeklyMovieWatchingEngine;
 use BackedEnum;
+use Carbon\CarbonImmutable;
+use Filament\Actions\Action;
 use Filament\Forms;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Schema;
+use Illuminate\Contracts\View\View;
 
 class ActivitySettings extends Page implements HasForms
 {
@@ -91,6 +97,47 @@ class ActivitySettings extends Page implements HasForms
                         ->helperText('حداکثر فاصله‌ای که آمار می‌تواند به‌صورت طبیعی از مقدار پایه فاصله بگیرد.'),
                 ]),
         ])->statePath('data');
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('previewToday')
+                ->label('پیش‌نمایش امروز')
+                ->icon('heroicon-o-eye')
+                ->color('gray')
+                ->modalHeading('پیش‌نمایشِ آمارِ امروز (فقط‌خواندنی)')
+                ->modalSubmitAction(false)
+                ->modalCancelActionLabel('بستن')
+                ->modalContent(fn (): View => view('filament.pages.activity-preview', [
+                    'rows' => $this->buildTodayPreview(),
+                ])),
+        ];
+    }
+
+    /**
+     * مسیرِ امروزِ هر دو موتور (با لنگرهای ذخیره‌شده) را هر ۳۰ دقیقه نمونه می‌گیرد.
+     * فقط‌خواندنی — چیزی ذخیره نمی‌شود و پنلِ اعضا را تحتِ‌تأثیر نمی‌گذارد.
+     */
+    protected function buildTodayPreview(): array
+    {
+        $tz      = config('activity_simulation.timezone');
+        $dateStr = CarbonImmutable::now($tz)->format('Y-m-d');
+
+        $online   = app(OnlineActivityEngine::class)->getTrajectory(CarbonImmutable::parse($dateStr, $tz));
+        $watching = app(WeeklyMovieWatchingEngine::class)->getTrajectory(CarbonImmutable::parse($dateStr, $tz));
+        $manager  = app(ActivitySimulationManager::class);
+
+        $rows = [];
+        for ($m = 0; $m < 1440; $m += 30) {
+            $rows[] = [
+                'time'     => sprintf('%02d:%02d', intdiv($m, 60), $m % 60),
+                'online'   => $online[$m],
+                'watching' => $manager->applyRatioGuard($online[$m], $watching[$m]),
+            ];
+        }
+
+        return $rows;
     }
 
     public function save(): void
