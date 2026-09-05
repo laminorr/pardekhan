@@ -8,6 +8,7 @@ use App\Models\WeeklyMovieAssignment;
 use App\Services\WeeklyMovie\WeeklyMovieWeekResolver;
 use BackedEnum;
 use Filament\Forms;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
@@ -57,9 +58,84 @@ class WeeklyMovieAssignmentResource extends Resource
         ]);
     }
 
+    /**
+     * نمای فقط‌خواندنیِ «آرشیو» یک هفته (شاملِ هفته‌های گذشته): فیلم، بازهٔ هفته،
+     * منبع، وضعیت، تفکیکِ رأی‌ها و سازنده. هیچ چیزی این‌جا قابل‌ویرایش نیست.
+     */
+    public static function infolist(Schema $schema): Schema
+    {
+        return $schema->components([
+            TextEntry::make('film')
+                ->label('فیلم')
+                ->state(fn (WeeklyMovieAssignment $record) => $record->film?->title
+                    ?: $record->film?->original_title
+                    ?: '—'),
+
+            TextEntry::make('week_start')
+                ->label('بازهٔ هفته')
+                ->state(fn (WeeklyMovieAssignment $record) => $record->week_start && $record->week_end
+                    ? 'شنبه ' . pdate($record->week_start, 'Y/m/d')
+                        . ' تا جمعه ' . pdate($record->week_end, 'Y/m/d')
+                    : '—'),
+
+            TextEntry::make('assignment_source')
+                ->label('منبع')
+                ->state(fn (WeeklyMovieAssignment $record) => match ($record->assignment_source) {
+                    'manual'    => 'دستی',
+                    'automatic' => 'خودکار',
+                    default     => (string) $record->assignment_source,
+                }),
+
+            TextEntry::make('status')
+                ->label('وضعیت')
+                ->badge()
+                ->state(fn (WeeklyMovieAssignment $record) => match ($record->status) {
+                    'active'     => 'فعال',
+                    'superseded' => 'جایگزین‌شده',
+                    default      => (string) $record->status,
+                })
+                ->color(fn (WeeklyMovieAssignment $record) => match ($record->status) {
+                    'active'     => 'success',
+                    'superseded' => 'gray',
+                    default      => 'gray',
+                }),
+
+            TextEntry::make('will_watch')
+                ->label('می‌بینند')
+                ->state(fn (WeeklyMovieAssignment $record) => fa(
+                    $record->decisions->where('decision', 'will_watch')->count()
+                )),
+
+            TextEntry::make('will_not_watch')
+                ->label('نمی‌بینند')
+                ->state(fn (WeeklyMovieAssignment $record) => fa(
+                    $record->decisions->where('decision', 'will_not_watch')->count()
+                )),
+
+            TextEntry::make('total_votes')
+                ->label('مجموع')
+                ->state(fn (WeeklyMovieAssignment $record) => fa($record->decisions->count())),
+
+            TextEntry::make('watch_pct')
+                ->label('٪ تماشا')
+                ->state(function (WeeklyMovieAssignment $record): string {
+                    $watch = $record->decisions->where('decision', 'will_watch')->count();
+                    $not   = $record->decisions->where('decision', 'will_not_watch')->count();
+                    $total = $watch + $not;
+
+                    return '٪' . fa($total ? (int) round($watch / $total * 100) : 0);
+                }),
+
+            TextEntry::make('created_by')
+                ->label('ثبت‌کننده')
+                ->state(fn (WeeklyMovieAssignment $record) => $record->createdBy?->name ?? '—'),
+        ]);
+    }
+
     public static function table(Table $table): Table
     {
         $currentWeekStart = (new WeeklyMovieWeekResolver)->currentWeek()['start']->toDateString();
+        $today = \Illuminate\Support\Carbon::now('Asia/Tehran')->toDateString();
 
         $isCurrentWeek = fn (WeeklyMovieAssignment $record): bool => $record->week_start
             && $record->week_start->toDateString() === $currentWeekStart;
@@ -162,8 +238,14 @@ class WeeklyMovieAssignmentResource extends Resource
                 Tables\Filters\Filter::make('future_weeks')
                     ->label('هفته‌های آینده')
                     ->query(fn (Builder $query) => $query->whereDate('week_start', '>', $currentWeekStart)),
+
+                // هفته‌های گذشته: هفته‌هایی که جمعهٔ آن‌ها پیش از امروز (تهران) است.
+                Tables\Filters\Filter::make('past_weeks')
+                    ->label('هفته‌های گذشته')
+                    ->query(fn (Builder $query) => $query->whereDate('week_end', '<', $today)),
             ])
             ->recordActions([
+                \Filament\Actions\ViewAction::make(),
                 \Filament\Actions\EditAction::make(),
                 \Filament\Actions\DeleteAction::make(),
             ]);

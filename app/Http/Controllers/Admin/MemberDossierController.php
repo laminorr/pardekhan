@@ -10,6 +10,7 @@ use App\Models\Member;
 use App\Models\Payment;
 use App\Models\QuestionnaireAnswer;
 use App\Models\ScoreLog;
+use App\Models\WeeklyMovieDecision;
 use OpenSpout\Common\Entity\Row;
 use OpenSpout\Common\Entity\Style\Border;
 use OpenSpout\Common\Entity\Style\BorderPart;
@@ -62,6 +63,7 @@ class MemberDossierController extends Controller
         $this->sheetWallet($writer, $member);
         $this->sheetPayments($writer, $member);
         $this->sheetDailyMoods($writer, $member);
+        $this->sheetWeeklyMovieDecisions($writer, $member);
 
         $writer->close();
 
@@ -347,6 +349,64 @@ class MemberDossierController extends Controller
             $this->addDataRow($writer, [
                 pdate($m->mood_date, 'Y/m/d'),
                 DailyMood::label($m->mood),
+            ], $j);
+        }
+    }
+
+    private function sheetWeeklyMovieDecisions(Writer $writer, Member $member): void
+    {
+        $sheet = $writer->addNewSheetAndMakeItCurrent();
+        $sheet->setName('تصمیم فیلم هفته');
+        $this->styleSheet($sheet, [30, 40, 18]); // بازهٔ هفته / فیلم / تصمیم
+
+        $decisions = $member->weeklyMovieDecisions()
+            ->with('assignment.film')
+            ->get()
+            // جدیدترین بالا: بر اساس week_startِ تخصیص (نبودِ تخصیص → ته لیست)
+            ->sortByDesc(fn ($d) => optional($d->assignment)->week_start?->timestamp ?? 0)
+            ->values();
+
+        // ── خلاصه: تعداد هر تصمیم ──
+        $this->addHeaderRow($writer, ['تصمیم', 'تعداد']);
+
+        $counts = $decisions->countBy('decision'); // [decision => count]
+        $i = 0;
+        foreach (WeeklyMovieDecision::LABELS as $value => $label) {
+            $n = (int) ($counts[$value] ?? 0);
+            $this->addDataRow($writer, [$label, fa($n)], $i);
+        }
+
+        // فاصله بین خلاصه و ریز تصمیم‌ها
+        $writer->addRow(Row::fromValues(['', '', '']));
+
+        // ── ریز تصمیم‌ها (جدیدترین بالا) ──
+        $this->addHeaderRow($writer, ['هفته', 'فیلم', 'تصمیم']);
+
+        if ($decisions->isEmpty()) {
+            $j = 0;
+            $this->addDataRow($writer, ['—', '—', 'تصمیمی ثبت نشده است'], $j);
+
+            return;
+        }
+
+        $j = 0;
+        foreach ($decisions as $d) {
+            $assignment = $d->assignment;
+            $film = $assignment?->film;
+
+            $week = '—';
+            if ($assignment && $assignment->week_start && $assignment->week_end) {
+                $week = pdate($assignment->week_start, 'Y/m/d')
+                    .' تا '
+                    .pdate($assignment->week_end, 'Y/m/d');
+            }
+
+            $title = $film?->title ?: $film?->original_title ?: '—';
+
+            $this->addDataRow($writer, [
+                $week,
+                $title,
+                WeeklyMovieDecision::label($d->decision),
             ], $j);
         }
     }

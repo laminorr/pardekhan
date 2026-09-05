@@ -15,6 +15,18 @@ class WeeklyMovieDecision extends Model
         'decision',
     ];
 
+    /** برچسب فارسی هر تصمیم. منبع مشترک برای پنل و پرونده. */
+    public const LABELS = [
+        'will_watch' => 'می‌بینم',
+        'will_not_watch' => 'نمی‌بینم',
+    ];
+
+    /** برچسب فارسی برای یک مقدار تصمیم (یا خط‌تیره اگر نامعتبر بود). */
+    public static function label(?string $v): string
+    {
+        return self::LABELS[$v] ?? '—';
+    }
+
     // ── Relations ──────────────────────────────────────
     public function member(): BelongsTo
     {
