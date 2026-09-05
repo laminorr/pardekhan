@@ -66,6 +66,137 @@
             صفحهٔ IMDb
         </a>
     @endif
+
+    {{-- ─────────── رأی‌گیریِ اعضا (فاز ۳) ─────────── --}}
+    <div id="wm-vote" style="margin-top:1.8rem;padding-top:1.4rem;border-top:1px solid var(--line,#e7e2d8);">
+        <div style="font-size:0.95rem;font-weight:800;color:var(--ink);margin-bottom:0.9rem;">این هفته می‌بینیش؟</div>
+
+        {{-- فرمِ واقعی برای fallbackِ بدون JS (mirror الگوی MoodController) --}}
+        <form method="POST" action="{{ route('panel.film.vote') }}" id="wm-vote-form">
+            @csrf
+            <input type="hidden" name="decision" id="wm-decision-input" value="{{ $myDecision }}">
+            <div style="display:flex;gap:0.6rem;">
+                <button type="submit" name="decision" value="will_watch"
+                        class="wm-vote-btn @if($myDecision === 'will_watch') is-active @endif"
+                        data-decision="will_watch" aria-pressed="{{ $myDecision === 'will_watch' ? 'true' : 'false' }}">
+                    می‌بینمش
+                </button>
+                <button type="submit" name="decision" value="will_not_watch"
+                        class="wm-vote-btn @if($myDecision === 'will_not_watch') is-active @endif"
+                        data-decision="will_not_watch" aria-pressed="{{ $myDecision === 'will_not_watch' ? 'true' : 'false' }}">
+                    این هفته نه
+                </button>
+            </div>
+        </form>
+
+        {{-- نتیجهٔ جمعی — گیتِ اثبات اجتماعی --}}
+        <div id="wm-result" style="margin-top:1.1rem;">
+            @include('panel.film.partials.vote-result', [
+                'reveal'       => $reveal,
+                'myDecision'   => $myDecision,
+                'total'        => $total,
+                'threshold'    => $threshold,
+                'willWatch'    => $willWatch,
+                'willNot'      => $willNot,
+                'willWatchPct' => $willWatchPct,
+            ])
+        </div>
+    </div>
+
+    <style>
+        .wm-vote-btn{
+            flex:1;padding:0.7rem 0.5rem;border-radius:14px;cursor:pointer;
+            font-family:inherit;font-size:0.9rem;font-weight:800;
+            border:1.5px solid var(--line,#e7e2d8);background:var(--card,#fff);
+            color:var(--ink-mid,#4a4a44);transition:all .15s ease;
+        }
+        .wm-vote-btn:hover{border-color:var(--pine);}
+        .wm-vote-btn.is-active{
+            background:var(--pine);border-color:var(--pine);color:#fff;
+            box-shadow:0 8px 20px -10px rgba(47,93,80,0.6);
+        }
+    </style>
+
+    <script>
+    (function () {
+        var form  = document.getElementById('wm-vote-form');
+        var input = document.getElementById('wm-decision-input');
+        var result = document.getElementById('wm-result');
+        if (!form) return;
+
+        var btns = form.querySelectorAll('.wm-vote-btn');
+        var token = form.querySelector('input[name="_token"]');
+        var faDigits = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
+        function fa(n){ return String(n).replace(/\d/g, function (d){ return faDigits[d]; }); }
+
+        function setActive(decision) {
+            btns.forEach(function (b) {
+                var on = b.getAttribute('data-decision') === decision;
+                b.classList.toggle('is-active', on);
+                b.setAttribute('aria-pressed', on ? 'true' : 'false');
+            });
+            if (input) input.value = decision;
+        }
+
+        function renderResult(d) {
+            if (!result) return;
+            if (d.reveal) {
+                var pct = fa(d.pct);
+                var notPct = fa(100 - d.pct);
+                result.innerHTML =
+                    '<div style="display:flex;align-items:center;justify-content:space-between;font-size:0.8rem;font-weight:800;margin-bottom:0.4rem;">' +
+                        '<span style="color:var(--pine);">٪' + pct + ' می‌بینند</span>' +
+                        '<span style="color:var(--ink-dim,#8a8a80);">٪' + notPct + ' نمی‌بینند</span>' +
+                    '</div>' +
+                    '<div style="display:flex;height:12px;border-radius:99px;overflow:hidden;background:var(--line,#e7e2d8);">' +
+                        '<div style="width:' + d.pct + '%;background:var(--pine);"></div>' +
+                    '</div>' +
+                    '<div style="font-size:0.72rem;color:var(--ink-dim,#8a8a80);margin-top:0.45rem;">' +
+                        'مجموع ' + fa(d.total) + ' رأی' +
+                    '</div>';
+            } else {
+                // رأی داده ولی هنوز به آستانه نرسیده — بدون هیچ عددی.
+                result.innerHTML =
+                    '<div style="font-size:0.78rem;color:var(--ink-dim,#8a8a80);line-height:1.9;">' +
+                        'نتیجهٔ جمعی به‌زودی (بعد از رأی چند نفر دیگر)…' +
+                    '</div>';
+            }
+        }
+
+        btns.forEach(function (btn) {
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+                var decision = btn.getAttribute('data-decision');
+                setActive(decision);
+
+                var body = new URLSearchParams();
+                body.append('decision', decision);
+                body.append('_token', token ? token.value : '');
+
+                fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: body.toString(),
+                    credentials: 'same-origin'
+                }).then(function (r) {
+                    if (!r.ok) throw new Error('bad status');
+                    return r.json();
+                }).then(function (data) {
+                    if (!data || !data.ok) throw new Error('not ok');
+                    setActive(data.my_decision);
+                    renderResult(data);
+                }).catch(function () {
+                    // خطای شبکه/AJAX → ارسالِ عادیِ فرم (POST + redirect)
+                    form.submit();
+                });
+            });
+        });
+    })();
+    </script>
 @else
     {{-- حالتِ خالیِ دوستانه (بدون 404) --}}
     <div style="text-align:center;padding:3rem 1rem;">

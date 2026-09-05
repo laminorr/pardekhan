@@ -66,6 +66,11 @@ class WeeklyMovieAssignmentResource extends Resource
 
         return $table
             ->defaultSort('week_start', 'desc')
+            // شمارشِ تفکیکیِ رأی‌ها در همان کوئریِ جدول (بدون کوئریِ اضافه per-row).
+            ->modifyQueryUsing(fn (Builder $query) => $query->withCount([
+                'decisions as will_watch_count' => fn ($q) => $q->where('decision', 'will_watch'),
+                'decisions as will_not_count'   => fn ($q) => $q->where('decision', 'will_not_watch'),
+            ]))
             ->columns([
                 // ردیفِ هفتهٔ جاری با رنگِ برند و نشانِ «● هفتهٔ جاری» برجسته می‌شود.
                 Tables\Columns\TextColumn::make('week_start')
@@ -117,6 +122,30 @@ class WeeklyMovieAssignmentResource extends Resource
                     ->label('تصمیم‌ها')
                     ->counts('decisions')
                     ->sortable(),
+
+                Tables\Columns\TextColumn::make('will_watch_count')
+                    ->label('می‌بینند')
+                    ->formatStateUsing(fn ($state) => fa((int) $state))
+                    ->toggleable()
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('will_not_count')
+                    ->label('نمی‌بینند')
+                    ->formatStateUsing(fn ($state) => fa((int) $state))
+                    ->toggleable()
+                    ->sortable(),
+
+                // ٪ تماشا = will_watch / (will_watch + will_not) — بدون رأی، صفر.
+                Tables\Columns\TextColumn::make('watch_pct')
+                    ->label('٪ تماشا')
+                    ->getStateUsing(function (WeeklyMovieAssignment $record): string {
+                        $watch = (int) ($record->will_watch_count ?? 0);
+                        $not   = (int) ($record->will_not_count ?? 0);
+                        $total = $watch + $not;
+
+                        return '٪' . fa($total ? (int) round($watch / $total * 100) : 0);
+                    })
+                    ->toggleable(),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('status')

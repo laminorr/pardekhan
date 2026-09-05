@@ -402,6 +402,7 @@ Route::prefix('panel')->name('panel.')->middleware([AuthenticateMember::class])-
         Route::get('/podcast', [\App\Http\Controllers\Panel\PodcastController::class, 'index'])->name('podcast');
         Route::get('/podcast/{slug}', [\App\Http\Controllers\Panel\PodcastController::class, 'show'])->name('podcast.show')->where('slug', 'uncertainty|hegemony');
         Route::get('/film/today', [\App\Http\Controllers\Panel\FilmController::class, 'today'])->name('film.today');
+        Route::post('/film/vote', [\App\Http\Controllers\Panel\FilmController::class, 'vote'])->name('film.vote');
         Route::get('/posts', [\App\Http\Controllers\Panel\PostController::class, 'index'])->name('posts.index');
         Route::get('/posts/{post}', [\App\Http\Controllers\Panel\PostController::class, 'show'])->name('posts.show');
         Route::get('/books', [\App\Http\Controllers\Panel\BookController::class, 'index'])->name('books.index');
