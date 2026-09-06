@@ -394,6 +394,7 @@ Route::prefix('panel')->name('panel.')->middleware([AuthenticateMember::class])-
     // ── مسیرهای فقط برای اعضای تاییدشده ──
     Route::middleware([\App\Http\Middleware\EnsureMemberApproved::class])->group(function () {
         Route::get('/wallet', [\App\Http\Controllers\Panel\WalletController::class, 'index'])->name('wallet');
+        Route::post('/wallet/report-payment', [\App\Http\Controllers\Panel\WalletReportController::class, 'store'])->name('wallet.report-payment');
         Route::get('/events', [EventController::class, 'index'])->name('events.index');
         Route::get('/my-events', [EventController::class, 'myEvents'])->name('events.my');
         Route::get('/events/{event}/feedback', [FeedbackController::class, 'create'])->name('feedback.create');

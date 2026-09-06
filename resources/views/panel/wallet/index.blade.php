@@ -43,16 +43,178 @@
     @if($cardNumber)
     <div style="margin-top:1rem;border:1px solid var(--border);border-radius:20px;padding:1.25rem;background:#fff;">
         <div style="font-size:0.95rem;font-weight:800;margin-bottom:0.4rem;">شارژ با کارت به کارت</div>
-        <div style="font-size:0.8rem;color:var(--ink-mid);line-height:1.9;text-align:justify;">مبلغ دلخواه را به کارت زیر واریز کرده و سپس از طریق پیام به مدیریت، مبلغ و شمارهٔ پیگیری را اطلاع دهید تا کیف پولتان شارژ شود.</div>
+        <div style="font-size:0.8rem;color:var(--ink-mid);line-height:1.9;text-align:justify;">مبلغ دلخواه را به کارت زیر واریز کرده و سپس با زدن دکمهٔ «اطلاع پرداختی به ادمین»، مبلغ و شمارهٔ پیگیری را ثبت کنید تا پس از تأیید، کیف پولتان شارژ شود.</div>
         <div style="background:var(--bg-soft);border-radius:14px;padding:1rem;text-align:center;margin-top:1rem;">
             <div style="font-size:0.72rem;color:var(--ink-dim);margin-bottom:0.4rem;">شماره کارت</div>
             <div style="font-size:1.2rem;font-weight:700;color:var(--pine);direction:ltr;letter-spacing:2px;">{{ $cardNumber }}</div>
             @if($cardHolder)<div style="font-size:0.78rem;color:var(--ink-dim);margin-top:0.4rem;">{{ $cardHolder }}</div>@endif
         </div>
-        <a href="{{ route('panel.messages.index') }}" class="btn btn-primary" style="margin-top:1rem;">اطلاع به مدیریت</a>
+
+        {{-- پیام موفقیت (fallbackِ بدون JS: فلش پس از ثبت فرم) --}}
+        <div id="report-inline-success" class="alert alert-success" style="margin-top:1rem;{{ session('payment_report_saved') ? '' : 'display:none;' }}">
+            گزارش پرداخت ثبت شد؛ پس از تأیید مدیریت، کیف پول شما شارژ می‌شود.
+        </div>
+
+        {{-- لینکِ باز کردن پاپ‌آپ — با #hash کار می‌کند حتی بدون JS (تکنیک :target) --}}
+        <a href="#report-modal" id="open-report-modal" class="btn btn-primary" style="margin-top:1rem;">اطلاع پرداختی به ادمین</a>
     </div>
     @endif
 </div>
+
+@if($cardNumber)
+{{-- ─────────── پاپ‌آپِ اطلاع پرداختی (RTL، برند پرده‌خوان) ─────────── --}}
+{{-- بدون JS: لینکِ #report-modal با :target پاپ‌آپ را باز می‌کند و فرم به‌صورت POST معمولی ثبت می‌شود. --}}
+<div id="report-modal" class="report-modal">
+    <a href="#charge-box" class="report-modal__backdrop" data-close-report aria-label="بستن"></a>
+    <div class="report-modal__panel" role="dialog" aria-modal="true" aria-labelledby="report-modal-title">
+        <div class="report-modal__head">
+            <div id="report-modal-title" style="font-size:1.05rem;font-weight:800;">اطلاع پرداختی به ادمین</div>
+            <a href="#charge-box" class="report-modal__close" data-close-report aria-label="بستن">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </a>
+        </div>
+        <div style="font-size:0.8rem;color:var(--ink-mid);line-height:1.9;margin-bottom:1rem;">مبلغ واریزی و شمارهٔ پیگیری تراکنش را وارد کنید تا پس از تأیید مدیریت، کیف پولتان شارژ شود.</div>
+
+        <form method="POST" action="{{ route('panel.wallet.report-payment') }}" id="report-form">
+            @csrf
+            <div id="report-form-error" class="alert alert-danger" style="display:none;"></div>
+
+            <div class="field">
+                <label for="report-amount">مبلغ واریزی (تومان)</label>
+                <input type="number" name="amount" id="report-amount" inputmode="numeric" min="1000" step="1000" required
+                       value="{{ old('amount') }}" placeholder="مثلاً ۵۰۰۰۰">
+            </div>
+            <div class="field">
+                <label for="report-tracking">شماره پیگیری</label>
+                <input type="text" name="tracking_number" id="report-tracking" required
+                       value="{{ old('tracking_number') }}" placeholder="شمارهٔ پیگیری تراکنش">
+            </div>
+
+            <div style="display:flex;gap:0.6rem;margin-top:0.4rem;">
+                <button type="submit" class="btn btn-primary" id="report-submit" style="flex:1;">ارسال</button>
+                <a href="#charge-box" class="btn btn-ghost" data-close-report style="flex:0 0 auto;padding-inline:1.2rem;">انصراف</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@push('styles')
+<style>
+    .report-modal{position:fixed;inset:0;z-index:200;display:none;}
+    .report-modal:target{display:block;}   /* fallbackِ بدون JS */
+    .report-modal.is-open{display:block;}   /* مسیرِ JS */
+    .report-modal__backdrop{position:absolute;inset:0;background:rgba(22,24,26,0.5);backdrop-filter:blur(2px);}
+    .report-modal__panel{
+        position:absolute;left:50%;bottom:0;transform:translateX(-50%);
+        width:100%;max-width:430px;background:var(--surface);
+        border-radius:22px 22px 0 0;padding:1.4rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));
+        box-shadow:0 -18px 48px -20px rgba(40,60,50,0.4);
+        animation:report-slide-up .22s ease;
+    }
+    @keyframes report-slide-up{from{transform:translate(-50%,100%);}to{transform:translate(-50%,0);}}
+    .report-modal__head{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.8rem;}
+    .report-modal__close{
+        width:34px;height:34px;border-radius:11px;border:1px solid var(--border);
+        background:var(--surface);color:var(--ink-mid);display:flex;align-items:center;justify-content:center;cursor:pointer;
+    }
+    @media (prefers-reduced-motion: reduce){ .report-modal__panel{animation:none;} }
+</style>
+@endpush
+
+@push('scripts')
+<script>
+(function () {
+    var modal   = document.getElementById('report-modal');
+    var openBtn = document.getElementById('open-report-modal');
+    var form    = document.getElementById('report-form');
+    if (!modal || !openBtn || !form) return;
+
+    var submitBtn = document.getElementById('report-submit');
+    var errorBox  = document.getElementById('report-form-error');
+    var success   = document.getElementById('report-inline-success');
+    var token     = form.querySelector('input[name="_token"]');
+
+    function openModal() {
+        modal.classList.add('is-open');
+        var amount = document.getElementById('report-amount');
+        if (amount) setTimeout(function () { amount.focus(); }, 50);
+    }
+    function closeModal() {
+        modal.classList.remove('is-open');
+        // اگر hash باقی مانده (مثلاً از fallback)، پاک کن تا :target دوباره باز نکند
+        if (location.hash === '#report-modal') {
+            history.replaceState(null, '', location.pathname + location.search);
+        }
+    }
+    function showError(msg) {
+        if (!errorBox) return;
+        errorBox.textContent = msg;
+        errorBox.style.display = '';
+    }
+    function clearError() {
+        if (errorBox) { errorBox.textContent = ''; errorBox.style.display = 'none'; }
+    }
+
+    openBtn.addEventListener('click', function (e) { e.preventDefault(); openModal(); });
+    modal.querySelectorAll('[data-close-report]').forEach(function (el) {
+        el.addEventListener('click', function (e) { e.preventDefault(); closeModal(); });
+    });
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && modal.classList.contains('is-open')) closeModal();
+    });
+
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        clearError();
+
+        var amount   = document.getElementById('report-amount');
+        var tracking = document.getElementById('report-tracking');
+        if (!amount.value || parseInt(amount.value, 10) < 1000) {
+            showError('مبلغ واریزی باید حداقل ۱۰۰۰ تومان باشد.');
+            return;
+        }
+        if (!tracking.value.trim()) {
+            showError('شمارهٔ پیگیری را وارد کنید.');
+            return;
+        }
+
+        var body = new URLSearchParams();
+        body.append('amount', amount.value);
+        body.append('tracking_number', tracking.value.trim());
+        body.append('_token', token ? token.value : '');
+
+        if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'در حال ارسال…'; }
+
+        fetch(form.action, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: body.toString(),
+            credentials: 'same-origin'
+        }).then(function (r) {
+            if (!r.ok) throw new Error('bad status');
+            return r.json();
+        }).then(function (data) {
+            if (!data || !data.ok) throw new Error('not ok');
+            closeModal();
+            form.reset();
+            if (success) { success.style.display = ''; success.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+        }).catch(function () {
+            showError('ثبت گزارش با خطا مواجه شد. دوباره تلاش کنید.');
+        }).finally(function () {
+            if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'ارسال'; }
+            // چون این مسیر AJAX است و ناوبری‌ای رخ نمی‌دهد، لودرِ لِی‌اوت را پنهان کن
+            var loader = document.getElementById('pk-loader');
+            if (loader) loader.classList.add('pk-hide');
+        });
+    });
+})();
+</script>
+@endpush
+@endif
 
 {{-- تراکنش‌ها --}}
 <div style="margin-top:1.75rem;font-size:1.05rem;font-weight:800;">تراکنش‌ها</div>

@@ -66,6 +66,11 @@ class Member extends Authenticatable
         return $this->hasMany(WalletTransaction::class)->latest();
     }
 
+    public function paymentReports(): HasMany
+    {
+        return $this->hasMany(PaymentReport::class)->latest();
+    }
+
     public function registrations(): HasMany
     {
         return $this->hasMany(Registration::class);
