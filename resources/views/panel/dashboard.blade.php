@@ -765,18 +765,18 @@
         return s.replace(/\d/g, function (d) { return faDigits[d]; }).replace(/,/g, '٬');
     }
 
-    // منبعِ حقیقت: موتورِ شبیه‌سازِ سمتِ سرور. کلاینت دیگر عدد نمی‌سازد؛
-    // فقط مقدارِ سرور را می‌گیرد و بینِ هر واکشی یک نوسانِ کاملاً ظاهریِ ±۱
-    // (گاهی ۰) دورِ همان مقدار نشان می‌دهد تا حسِ «زنده بودنِ» فعلی حفظ شود.
+    // منبعِ حقیقت: موتورِ شبیه‌سازِ سمتِ سرور. کلاینت هیچ عددی نمی‌سازد و
+    // هیچ نوسانِ ظاهری‌ای ندارد؛ فقط مقدارِ سرور را می‌گیرد و تنها زمانی که
+    // مقدار واقعاً تغییر کند (~هر دقیقه) به‌آرامی آن را به‌روزرسانی می‌کند.
     var online = {
         el: document.getElementById('stat-online'),
-        server: null,   // آخرین مقدارِ واقعیِ سرور
-        value: 0        // مقدارِ نمایش‌داده‌شده (server + آفستِ ظاهری در بازهٔ [-۱,+۱])
+        value: 0,          // مقدارِ نمایش‌داده‌شده (مستقیماً از سرور)
+        lastRendered: null // آخرین مقداری که واقعاً رندر شد
     };
     var watching = {
         el: document.getElementById('stat-watching'),
-        server: null,
-        value: 0
+        value: 0,
+        lastRendered: null
     };
 
     function render(s) {
@@ -789,6 +789,14 @@
         }, 200);
     }
 
+    // فقط زمانی رندر کن که مقدار نسبت به آخرین مقدارِ رندرشده تغییر کرده باشد
+    function apply(s, next) {
+        s.value = next;
+        if (s.lastRendered === next) return; // بدون تغییر → بدونِ پالسِ بی‌مورد
+        s.lastRendered = next;
+        render(s);
+    }
+
     // واکشیِ مقدارِ سرور و لنگرگذاریِ مجددِ نمایش روی مقدارِ واقعی
     var STATS_URL = '{{ route('panel.stats.live') }}';
     function poll() {
@@ -796,33 +804,16 @@
             .then(function (r) { return r.json(); })
             .then(function (d) {
                 if (!d || d.ok !== true) return; // خطای داخلی → مقدارِ قبلی حفظ می‌شود
-                online.server = d.online;
-                online.value  = d.online;
-                watching.server = d.watching;
-                watching.value  = d.watching;
-                render(online);
-                render(watching);
+                apply(online, d.online);
+                apply(watching, d.watching);
             })
             .catch(function () { /* خطای شبکه → مقدارِ قبلی حفظ، تلاش در تیکِ بعد */ });
     }
 
-    // نوسانِ کاملاً ظاهری: آفست در {-۱, ۰, +۱} دورِ مقدارِ سرور، هرگز بیش از ±۱.
-    function cosmeticTick(s) {
-        if (s.server === null) return; // پیش از اولین واکشیِ موفق، همان placeholderِ ۰
-        var offsets = [-1, 0, 1];
-        var next = s.server + offsets[Math.floor(Math.random() * offsets.length)];
-        if (next < 0) next = 0;
-        s.value = next;
-        render(s);
-    }
-
-    // واکشیِ اولیه، سپس نوسانِ ظاهری با همان کادنسِ فعلی (۳۵۰۰ / ۵۲۰۰ms)
-    // و لنگرگذاریِ مجدد با واکشیِ متناوب (آنلاین هر ~۱۵s، تماشا هر ~۲۰s).
+    // واکشیِ اولیه، سپس یک واکشیِ واحد هر ۳۰ ثانیه. عدد فقط زمانی که واقعاً
+    // تغییر کند (~هر دقیقه) به‌آرامی به‌روز می‌شود؛ هیچ نوسانِ سه‌ثانیه‌ای نیست.
     poll();
-    setInterval(function () { cosmeticTick(online); }, 3500);
-    setInterval(function () { cosmeticTick(watching); }, 5200);
-    setInterval(poll, 15000);
-    setInterval(poll, 20000);
+    setInterval(poll, 30000);
 })();
 </script>
 @endpush
