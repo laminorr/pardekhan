@@ -16,6 +16,7 @@ class Event extends Model
         return [
             'starts_at'          => 'datetime',
             'over_capacity_flag' => 'boolean',
+            'is_suggested'       => 'boolean',
         ];
     }
 

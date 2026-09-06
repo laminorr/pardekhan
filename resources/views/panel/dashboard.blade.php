@@ -382,7 +382,7 @@
 
 {{-- دورهمی پیشنهادی --}}
 @php
-    $suggested = \App\Models\Event::where('status', 'active')->where('starts_at', '>', now())->visibleTo($member)->orderBy('starts_at')->first();
+    $suggested = \App\Models\Event::where('status', 'active')->where('is_suggested', true)->where('starts_at', '>', now())->visibleTo($member)->orderBy('starts_at')->first();
 
     // آیا عضو در این دورهمی ثبت‌نام کرده؟ (هم‌منطق با EventController@show)
     $suggestedIsRegistered = false;

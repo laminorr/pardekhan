@@ -209,6 +209,10 @@ class EventResource extends Resource
                             ])
                             ->default('draft')
                             ->required(),
+                        Forms\Components\Toggle::make('is_suggested')
+                            ->label('نمایش در دورهمی‌های پیشنهادیِ صفحهٔ اول')
+                            ->helperText('اگر روشن باشد، این دورهمی می‌تواند به‌عنوان «دورهمی پیشنهادی» در صفحهٔ اولِ اپ نشان داده شود (نزدیک‌ترین دورهمیِ روشن انتخاب می‌شود).')
+                            ->default(true),
                         Forms\Components\Select::make('book_id')
                             ->label('کتاب مرتبط')
                             ->relationship('book', 'title')
@@ -266,6 +270,9 @@ class EventResource extends Resource
                         'completed'      => 'info',
                         default          => 'gray',
                     }),
+                Tables\Columns\ToggleColumn::make('is_suggested')
+                    ->label('پیشنهادی')
+                    ->toggleable(),
             ])
             ->defaultSort('starts_at', 'desc')
             ->actions([
