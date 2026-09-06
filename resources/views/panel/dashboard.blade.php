@@ -559,7 +559,7 @@
         <span class="pk-mood__thanks-chip" aria-hidden="true">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
         </span>
-        <p class="pk-mood__thanks-text">مرسی که از حالت هممونو باخبر کردی. به امید دیدارت.</p>
+        <p class="pk-mood__thanks-text">ما در یک روایتیم، باهم حال بهتر رو تجربه میکنیم.</p>
         <button type="button" class="pk-mood__change" id="pk-mood-change" aria-label="تغییر حال امروز" title="تغییر حال امروز"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></button>
     </div>
 
