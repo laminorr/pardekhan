@@ -64,5 +64,5 @@
 @endsection
 
 @section('nav')
-    @include('panel.partials.bottom-nav', ['active' => 'home'])
+    @include('panel.partials.bottom-nav', ['active' => 'podcast'])
 @endsection

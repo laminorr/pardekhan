@@ -107,7 +107,7 @@
         html { scrollbar-gutter: stable; }
         .phone {
             max-width: 430px; margin: 0 auto; min-height: 100vh;
-            position: relative; overflow-x: hidden; padding-bottom: 92px;
+            position: relative; overflow-x: hidden; padding-bottom: 120px;
             background: #fcfcfb;
         }
         .wrap { padding: 1.4rem 1.2rem; position: relative; z-index: 1; }
@@ -166,17 +166,33 @@
         .alert-success { background: var(--green-tint); border: 1px solid #c5ddd2; color: var(--pine-deep); }
         .alert-danger { background: #fbeae4; border: 1px solid #f0cdbe; color: var(--burnt); }
 
-        /* نویگیشن پایین */
-        .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
-            width: 100%; max-width: 430px; background: rgba(252,252,251,0.92);
-            backdrop-filter: blur(18px); border-top: 1px solid var(--border);
-            display: flex; justify-content: space-around; padding: 0.6rem 0 0.9rem; z-index: 50; }
-        .nav-i { display: flex; flex-direction: column; align-items: center; gap: 3px;
-            color: var(--ink-faint); text-decoration: none; font-size: 0.64rem; font-weight: 600; flex: 1; }
+        /* نویگیشن پایین — جزیرهٔ شناور */
+        .bottom-nav { position: fixed; left: 50%; bottom: calc(14px + env(safe-area-inset-bottom));
+            transform: translateX(-50%);
+            width: calc(100% - 28px); max-width: 412px; height: 64px;
+            background: rgba(252,252,251,0.94); backdrop-filter: blur(18px);
+            border: 1px solid var(--border); border-radius: 26px;
+            box-shadow: 0 14px 34px -12px rgba(35,74,64,.34), 0 2px 6px rgba(0,0,0,.05);
+            display: flex; align-items: center; justify-content: space-around; padding: 0 8px; z-index: 50; }
+        .nav-i { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; min-width: 0;
+            color: var(--ink-faint); text-decoration: none; font-size: 0.66rem; font-weight: 600;
+            padding: 8px 0; border-radius: 16px; transition: color .2s; }
         .nav-i.on { color: var(--pine); }
-        .nav-ico { width: 48px; height: 32px; border-radius: 12px; display: flex;
-            align-items: center; justify-content: center; transition: background 0.2s; }
-        .nav-i.on .nav-ico { background: var(--green-soft); }
+        .nav-i.on .nav-lbl { font-weight: 700; }
+        .nav-ico { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; }
+        .nav-i:focus-visible { outline: 2px solid var(--pine); outline-offset: 3px; }
+        /* آیتم محوری: دورهمی */
+        .nav-center { position: relative; }
+        .nav-fab { position: absolute; top: -32px; left: 50%; transform: translateX(-50%);
+            width: 60px; height: 60px; border-radius: 50%;
+            background: radial-gradient(120% 120% at 30% 25%, #3a6f60 0%, var(--pine) 55%, #234a40 100%);
+            display: grid; place-items: center;
+            box-shadow: 0 12px 22px -6px rgba(35,74,64,.55), 0 0 0 5px rgba(252,252,251,0.94);
+            transition: transform .18s ease; }
+        .nav-center .nav-lbl { margin-top: 32px; color: var(--pine); font-weight: 700; }
+        .nav-center:active .nav-fab { transform: translateX(-50%) scale(.94); }
+        .nav-center.on .nav-fab { box-shadow: 0 12px 24px -6px rgba(35,74,64,.6), 0 0 0 5px rgba(252,252,251,0.94), 0 0 0 8px var(--green-soft); }
+        @media (prefers-reduced-motion: reduce) { .nav-fab { transition: none; } }
 
         .back-link { display: flex; align-items: center; justify-content: center; gap: 6px;
             padding: 0.9rem; background: var(--surface); border: 1px solid var(--border);
