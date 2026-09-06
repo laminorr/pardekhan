@@ -100,9 +100,12 @@
 
 @push('styles')
 <style>
-    .report-modal{position:fixed;inset:0;z-index:200;display:none;}
+    .report-modal{position:fixed;inset:0;z-index:1000;display:none;}
     .report-modal:target{display:block;}   /* fallbackِ بدون JS */
     .report-modal.is-open{display:block;}   /* مسیرِ JS */
+    /* هنگام باز بودن مودال، نویگیشن پایین را مخفی کن (هم مسیر JS، هم fallbackِ :target) */
+    body:has(#report-modal:target) .bottom-nav,
+    body.report-open .bottom-nav{display:none;}
     .report-modal__backdrop{position:absolute;inset:0;background:rgba(22,24,26,0.5);backdrop-filter:blur(2px);}
     .report-modal__panel{
         position:absolute;left:50%;bottom:0;transform:translateX(-50%);
@@ -110,6 +113,7 @@
         border-radius:22px 22px 0 0;padding:1.4rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));
         box-shadow:0 -18px 48px -20px rgba(40,60,50,0.4);
         animation:report-slide-up .22s ease;
+        max-height:90dvh;overflow-y:auto;
     }
     @keyframes report-slide-up{from{transform:translate(-50%,100%);}to{transform:translate(-50%,0);}}
     .report-modal__head{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.8rem;}
@@ -136,11 +140,13 @@
 
     function openModal() {
         modal.classList.add('is-open');
+        document.body.classList.add('report-open');
         var amount = document.getElementById('report-amount');
         if (amount) setTimeout(function () { amount.focus(); }, 50);
     }
     function closeModal() {
         modal.classList.remove('is-open');
+        document.body.classList.remove('report-open');
         // اگر hash باقی مانده (مثلاً از fallback)، پاک کن تا :target دوباره باز نکند
         if (location.hash === '#report-modal') {
             history.replaceState(null, '', location.pathname + location.search);
