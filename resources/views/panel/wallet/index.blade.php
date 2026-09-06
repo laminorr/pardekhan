@@ -91,8 +91,8 @@
             </div>
 
             <div style="display:flex;gap:0.6rem;margin-top:0.4rem;">
-                <button type="submit" class="btn btn-primary" id="report-submit" style="flex:1;">ارسال</button>
-                <a href="#charge-box" class="btn btn-ghost" data-close-report style="flex:0 0 auto;padding-inline:1.2rem;">انصراف</a>
+                <button type="submit" class="btn btn-primary" id="report-submit" style="flex:1;min-width:0;">ارسال</button>
+                <a href="#charge-box" class="btn btn-ghost" data-close-report style="flex:1;min-width:0;">انصراف</a>
             </div>
         </form>
     </div>
@@ -113,7 +113,7 @@
         border-radius:22px 22px 0 0;padding:1.4rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));
         box-shadow:0 -18px 48px -20px rgba(40,60,50,0.4);
         animation:report-slide-up .22s ease;
-        max-height:90dvh;overflow-y:auto;
+        max-height:90dvh;overflow:hidden auto;
     }
     @keyframes report-slide-up{from{transform:translate(-50%,100%);}to{transform:translate(-50%,0);}}
     .report-modal__head{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.8rem;}
