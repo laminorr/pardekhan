@@ -319,11 +319,8 @@
 
 {{-- باکس‌های پادکست و فیلم هفته --}}
 @php
-    // فیلمِ هفتهٔ جاری از روی تخصیصِ فعالِ همین هفته (هم‌راستا با صفحهٔ فیلم هفته).
-    $weekStart = (new \App\Services\WeeklyMovie\WeeklyMovieWeekResolver)->currentWeek()['start']->toDateString();
-    $todayFilm = optional(
-        \App\Models\WeeklyMovieAssignment::active()->forWeek($weekStart)->with('film')->first()
-    )->film;
+    // فیلمِ هفتهٔ جاری از سرویسِ متمرکز (با fallbackِ خودکارِ تنبل، هم‌راستا با صفحهٔ فیلم هفته).
+    $todayFilm = optional(app(\App\Services\WeeklyMovie\WeeklyMovieAssigner::class)->currentWeekAssignment())->film;
 @endphp
 <div style="margin-top:1.4rem;display:flex;gap:0.7rem;">
     {{-- پادکست‌زده --}}

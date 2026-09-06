@@ -13,33 +13,11 @@ class FilmController extends Controller
 {
     public function today()
     {
-        // فقط «فیلمِ هفتهٔ جاری» — تخصیصِ فعالِ همین هفته (شنبه→جمعه، تهران).
+        // بازهٔ هفتهٔ جاری (شنبه→جمعه، تهران) برای نمایشِ محدودهٔ تاریخ در ویو.
         $week = (new WeeklyMovieWeekResolver)->currentWeek();
 
-        $assignment = WeeklyMovieAssignment::active()
-            ->forWeek($week['start']->toDateString())
-            ->with('film')
-            ->first();
-
-        // Fallbackِ تنبل (ایمنی برای هاستِ اشتراکی): اگر کرانِ سیستم اجرا نشده
-        // باشد و هنوز تخصیصِ فعالی برای این هفته نباشد، همین‌جا خودکار بساز و
-        // دوباره resolve کن. این مسیر فقط وقتی اجرا می‌شود که هفته خالی باشد و
-        // هرگز نباید صفحه را بشکند — هر خطا بلعیده می‌شود و به حالتِ خالیِ
-        // دوستانه fall through می‌کنیم.
-        if (! $assignment && config('weekly_movie.auto_enabled')) {
-            try {
-                app(WeeklyMovieAssigner::class)->ensureAssignedFor($week['start']);
-            } catch (\Throwable $e) {
-                \Illuminate\Support\Facades\Log::warning(
-                    'فیلم هفته: fallbackِ خودکار شکست خورد: '.$e->getMessage()
-                );
-            }
-
-            $assignment = WeeklyMovieAssignment::active()
-                ->forWeek($week['start']->toDateString())
-                ->with('film')
-                ->first();
-        }
+        // تخصیصِ فعالِ همین هفته — با fallbackِ خودکارِ تنبل، متمرکز در سرویس.
+        $assignment = app(WeeklyMovieAssigner::class)->currentWeekAssignment();
 
         // بدون تخصیص → 404 نده؛ همان ویو با حالتِ خالیِ دوستانه رندر شود.
         $film = $assignment?->film;

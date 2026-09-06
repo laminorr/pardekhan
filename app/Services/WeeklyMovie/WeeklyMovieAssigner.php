@@ -24,6 +24,37 @@ use Illuminate\Support\Facades\Cache;
 class WeeklyMovieAssigner
 {
     /**
+     * تخصیصِ فعالِ هفتهٔ جاری را برمی‌گرداند (film به‌صورتِ eager بارگذاری‌شده).
+     *
+     * اگر هفتهٔ جاری تخصیصِ فعالی نداشته باشد و auto_enabled روشن باشد، همین‌جا
+     * یک تخصیصِ خودکار می‌سازد (fallbackِ تنبل برای هاستِ اشتراکی وقتی کرانِ
+     * سیستم اجرا نشده) و دوباره resolve می‌کند. Idempotent و امن در برابرِ
+     * همزمانی (ensureAssignedFor خودش قفل می‌گیرد) و هرگز به فراخواننده خطا
+     * پرتاب نمی‌کند — هر خطا لاگ و بلعیده می‌شود.
+     */
+    public function currentWeekAssignment(): ?WeeklyMovieAssignment
+    {
+        $week  = (new WeeklyMovieWeekResolver)->currentWeek();
+        $start = $week['start']->toDateString();
+
+        $assignment = WeeklyMovieAssignment::active()->forWeek($start)->with('film')->first();
+
+        if (! $assignment && config('weekly_movie.auto_enabled')) {
+            try {
+                $this->ensureAssignedFor($week['start']);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning(
+                    'فیلم هفته: fallbackِ خودکار شکست خورد: '.$e->getMessage()
+                );
+            }
+
+            $assignment = WeeklyMovieAssignment::active()->forWeek($start)->with('film')->first();
+        }
+
+        return $assignment;
+    }
+
+    /**
      * انتخابِ یک فیلمِ مناسب برای هفته‌ای که با $weekStart مشخص می‌شود.
      *
      * اولویت‌ها:
