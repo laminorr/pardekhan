@@ -139,6 +139,190 @@
     <p class="pk-plant-card__text">درخت تو {{ fa($plantDay) }} روزه که پیش ماست. باهم مراقبش هستیم. {{ $plantMsg }}</p>
 </div>
 
+{{-- یادآوریِ بازخورد: روزِ بعد از دورهمیِ حاضرشده، تا یک هفته --}}
+@php
+    // پنجرهٔ یک‌هفته‌ای (قابل تغییر با یک عدد)
+    $fbDays = 7;
+    // شروعِ امروز به وقت تهران؛ چون starts_at از امروز کوچک‌تر است، کارت «روزِ بعد» ظاهر می‌شود، نه همان روز.
+    $fbTodayStart  = \Carbon\Carbon::now('Asia/Tehran')->startOfDay();
+    $fbWindowStart = \Carbon\Carbon::now('Asia/Tehran')->subDays($fbDays);
+
+    // ثبت‌نام‌های عضو که: حاضر شده + دورهمی گذشته (قبل از امروز) + داخلِ پنجرهٔ هفته
+    // + هنوز بازخورد نداده + کارت را نبسته. (معمولاً ۰ تا ۱ ردیف؛ گاهی چند تا.)
+    $feedbackReminders = \App\Models\Registration::with('event')
+        ->where('member_id', $member->id)
+        ->where('attendance_status', 'attended')
+        ->whereNull('feedback_reminder_dismissed_at')
+        ->whereHas('event', fn ($q) => $q
+            ->where('starts_at', '<', $fbTodayStart)
+            ->where('starts_at', '>=', $fbWindowStart))
+        ->whereNotExists(fn ($q) => $q
+            ->selectRaw('1')
+            ->from('feedbacks')
+            ->whereColumn('feedbacks.event_id', 'registrations.event_id')
+            ->where('feedbacks.member_id', $member->id))
+        ->get()
+        ->sortByDesc(fn ($r) => $r->event->starts_at);
+@endphp
+@if($feedbackReminders->isNotEmpty())
+<div class="pk-fbr-wrap">
+    @foreach($feedbackReminders as $reminder)
+        @php
+            $fbrEvent = $reminder->event;
+            // فاصلهٔ روزها تا امروز (قدرمطلق)؛ ۱ = دیروز.
+            $fbrDays = (int) abs($fbTodayStart->diffInDays($fbrEvent->starts_at->copy()->startOfDay()));
+            $fbrWhen = $fbrDays <= 1 ? 'دیروز' : 'چند روز پیش';
+        @endphp
+        <div class="pk-fbr" data-fbr>
+            <span class="pk-fbr__bar" aria-hidden="true"></span>
+
+            {{-- × بستن: fetch با fallbackِ فرمِ عادی --}}
+            <form method="POST" action="{{ route('panel.feedback.dismiss', $fbrEvent) }}" class="pk-fbr__dismiss" data-fbr-dismiss>
+                @csrf
+                <button type="submit" class="pk-fbr__x" aria-label="بستنِ یادآوری">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                </button>
+            </form>
+
+            <div class="pk-fbr__body">
+                <span class="pk-fbr__spark" aria-hidden="true">✦</span>
+                <div class="pk-fbr__text">
+                    <div class="pk-fbr__title">{{ $fbrWhen }} در دورهمیِ «{{ $fbrEvent->title }}» بودی</div>
+                    <div class="pk-fbr__sub">بازخوردت برامون ارزشمنده — کوتاه بنویس</div>
+                </div>
+            </div>
+
+            <a href="{{ route('panel.feedback.create', $fbrEvent) }}" class="pk-fbr__cta">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+                بازخوردت را بنویس
+            </a>
+        </div>
+    @endforeach
+</div>
+
+@push('styles')
+<style>
+    .pk-fbr-wrap { margin: 0 0 1.1rem; display: flex; flex-direction: column; gap: 0.7rem; }
+
+    /* کارتِ دعوت — گرم و متمایز از باکس‌های سبز/نارنجیِ گرادیانی */
+    .pk-fbr {
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(180deg, #fcf8f1, #fbf6ec);
+        border: 1px solid #efe6d5;
+        border-radius: 18px;
+        padding: 1rem 1.1rem 1.05rem 1rem;
+        box-shadow: 0 6px 22px -12px rgba(47,93,80,0.28);
+    }
+    /* نوارِ لبهٔ آغازین (سمت راست در RTL) */
+    .pk-fbr__bar {
+        position: absolute;
+        inset-inline-start: 0;
+        top: 0; bottom: 0;
+        width: 4px;
+        background: var(--pine);
+        border-radius: 4px 0 0 4px;
+    }
+
+    .pk-fbr__dismiss { position: absolute; top: 0.5rem; inset-inline-end: 0.5rem; margin: 0; line-height: 0; }
+    .pk-fbr__x {
+        width: 28px; height: 28px; border-radius: 9px;
+        display: flex; align-items: center; justify-content: center;
+        background: transparent; border: 0; cursor: pointer;
+        color: var(--ink-faint);
+        transition: background 0.18s, color 0.18s;
+    }
+    .pk-fbr__x:hover { background: rgba(47,93,80,0.07); color: var(--ink-dim); }
+    .pk-fbr__x:focus-visible { outline: 2px solid var(--pine); outline-offset: 2px; }
+
+    .pk-fbr__body { display: flex; align-items: flex-start; gap: 0.6rem; padding-inline-end: 1.8rem; }
+    .pk-fbr__spark {
+        flex-shrink: 0;
+        font-size: 1.1rem; line-height: 1.4;
+        color: var(--pine);
+    }
+    .pk-fbr__text { min-width: 0; }
+    .pk-fbr__title {
+        font-size: 0.95rem; font-weight: 800; color: var(--ink);
+        line-height: 1.6; letter-spacing: -0.01em;
+    }
+    .pk-fbr__sub {
+        font-size: 0.76rem; color: var(--ink-dim);
+        margin-top: 3px; line-height: 1.6;
+    }
+
+    .pk-fbr__cta {
+        display: inline-flex; align-items: center; gap: 6px;
+        margin-top: 0.85rem;
+        background: var(--pine); color: #fff;
+        font-size: 0.82rem; font-weight: 700;
+        padding: 0.55rem 1rem; border-radius: 12px;
+        text-decoration: none;
+        box-shadow: 0 8px 18px -8px rgba(47,93,80,0.5);
+        transition: transform 0.18s, box-shadow 0.18s;
+    }
+    .pk-fbr__cta:hover { box-shadow: 0 10px 22px -8px rgba(47,93,80,0.6); }
+    .pk-fbr__cta:active { transform: scale(0.97); }
+    .pk-fbr__cta:focus-visible { outline: 2px solid var(--pine); outline-offset: 3px; }
+
+    /* محوشدنِ نرم هنگام بستن */
+    .pk-fbr { transition: opacity 0.3s ease, transform 0.3s ease, margin 0.3s ease, max-height 0.3s ease; }
+    .pk-fbr.is-dismissed { opacity: 0; transform: translateY(-6px); }
+
+    @media (prefers-reduced-motion: reduce) {
+        .pk-fbr, .pk-fbr__cta, .pk-fbr__x { transition: none; }
+        .pk-fbr.is-dismissed { transform: none; }
+    }
+</style>
+@endpush
+
+@push('scripts')
+<script>
+(function () {
+    document.querySelectorAll('[data-fbr-dismiss]').forEach(function (form) {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            var card = form.closest('[data-fbr]');
+            var token = form.querySelector('input[name="_token"]');
+            var body = new URLSearchParams();
+            body.append('_token', token ? token.value : '');
+
+            fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: body.toString(),
+                credentials: 'same-origin'
+            }).then(function (r) {
+                if (!r.ok) throw new Error('bad status');
+                return r.json();
+            }).then(function (data) {
+                if (data && data.ok) { fadeOut(card); }
+                else { throw new Error('not ok'); }
+            }).catch(function () {
+                // خطای شبکه/AJAX → ارسالِ عادیِ فرم (POST + redirect)
+                form.submit();
+            });
+        });
+    });
+
+    function fadeOut(card) {
+        if (!card) return;
+        card.classList.add('is-dismissed');
+        setTimeout(function () {
+            card.remove();
+            var wrap = document.querySelector('.pk-fbr-wrap');
+            if (wrap && !wrap.querySelector('.pk-fbr')) wrap.remove();
+        }, 320);
+    }
+})();
+</script>
+@endpush
+@endif
+
 @push('styles')
 <style>
     .bell-btn {

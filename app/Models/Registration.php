@@ -12,7 +12,10 @@ class Registration extends Model
 
     protected function casts(): array
     {
-        return ['registered_at' => 'datetime'];
+        return [
+            'registered_at'                  => 'datetime',
+            'feedback_reminder_dismissed_at' => 'datetime',
+        ];
     }
 
     public function event(): BelongsTo

@@ -399,6 +399,7 @@ Route::prefix('panel')->name('panel.')->middleware([AuthenticateMember::class])-
         Route::get('/my-events', [EventController::class, 'myEvents'])->name('events.my');
         Route::get('/events/{event}/feedback', [FeedbackController::class, 'create'])->name('feedback.create');
         Route::post('/events/{event}/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
+        Route::post('/events/{event}/feedback/dismiss', [FeedbackController::class, 'dismissReminder'])->name('feedback.dismiss');
         Route::get('/tickets', [TicketController::class, 'index'])->name('tickets.index');
         Route::get('/podcast', [\App\Http\Controllers\Panel\PodcastController::class, 'index'])->name('podcast');
         Route::get('/podcast/{slug}', [\App\Http\Controllers\Panel\PodcastController::class, 'show'])->name('podcast.show')->where('slug', 'uncertainty|hegemony');

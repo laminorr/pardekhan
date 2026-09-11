@@ -81,4 +81,26 @@ class FeedbackController extends Controller
 
         return redirect()->route('panel.events.my')->with('success', 'بازخورد شما ثبت شد. متشکریم!');
     }
+
+    // بستنِ کارتِ یادآوریِ بازخورد در داشبورد (× زدن) — دائمی برای همین دورهمی/عضو
+    public function dismissReminder(Request $request, Event $event)
+    {
+        $member = auth('member')->user();
+
+        $registration = $event->registrations()
+            ->where('member_id', $member->id)
+            ->where('attendance_status', 'attended')
+            ->first();
+
+        if ($registration) {
+            $registration->feedback_reminder_dismissed_at = now();
+            $registration->save();
+        }
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json(['ok' => true]);
+        }
+
+        return redirect()->route('panel.dashboard');
+    }
 }
