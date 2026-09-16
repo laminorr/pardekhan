@@ -3,6 +3,8 @@
 
 @push('styles')
 <style>
+    /* بنر نصب PWA در این صفحه زیر هدر ثابت پنهان می‌ماند ولی فضای بالای صفحه را اشغال می‌کند؛ فقط اینجا مخفی‌اش می‌کنیم تا فاصلهٔ خالی زیر هدر حذف شود */
+    .pwa-install { display: none !important; }
     /* هدر جمع‌شونده هنگام اسکرول — تصویر از ۲۶۰ به ~۱۹۵ کوچک می‌شود و بالا می‌چسبد */
     .ev-hero { position:fixed; top:0; left:50%; transform:translateX(-50%); width:100%; max-width:430px; height:260px; z-index:40; overflow:hidden; background:linear-gradient(135deg,#dfe7e3,#cfdbd5); display:flex; align-items:center; justify-content:center; will-change:height; }
     .ev-hero-img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transform:scale(1.04); will-change:filter; }
