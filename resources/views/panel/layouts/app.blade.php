@@ -205,12 +205,12 @@
             display: none;
             align-items: center;
             gap: 0.7rem;
-            margin: 0 1.2rem 0.6rem;
+            margin: 1rem 1.2rem 1rem;
             padding: 0.8rem 0.9rem;
-            background: var(--pine);
+            background: #232a28;
             color: #fff;
             border-radius: 16px;
-            box-shadow: 0 8px 22px rgba(47, 93, 80, 0.28);
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.28);
         }
         .pwa-install.show { display: flex; }
         .pwa-install .pwa-ico {
