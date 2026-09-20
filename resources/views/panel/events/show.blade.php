@@ -185,7 +185,7 @@
                 <div style="width:34px;height:34px;border-radius:50%;background:var(--pine);border:2.5px solid var(--bg);margin-right:-10px;display:flex;align-items:center;justify-content:center;font-size:0.66rem;color:#fff;font-weight:700;">{{ fa($attendeeAvatars->count() - 4) }}+</div>
             @endif
         </div>
-        <span style="font-size:0.76rem;color:var(--ink-dim);">{{ fa($attendeeAvatars->count()) }} نفر ثبت‌نام کرده‌اند</span>
+        <span style="font-size:0.76rem;color:var(--ink-dim);">{{ fa($event->confirmedCount()) }} نفر ثبت‌نام کرده‌اند</span>
     </div>
     @endif
 
