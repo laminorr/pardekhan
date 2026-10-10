@@ -13,6 +13,7 @@ use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
@@ -26,6 +27,32 @@ class MemberResource extends Resource
     protected static string|\UnitEnum|null $navigationGroup = 'باشگاه اعضا';
     protected static ?int $navigationSort = 1;
 
+    public static function getNavigationBadge(): ?string
+    {
+        $count = Member::where('status', 'pending_review')->count();
+        return $count > 0 ? (string) $count : null;
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return Member::where('status', 'pending_review')->count() > 0 ? 'warning' : null;
+    }
+
+    public static function getNavigationBadgeTooltip(): ?string
+    {
+        $new    = Member::where('status', 'pending_review')->count();
+        $photos = Member::whereNotNull('avatar')->where('avatar_approved', false)->count();
+
+        $parts = [];
+        if ($new) {
+            $parts[] = $new . ' عضو جدید';
+        }
+        if ($photos) {
+            $parts[] = $photos . ' عکس در انتظار تأیید';
+        }
+
+        return $parts ? implode(' · ', $parts) : null;
+    }
 
     public static function canViewAny(): bool
     {
@@ -137,6 +164,17 @@ class MemberResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\ImageColumn::make('avatar')
+                    ->label('عکس')
+                    ->circular()
+                    ->disk('public')
+                    ->visibility('public'),
+                Tables\Columns\IconColumn::make('avatar_pending')
+                    ->label('')
+                    ->state(fn ($record) => (bool) ($record->avatar && ! $record->avatar_approved))
+                    ->icon(fn ($state) => $state ? 'heroicon-o-clock' : null)
+                    ->color('warning')
+                    ->tooltip(fn ($state) => $state ? 'عکس در انتظار تأیید' : null),
                 Tables\Columns\TextColumn::make('first_name')
                     ->label('نام')
                     ->searchable()
@@ -192,6 +230,9 @@ class MemberResource extends Resource
                 SelectFilter::make('layer_id')
                     ->label('لایه')
                     ->options(Layer::active()->pluck('name', 'id')),
+                Filter::make('avatar_pending')
+                    ->label('عکس در انتظار تأیید')
+                    ->query(fn ($query) => $query->whereNotNull('avatar')->where('avatar_approved', false)),
             ])
             ->actions([
                 \Filament\Actions\EditAction::make()->label('ویرایش'),
