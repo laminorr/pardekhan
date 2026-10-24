@@ -89,6 +89,13 @@ class Event extends Model
             && ! $this->isFull();
     }
 
+    // «برگزار شد»: وضعیت completed یا گذشتن زمان شروع (حتی اگر زمان‌بند هنوز وضعیت را به‌روز نکرده باشد). لغوشده جداست.
+    public function hasEnded(): bool
+    {
+        if ($this->status === 'cancelled') return false;
+        return $this->status === 'completed' || $this->starts_at->isPast();
+    }
+
     // تخفیف یک لایه برای این رویداد
     public function discountForLayer(?Layer $layer): int
     {

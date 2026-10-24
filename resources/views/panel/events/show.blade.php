@@ -84,6 +84,9 @@
             <span style="display:inline-block;background:var(--green-soft);color:var(--pine);font-size:0.7rem;font-weight:700;padding:6px 13px;border-radius:20px;">قیمت ویژهٔ لایهٔ شما</span>
         @endif
     @endif
+    @if($event->hasEnded())
+        <span style="display:inline-block;background:var(--bg-mute);color:var(--ink-mid);font-size:0.7rem;font-weight:700;padding:6px 13px;border-radius:20px;">برگزار شد</span>
+    @endif
 
     <div style="font-size:1.6rem;font-weight:800;line-height:1.25;margin-top:0.8rem;letter-spacing:-0.5px;">{{ $event->title }}</div>
     @if($event->subtitle)
@@ -196,20 +199,34 @@
 {{-- نوار قیمت ثابت پایین --}}
 <div class="ev-paybar">
     <div>
-        @if($price < $event->base_price)
-            <div style="font-size:0.68rem;color:var(--ink-faint);text-decoration:line-through;">{{ fa(number_format($event->base_price)) }}</div>
-        @endif
-        <div>
-            @if($price === 0)
-                <span style="font-size:1.2rem;font-weight:800;letter-spacing:-0.3px;color:var(--pine);">برای شما رایگان شد</span>
-            @else
-                <span style="font-size:1.4rem;font-weight:800;letter-spacing:-0.5px;color:var(--pine);">{{ fa(number_format($price)) }}</span>
-                <span style="font-size:0.7rem;color:var(--ink-dim);margin-right:4px;">تومان</span>
+        @if($event->hasEnded())
+            <span style="font-size:0.95rem;font-weight:700;color:var(--ink-mid);">این دورهمی برگزار شد</span>
+        @else
+            @if($price < $event->base_price)
+                <div style="font-size:0.68rem;color:var(--ink-faint);text-decoration:line-through;">{{ fa(number_format($event->base_price)) }}</div>
             @endif
-        </div>
+            <div>
+                @if($price === 0)
+                    <span style="font-size:1.2rem;font-weight:800;letter-spacing:-0.3px;color:var(--pine);">برای شما رایگان شد</span>
+                @else
+                    <span style="font-size:1.4rem;font-weight:800;letter-spacing:-0.5px;color:var(--pine);">{{ fa(number_format($price)) }}</span>
+                    <span style="font-size:0.7rem;color:var(--ink-dim);margin-right:4px;">تومان</span>
+                @endif
+            </div>
+        @endif
     </div>
 
-    @if($isRegistered)
+    @if($event->hasEnded())
+        @if($isRegistered)
+            {{-- ثبت‌نام کرده بود: فقط مشاهدهٔ بلیت، بدون انصراف --}}
+            <a href="{{ route('panel.tickets.index') }}" class="btn btn-primary" style="width:auto;padding:0.85rem 1.6rem;">مشاهدهٔ بلیت</a>
+        @else
+            <span style="display:flex;align-items:center;gap:7px;font-size:0.82rem;color:var(--ink-mid);font-weight:700;background:var(--bg-mute);padding:0.85rem 1.4rem;border-radius:14px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--pine)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                برگزار شد
+            </span>
+        @endif
+    @elseif($isRegistered)
         <div style="display:flex;align-items:center;gap:0.6rem;">
             <form method="POST" action="{{ route('panel.events.cancel', $event) }}" onsubmit="return confirm('آیا از انصراف مطمئن هستید؟');" style="display:flex;">
                 @csrf

@@ -27,8 +27,9 @@
             $isSpecial = $event->layers->isNotEmpty();
             $price = $event->priceForMember($member);
             $regOpen = $event->isRegistrationOpen();
+            $ended = $event->hasEnded();
         @endphp
-        <a href="{{ route('panel.events.show', $event) }}" style="display:block;text-decoration:none;color:inherit;border:1px solid var(--border);border-radius:22px;overflow:hidden;background:#fff;box-shadow:0 20px 40px -36px rgba(47,93,80,0.5);">
+        <a href="{{ route('panel.events.show', $event) }}" style="display:block;text-decoration:none;color:inherit;border:1px solid var(--border);border-radius:22px;overflow:hidden;background:#fff;box-shadow:0 20px 40px -36px rgba(47,93,80,0.5);{{ $ended ? 'opacity:0.82;' : '' }}">
             {{-- تصویر --}}
             <div style="height:120px;position:relative;background:linear-gradient(135deg,#eaefec,#dde6e1);display:flex;align-items:center;justify-content:center;">
                 @if($event->image)
@@ -51,7 +52,9 @@
                 </div>
                 {{-- قیمت --}}
                 <div style="display:flex;align-items:baseline;gap:0.5rem;margin-top:0.6rem;">
-                    @if($price === 0)
+                    @if($ended)
+                        <span style="font-size:0.82rem;font-weight:700;color:var(--ink-faint);">—</span>
+                    @elseif($price === 0)
                         @if($event->base_price > 0)
                             <span style="font-size:0.7rem;color:var(--ink-faint);text-decoration:line-through;">{{ fa(number_format($event->base_price)) }}</span>
                         @endif
@@ -64,7 +67,13 @@
                     @endif
                 </div>
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-top:0.75rem;">
-                    @if($regOpen)
+                    @if($ended)
+                        <span style="font-size:0.72rem;color:var(--ink-faint);">{{ pdate($event->starts_at, 'j F') }}</span>
+                        <span style="display:inline-flex;align-items:center;gap:5px;font-size:0.74rem;font-weight:700;color:var(--ink-mid);background:var(--bg-mute);padding:6px 13px;border-radius:14px;">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                            برگزار شد
+                        </span>
+                    @elseif($regOpen)
                         @if($remaining <= 5)
                             <span style="display:inline-flex;align-items:center;gap:6px;font-size:0.72rem;color:var(--burnt);font-weight:700;">
                                 <span style="width:7px;height:7px;border-radius:50%;background:var(--burnt);"></span>{{ fa($remaining) }} جای باقی‌مانده
