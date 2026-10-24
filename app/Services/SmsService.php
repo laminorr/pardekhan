@@ -106,7 +106,7 @@ class SmsService
     /**
      * پردازش یک دسته از صف (توسط Cron صدا زده می‌شود)
      */
-    public function processBatch(int $limit = 50): int
+    public function processBatch(int $limit = 20): int
     {
         $items = \App\Models\SmsQueue::where('status', 'pending')
             ->where('attempts', '<', 3)
@@ -127,6 +127,8 @@ class SmsService
                     'status'   => $attempts >= 3 ? 'failed' : 'pending',
                 ]);
             }
+
+            usleep(350000);
         }
 
         return $sent;
